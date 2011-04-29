@@ -1,0 +1,3 @@
+#do not track autosave files such as *.m~ (emacs) or *.asv (Matlab editor)
+*~
+*.asv

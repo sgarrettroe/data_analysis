@@ -1,0 +1,6 @@
+Matlab tools for data analysis of 2D and 3D-IR spectra
+
+Files include loading data into data structures, applying FFTs, adding rephasing and 
+non-rephasing spectra to get purely absorptive spectra, and plotting the results. See 
+the help for more details.
+
