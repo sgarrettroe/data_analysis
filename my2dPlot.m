@@ -56,10 +56,10 @@ map=myMapRGB2(n_contours);
 % but only plots a fraction of it (the number between 0 and 1. If zlimit is
 % large than 1, it will use that value.
 if zlimit <= 0 
-  [ca,level_list]=myCaxis2(z,n_contours);
+  [ca, level_list]= myCaxis2(z, n_contours);
   ca 
 elseif zlimit > 0 && zlimit <= 1
-  [ca,level_list]=myCaxis2(z,n_contours);
+  [ca, level_list] = myCaxis2(z, n_contours);
   ca = ca * zlimit
   level_list = level_list * zlimit;
 else
