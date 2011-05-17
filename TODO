@@ -1,0 +1,4 @@
+LISTS WITH THINGS WE HAVE/SHOULD/WANT TO DO
+
+WANT
+- (rb, 02/05/2011) For myPlot2d.m, add a way so that we can set the minimim/maximum of the z-axis ourselves, instead of letting Matlab decide it based on the min/max in the spectrum

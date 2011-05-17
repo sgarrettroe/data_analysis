@@ -3,14 +3,22 @@ function varargout=my2dPlot(x,y,z,varargin)
 %returning handles to the individual axes that make the plot
 %function varargout=my2dPlot(x,y,z,['opt',val])
 %
+%RB, 03052011: introduced variable zlimit, which changes the range over 
+%which the contours are drawn. zlimit <= 0 is default and uses the data, 
+%zlimit > 0 and <= 1 will plot a ratio, zlimit > 0 limits the contours to 
+%the range specified.
+%
 %fix contour levels and colors
 
 n_contours = 12;
 flag_pumpprobe = true;
+zlimit = 0;
 while length(varargin)>=2
   arg = varargin{1};
   val = varargin{2};
   switch lower(arg)
+    case 'zlimit'
+      zlimit = val;  
     case 'n_contours'
       n_contours = val;
       if mod(n_contours,2)
@@ -42,7 +50,24 @@ map=myMapRGB2(n_contours);
 %MAX = max(abs(z(:)));
 %level_list = linspace(-MAX,MAX,n_contours+2);
 
-[ca,level_list]=myCaxis2(z,n_contours);
+% zlimit determines what is what the range is that is covered by the
+% contours. If limit <= 0, the data is used to determine it (old behaviour
+% and default). If zlimit is between 0 and 1, it will use the data as well,
+% but only plots a fraction of it (the number between 0 and 1. If zlimit is
+% large than 1, it will use that value.
+if zlimit <= 0 
+  [ca, level_list]= myCaxis2(z, n_contours);
+  ca 
+elseif zlimit > 0 && zlimit <= 1
+  [ca, level_list] = myCaxis2(z, n_contours);
+  ca = ca * zlimit
+  level_list = level_list * zlimit;
+else
+  ca = [-zlimit zlimit]
+  level_list = linspace(-zlimit, zlimit, n_contours+2);
+end
+  
+  
 contourf(x,y,z,level_list);
 colormap(map)
 caxis(ca);
