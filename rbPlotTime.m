@@ -39,5 +39,5 @@ if pixel == 0
   x = linspace(0, shape(1), shape(1));
   y = linspace(1, shape(2), shape(2));
   
-  my2dPlot(x,y, transpose(data),'n_contours', 12)
+  my2dPlot(x, y, transpose(data),'n_contours', 12)
 end
