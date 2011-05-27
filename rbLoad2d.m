@@ -1,15 +1,36 @@
 function s = rbLoad2d(basename, pop_time, time_stamp, varargin)
+% rbLoad2d
+% rb, 20110527: wrote function
+%
+% For data measured before May 2011, use the load2d function instead.
+%
+% input: 
+% - basename: the name given in the 2d-mess program
+% - pop_time: the population time (T2)
+% - time_stamp: the time the measurement started
+% these three variables are needed to construct the folder and filename
+% - scans (opt): default is [0]: import the averaged scan. [n] (where n >
+% 0) will import a single specific scan. [n, m, ...] will import multiple
+% scans. If noise_flag = true, it will weigh the scans depending on the
+% noise
+% - noise: will set the noise flag. Default is false. If set to true and
+% only 1 scan is imported, it will just import the noise. If multiple scans
+% are imported it will weigh the scans based on the noise.
+% - meta: will read the metadata. 
 
 s = construct2d;
 if nargin == 0
   return
 end
 
-% which scans are imported [0]: averaged, [n]: one scan, [n..m]: more scans
+% which scans are imported [0]: averaged, [n]: one scan, [n:m] or [n, m, ..]: more scans
 scans = [0];
 % take noise weighted average
 noise_flag = false;
+% import metadata
+meta_flag = true;
 
+% read arguments
 while length(varargin)>=2
   arg = varargin{1};
   val = varargin{2};
@@ -18,7 +39,8 @@ while length(varargin)>=2
       scans = val;
     case 'noise'
       noise_flag = val;
-
+    case 'meta'
+      meta_flag = val;
     otherwise
       error(['rbLoad2d: unknown option ',arg])
   end
@@ -26,12 +48,12 @@ while length(varargin)>=2
 end
 
 
-
 % fill construct with info
 s.basename = basename;
 s.t2 = pop_time;
 s.time_stamp = time_stamp;
 
+% construct the base for the name
 folder = [basename, '_', num2str(s.time_stamp), '_T', num2str(s.t2), '/'];
 filebase = [basename, '_', num2str(s.time_stamp), '_T', num2str(s.t2)];
 
@@ -51,8 +73,8 @@ if length(scans) == 1
     file_R = [filebase, '_R_', num2str(scans(1)), '.dat'];
     file_NR = [filebase, '_NR_', num2str(scans(1)), '.dat'];
     if noise_flag == true
-      file_R_noise = [filebase, '_R_', num2str(scans(1)), '_noise.dat'];
-      file_NR_noise = [filebase, '_NR_', num2str(scans(1)), '_noise.dat'];
+      file_R_noise = [filebase, '_R_', num2str(scans(1)), '_noise_.dat'];
+      file_NR_noise = [filebase, '_NR_', num2str(scans(1)), '_noise_.dat'];
     end
   end
     
@@ -79,7 +101,6 @@ if length(scans) == 1
     s.R2_noise = temp(2:end,2:end);  
   end
   
-
 % import multiple individual scans
 else
 
@@ -147,9 +168,7 @@ else
         s.R2_noise = temp_noise(2:end,2:end);
       end  
     end
-    
-    disp(mean(mean(temp_noise(2:end,2:end))))
-    
+        
     % multiply the measurement with the noise (or the ones)
     if size(s.R2) == size(temp(2:end,2:end))
       s.R2 = s.R2 + temp(2:end,2:end) ./ mean(mean(temp_noise(2:end,2:end)));
@@ -165,8 +184,18 @@ else
     s.R1_noise = s.R1_noise/length(scans);
     s.R2_noise = s.R2_noise/length(scans);
   end
-  
+
+% end of importing multiple scans 
 end
+
+%disp(s)
+
+if meta_flag 
+  file_meta = [folder, filebase, '_meta.txt'];
+  s = rbLoadMetadata(s, file_meta);
+end 
+
+%disp(s)
 
 
 

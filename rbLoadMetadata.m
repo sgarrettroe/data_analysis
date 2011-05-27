@@ -1,4 +1,4 @@
-function s = rbLoadMetadata(filename) %basename, timestamp, pop_time, varargin)
+function s = rbLoadMetadata(s, filename) %basename, timestamp, pop_time, varargin)
 
 
 phase_d = 0;
@@ -6,7 +6,7 @@ n_shots = 0;
 n_scans = 0;
 
 % open the file
-fid = fopen(filename);
+fid = fopen(filename, 'r', 'ieee-le.l64', 'windows-932');
 
 tline = fgetl(fid);
 
@@ -27,7 +27,9 @@ if strcmp(tline, 'mess2Dheterodyne_meta_format 1.1')
       [temp, token] = strtok(tline, ' ');
       [token, temp] = strtok(token, ' ');
       %fprintf(1, 'Scan: %s\n', token);
-      n_scan = str2double(token);
+      % it prints the start time of the scan, but the last scan is
+      % aboprted.
+      s.n_scan = str2double(token)-1;
     end
     
     
@@ -36,20 +38,16 @@ if strcmp(tline, 'mess2Dheterodyne_meta_format 1.1')
       [temp, token] = strtok(tline, ' ');
       [token, temp] = strtok(token, ' ');
       %fprintf(1, 'Shots: %s\n', token);
-      n_shots = str2double(token);
+      s.n_shots = str2double(token);
     end
 
     
   end  
   
-  fprintf(1, 'Phase: %.0f\nScans: %.0f\nShots: %.0f\n', phase_d, n_scan, n_shots)
+  %fprintf(1, 'Phase: %.0f\nScans: %.0f\nShots: %.0f\n', phase_d, s.n_scan, s.n_shots)
   
   
 end
-
-
-
-
 
 
 fclose(fid);
