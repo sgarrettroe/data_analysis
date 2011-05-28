@@ -1,4 +1,32 @@
-function varargout = rb2dPlot(s, varargin)
+function varargout = rb2dPlot(varargin)
+% rb2dPlot
+%
+% 20110528, RB: started the function
+%
+% INPUT:
+% either: a struct, it will plot the 2D spectrum
+% or: x_axis, y_axis, data, it will plot this
+% the x_axis and y_axis should correspond to the size of the matrix
+% CONTRARY TO my2dPlot THESE ARE THE WHOLE AXIS, NOT THE PART YOU WANT TO
+% PLOT!!! 
+%
+% other INPUT: 
+% - xlim, ylim (opt): the limits for the x and y axes. [0 0] means
+% the whole range will be plotted, [0 -1] means that the other axis will be
+% used for the range and [n m] means that range will be plotted. In case of
+% errors (out of range etc) it will fall back to plot everything. Default
+% is xlim = [0 0] and ylim = [0 -1]. 
+% - zlimit (opt), number: will change the intensity range. 0 means
+% everything is plotted (default). 0 < zlimit <= 1 will plot a range.
+% zlimit > 1 will plot an absolute value. The zlimit is always symmetric
+% around 0. 
+% - n_contours (opt), number: the amount of contours. Using an odd number will give a
+% warning. Default is 12.
+% - pumprobe (opt), BOOL: changes the axes. Default is FALSE.
+% - title (opt), string: a title will be given to the plot.
+%
+
+
 
 % set variables
 n_contours = 12;
@@ -7,6 +35,21 @@ flag_pumpprobe = false;
 xlim = [0 0];
 ylim = [0 -1];
 title_string = '';
+
+disp(varargin)
+
+% read varargin (part I)
+if isa(varargin{1}, 'struct')
+  x_axis = varargin{1}.w3;
+  y_axis = varargin{1}.w1;
+  data = varargin{1}.R;
+  varargin = varargin(2:end);
+else
+  x_axis = varargin{1};
+  y_axis = varargin{2};
+  data = varargin{3};
+  varargin = varargin(4:end);
+end
 
 % read varargin
 while length(varargin) >= 2
@@ -32,42 +75,47 @@ while length(varargin) >= 2
   varargin = varargin(3:end);
 end
 
+% error checking
+if mod(n_contours,2)
+  warning('my2dPlot4: Odd number of contour lines may produce unexpected results!')
+end
+
 % determine the x and y axes
 if xlim == [0 0]
-  xrange = find(s.w3);
+  xrange = find(x_axis);
   if ylim == [0 0]
-    yrange = find(s.w1);
+    yrange = find(y_axis);
   elseif ylim == [0 -1]
-    yrange = find(s.w1 >= s.w3(1) & s.w1 <= s.w3(end));
+    yrange = find(y_axis >= x_axis(1) & y_axis <= x_axis(end));
   else 
-    yrange = find(s.w1 >= ylim(1) & s.w1 <= ylim(end));
+    yrange = find(y_axis >= ylim(1) & y_axis <= ylim(end));
   end
 elseif xlim == [0 -1]
   if ylim == [0 0]
-    yrange = find(s.w1);
-    xrange = find(s.w3 >= s.w1(1) & s.w3 <= s.w1(end));
+    yrange = find(y_axis);
+    xrange = find(x_axis >= y_axis(1) & x_axis <= y_axis(end));
   elseif ylim == [0 -1]
-    yrange = find(s.w1);
-    xrange = find(s.w3);
+    yrange = find(y_axis);
+    xrange = find(x_axis);
   else 
-    yrange = find(s.w1 >= ylim(1) & s.w1 <= ylim(end));
-    xrange = find(s.w3 >= s.w1(1) & s.w3 <= s.w1(end));
+    yrange = find(y_axis >= ylim(1) & y_axis <= ylim(end));
+    xrange = find(x_axis >= y_axis(1) & x_axis <= y_axis(end));
   end 
 else
-  xrange = find(s.w3 >= xlim(1) & s.w3 <= xlim(end));
+  xrange = find(x_axis >= xlim(1) & x_axis <= xlim(end));
   if ylim == [0 0]
-    yrange = find(s.w1);
+    yrange = find(y_axis);
   elseif ylim == [0 -1]
-    yrange = find(s.w1 >= xlim(1) & s.w1 <= xlim(end));
+    yrange = find(y_axis >= xlim(1) & y_axis <= xlim(end));
   else 
-    yrange = find(s.w1 >= ylim(1) & s.w1 <= ylim(end));
+    yrange = find(y_axis >= ylim(1) & y_axis <= ylim(end));
   end 
 end
   
 % set the x, y, and z
-x = s.w3(xrange);
-y = s.w1(yrange);
-z = s.R(yrange,xrange);
+x = x_axis(xrange);
+y = y_axis(yrange);
+z = data(yrange,xrange);
 
 % load the color scheme
 map = myMapRGB2(n_contours);
@@ -94,6 +142,7 @@ contourf(x, y, z, level_list);
 colormap(map);
 caxis(ca);
 
+% labels for the plot
 if flag_pumpprobe
   x_label = '\omega_{probe} / 2\pic';
   y_label = '\omega_{pump} / 2\pic';

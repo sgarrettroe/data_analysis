@@ -316,7 +316,7 @@ else
       x_label = '\omega_1 / 2\pic';
       y_label = '\omega_3 / 2\pic'; 
     end
-     a = my2dPlot(x,y,z,'n_contours',n_contours,'pumpprobe',flag_pumpprobe);
+    a = my2dPlot(x,y,z,'n_contours',n_contours,'pumpprobe',flag_pumpprobe);
   end %if flag_plot
 
 end
