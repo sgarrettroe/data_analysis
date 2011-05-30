@@ -1,4 +1,5 @@
 function varargout=my2dPlot(x,y,z,varargin)
+
 %my2dPlot should plot contour plots and projections of 2d data
 %returning handles to the individual axes that make the plot
 %function varargout=my2dPlot(x,y,z,['opt',val])
