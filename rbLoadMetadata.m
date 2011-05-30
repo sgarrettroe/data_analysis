@@ -18,33 +18,38 @@ if strcmp(tline, 'mess2Dheterodyne_meta_format 1.1')
       [temp, token] = strtok(tline, ' ');
       [token, temp] = strtok(token, ' ');
       fprintf(1, 'Phase: %s\n', token);
-      %[token idx] = regexp(token, '[0-9]')
-      phase_d = str2num(token);
-      fprintf(1, 'Ph: %f\n\n', phase_d);
+      %phase_d = str2num(token);
+      %fprintf(1, 'Ph: %f\n\n', phase_d);
     end
     
     if strfind(tline, 'Scan')
       [temp, token] = strtok(tline, ' ');
       [token, temp] = strtok(token, ' ');
-      %fprintf(1, 'Scan: %s\n', token);
       % it prints the start time of the scan, but the last scan is
       % aboprted.
       s.n_scan = str2double(token)-1;
     end
-    
-    
-    
+
     if strfind(tline, 'Shots') 
       [temp, token] = strtok(tline, ' ');
       [token, temp] = strtok(token, ' ');
-      %fprintf(1, 'Shots: %s\n', token);
       s.n_shots = str2double(token);
     end
 
+    if strfind(tline, 'T3') 
+      [temp, token] = strtok(tline, ' ');
+      [token, temp] = strtok(token, ' ');
+      s.t3 = str2double(token);
+    end
+    
+    if strfind(tline, 'Comments') 
+      [temp, token] = strtok(tline, ' ');
+      %[token, temp] = strtok(token, ' ');
+      s.comment = token;
+    end
     
   end  
   
-  %fprintf(1, 'Phase: %.0f\nScans: %.0f\nShots: %.0f\n', phase_d, s.n_scan, s.n_shots)
   
   
 end
