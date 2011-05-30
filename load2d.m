@@ -32,16 +32,16 @@ end
 % 1234: used as timestamp (where 1234 is the time)
 type_flag = 0;
 if ~isempty(varargin)
-  disp('has varargin')
+  %disp('has varargin')
   if isequal(class(varargin{1}), 'char')  
-    disp('is char')
+    %disp('is char')
     if strcmpi(varargin{1},'new')
-      disp('is string new')
+      %disp('is string new')
       type_flag = 1;
     end
     varargin = varargin(2:end);
   elseif isequal(class(varargin{1}), 'double')
-    disp('is double')
+    %disp('is double')
     type_flag = 2;
     time_stamp = varargin{1};
     varargin = varargin(2:end);
