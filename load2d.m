@@ -1,4 +1,4 @@
-function s = rbLoad2d(basename, pop_time, varargin)
+function s = load2d(basename, pop_time, varargin)
 % rbLoad2d
 % rb, 20110527: wrote function
 %
@@ -68,7 +68,7 @@ if type_flag == 2
       case 'meta'
         meta_flag = val;
       otherwise
-        error(['rbLoad2d: unknown option ',arg])
+        error(['load2d: unknown option ',arg])
     end
     varargin = varargin(3:end);
   end
