@@ -35,6 +35,9 @@ flag_pumpprobe = false;
 xlim = [0 0];
 ylim = [0 -1];
 title_string = '';
+flag_no_units = false;
+x_label = '\omega_3 / 2\pic';
+y_label = '\omega_1 / 2\pic';
 
 disp(varargin)
 
@@ -69,6 +72,8 @@ while length(varargin) >= 2
       flag_pumpprobe = val;
     case 'title'
       title_string = val;
+    case 'no_units'
+      flag_no_units = val;
     otherwise
       error(['rb2dPlot: unknown option ', arg]);
   end 
@@ -113,8 +118,13 @@ else
 end
   
 % set the x, y, and z
-x = x_axis(xrange);
-y = y_axis(yrange);
+if flag_no_units
+  x = xrange;
+  y = yrange;
+else
+  x = x_axis(xrange);
+  y = y_axis(yrange);
+end
 z = data(yrange,xrange);
 
 % load the color scheme
@@ -146,13 +156,23 @@ caxis(ca);
 if flag_pumpprobe
   x_label = '\omega_{probe} / 2\pic';
   y_label = '\omega_{pump} / 2\pic';
-else
-  x_label = '\omega_1 / 2\pic';
-  y_label = '\omega_3 / 2\pic';
+elseif flag_no_units
+  x_label = 'pixels';
+  y_label = 'FT(time)';
+%else
+%  x_label = '\omega_3 / 2\pic';
+%  y_label = '\omega_1 / 2\pic';
 end
 xlabel(x_label);
 ylabel(y_label);
 title(title_string);
 
+%a(1) = gca;
+%set(a(1), 'Position', 
+
+
+
+%plot([0 0], [3000 3000])
+%line([0 0], [3000 3000])
 
 

@@ -15,11 +15,8 @@ if strcmp(tline, 'mess2Dheterodyne_meta_format 1.1')
     tline = fgetl(fid);
     
     if strfind(tline, 'Phase') 
-      [temp, token] = strtok(tline, ' ');
-      [token, temp] = strtok(token, ' ');
-      fprintf(1, 'Phase: %s\n', token);
-      %phase_d = str2num(token);
-      %fprintf(1, 'Ph: %f\n\n', phase_d);
+      phase = sscanf(tline,'Phase %f?');
+      s.phase = (phase)*pi/180;
     end
     
     if strfind(tline, 'Scan')
