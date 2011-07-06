@@ -1,4 +1,8 @@
-%on a mac, this should be place in  ~/Documents/MATLAB
+%on a mac, this should be placed in  ~/Documents/MATLAB
+%in windows, this should be .../Documents and Settings/MATLAB
+
+%use this for the path to where the data analysis functions are placed
+%addpath ~/Developer/data_analysis
 
 global c c_SI c_cm c_cmfs wavenumbersToInvFs wavenumbersToInvPs ...
   wavenumbersToInvSec invSecToWavenumbers invFsToWavenumbers ...

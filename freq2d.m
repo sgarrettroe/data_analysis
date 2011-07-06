@@ -2,9 +2,15 @@ function s = freq2d(s,varargin)
 %freq2d set up the frequency axis with undersampling etc
 %function s = freq2d(s,[zeropad])
 
+
 flagSpectrometer = true;
 flagFftshift = 'off';
-zeropad = 2*length(s.time);
+
+if isempty(s.zeropad)
+  zeropad = length(s.time);
+else
+  zeropad = s.zeropad;
+end
 
 if nargin==2
   zeropad = varargin{1};
