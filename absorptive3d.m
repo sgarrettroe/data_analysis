@@ -20,7 +20,7 @@ zeropad = n_time; %means no zeropadding
 phase = 0;
 ipix = 16;
 fft_type= 'fft';
-fft_type_list = {'fft','sgrsfft'};
+fft_type_list = {'fft','sgrsfft','ifft','sgrsifft'};
 apodization = 'none';
 apodization_list = {'none','triangular','gaussian'};
 range = [2300 2700];
@@ -66,6 +66,7 @@ if nargin >=8
 end
 
 %error checking of inputs here?
+fft_type = lower(fft_type);
 if ~any(strcmpi(fft_type,fft_type_list)), error(['fft type ',fft_type,' not known in absorptive3d.m']);end
 if ~any(strcmpi(apodization,apodization_list)), error(['apodization type ',apodization,' not known in absorptive3d.m']);end
 s.comment = [s.comment,' fft_type ',fft_type,' apodization ',apodization];
@@ -107,6 +108,20 @@ if flagSpectrometer
         R3(:,:,i) = sgrsfft2(squeeze(s.R3(:,:,i)).*window_fxn,zeropad,zeropad);
         R4(:,:,i) = sgrsfft2(squeeze(s.R4(:,:,i)).*window_fxn,zeropad,zeropad);
       end
+    case 'ifft'
+      for i = 1:n_freq
+        R1(:,:,i) = ifft2(squeeze(s.R1(:,:,i)).*window_fxn,zeropad,zeropad);
+        R2(:,:,i) = ifft2(squeeze(s.R2(:,:,i)).*window_fxn,zeropad,zeropad);
+        R3(:,:,i) = ifft2(squeeze(s.R3(:,:,i)).*window_fxn,zeropad,zeropad);
+        R4(:,:,i) = ifft2(squeeze(s.R4(:,:,i)).*window_fxn,zeropad,zeropad);
+      end
+    case 'sgrsifft'
+      for i = 1:n_freq
+        R1(:,:,i) = sgrsifft2(squeeze(s.R1(:,:,i)).*window_fxn,zeropad,zeropad);
+        R2(:,:,i) = sgrsifft2(squeeze(s.R2(:,:,i)).*window_fxn,zeropad,zeropad);
+        R3(:,:,i) = sgrsifft2(squeeze(s.R3(:,:,i)).*window_fxn,zeropad,zeropad);
+        R4(:,:,i) = sgrsifft2(squeeze(s.R4(:,:,i)).*window_fxn,zeropad,zeropad);
+      end
   end
 
 else %if time domain experiment / simulation
@@ -139,6 +154,16 @@ else %if time domain experiment / simulation
       R2 = sgrsfft3(s.R2.*window_fxn,zeropad);
       R3 = sgrsfft3(s.R3.*window_fxn,zeropad);
       R4 = sgrsfft3(s.R4.*window_fxn,zeropad);
+    case 'ifft'
+      R1 = ifftn(s.R1.*window_fxn,[zeropad,zeropad,zeropad]);
+      R2 = ifftn(s.R2.*window_fxn,[zeropad,zeropad,zeropad]);
+      R3 = ifftn(s.R3.*window_fxn,[zeropad,zeropad,zeropad]);
+      R4 = ifftn(s.R4.*window_fxn,[zeropad,zeropad,zeropad]);
+    case 'sgrsifft'
+      R1 = sgrsifft3(s.R1.*window_fxn,zeropad);
+      R2 = sgrsifft3(s.R2.*window_fxn,zeropad);
+      R3 = sgrsifft3(s.R3.*window_fxn,zeropad);
+      R4 = sgrsifft3(s.R4.*window_fxn,zeropad);
   end
 
 end
@@ -146,7 +171,8 @@ end
 %redo frequency axis if we zeropadded
 s = freq3d(s,'zeropad',zeropad,...
   'spectrometer',flagSpectrometer,...
-  'fftshift',flagFftshift);
+  'fftshift',flagFftshift,...
+  'fft_type',fft_type);
   
 %------------------------------------------------------------------------
 %

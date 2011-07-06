@@ -7,10 +7,13 @@ function s = freq3d(s,varargin)
 %spectrometer = {|true|,false}
 %fftshift = {|'off'|,'on'}
 %zeropad = val
+%direction = {'fft' 'sgrsfft' 'ifft' 'sgrsifft'}
+% fft_type equivalent to 'direction'
 
 flagSpectrometer = true;
 flagFftshift = 'off';
 zeropad = length(s.time);
+fft_type = 'fft';
 
 if nargin==2
   zeropad = varargin{1};
@@ -26,6 +29,8 @@ if nargin>=3
         flagFftshift = val;
       case {'zeropad'}
         zeropad = val;
+      case {'fft_type'}
+        fft_type = val;
       otherwise
         error(['unknown option ',arg])
     end
@@ -49,6 +54,7 @@ end
   'freq_units',s.freq_units,...
   'time_units',s.time_units,...
   'undersampling',s.undersampling,...
+  'fft_type',fft_type,...
   'zeropad',zeropad);
 
 s.w1 = w;
