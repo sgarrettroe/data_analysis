@@ -5,7 +5,13 @@ function [w,p] = fftFreqAxis(t,varargin)
 % 'fftshift' = {'on','off'}
 % 'zeropad' = zeropaddedlength
 % 'undersampling' = undersampling
-%
+% 'direction' = {'forward','fft','reverse','inverse','ifft'}
+%    'forward' or 'fft' indicate that the function fft was used. 'reverse',
+%    'inverse' and 'ifft' all indicate that an inverse fft was used. The
+%    main difference is where to put the zero frequency. Matlab's fft maps
+%    exp(iwt) to positive frequencies, so common formulas like exp(-iwt) in
+%    response function calculations would map to negative frequencies.
+%    Using the ifft maps them back to positive frequencies.
 % p is an optional struct of 
 % p.resolution
 % p.centerfreq
@@ -35,6 +41,7 @@ time_units = 'ps';
 freq_units = 'wavenumbers';
 shift = 'on';
 n_under = 0;
+flag_fft = true; %true = forward fft, false means inverse fft 
 
 n_t = length(t);
 
@@ -104,11 +111,20 @@ switch lower(shift)
   case 'on'
     if mod(n_t,2)==0
       %disp('even')
-      w=(-a/2:dw:a/2-dw);
+      if flag_fft
+          w=(-a/2:dw:a/2-dw);
+      else
+          w=(-a/2+dw:dw:a/2);
+      end
     else
       %disp('odd')
-      w=(-a/2:dw:a/2-dw)+dw/2;
-    end
+      if flag_fft
+          w=(-a/2:dw:a/2-dw)+dw/2;
+      else
+          warning('data_analysis:untestedFeature',...
+              'freq axis for ifft with an odd number of points has not yet been tested thoroughly! Watchout!');
+          w=(-a/2+dw:dw:a/2)-dw/2;
+      end
   case 'off'
     w = (0:(n_t-1))*dw;
   otherwise
