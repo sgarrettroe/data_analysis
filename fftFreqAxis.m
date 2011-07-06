@@ -125,6 +125,7 @@ switch lower(shift)
               'freq axis for ifft with an odd number of points has not yet been tested thoroughly! Watchout!');
           w=(-a/2+dw:dw:a/2)-dw/2;
       end
+    end
   case 'off'
     w = (0:(n_t-1))*dw;
   otherwise
