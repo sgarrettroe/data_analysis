@@ -5,6 +5,7 @@ function varargout = rbPlotTime(s, varargin)
 %-data: R(1) or R(2)
 %-pixel(opt): default is pixel 16. Pixel > 0 gives a trace of 1 pixel.
 %pixel = 0 gives a 2d-plot
+%-xlim(opt): limits for the x-axis (is time)
 %
 %output is a 2dplot 
 %
@@ -37,7 +38,7 @@ while length(varargin)>=2
         axis_w = s.freq;
       end
     case 'xlim'
-      xlim = val;
+      xlim = val
     case 'ylim'
       ylim = val;
         
@@ -56,11 +57,12 @@ end
 
 %linear time trace
 if pixel > 0
-  plot(axis_t, data(:,pixel));
+  plot(axis_t, data(:,pixel))
+  XLim(xlim);
 end
 
 if pixel == 0
-  rb2dPlot(axis_w, axis_t, data, 'xlim', xlim, 'ylim', ylim);
+  rb2dPlot(axis_t, axis_w, data', 'xlim', xlim, 'ylim', ylim);
 end
 
 
