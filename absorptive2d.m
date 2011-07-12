@@ -43,7 +43,7 @@ range = [2300 2700];
 fft_type = 'sgrsfft';
 fft_type_list = {'fft','sgrsfft'};
 apodization = 'none';
-apodization_list = {'none','triangular','gaussian'};
+apodization_list = {'none','triangular','gaussian', 'test'};
 flag_pumpprobe = true;
 flag_plot=true;
 flag_fftshift = 'off';
@@ -137,14 +137,43 @@ if flag_spectrometer
   %begin calculation
   R1 = zeros(zeropad,n_freq);
   R2 = zeros(zeropad,n_freq);
+  
+  switch apodization
+    case 'none'
+      window_fxn = ones(1, n_time);
+      %window_fxn
+    case 'triangular'
+      window_fxn = linspace(1,0,n_time);
+    case 'gaussian'
+      window_fxn = exp(-(linspace(0,3,n_time)).^2);
+    case 'test'
+      % Gaussian
+      number_a = 11;
+      number_b = 11;
+      std = 2*(0.4)^2;
+      
+      a = zeros(1, number_a);
+      b = 1/sqrt(pi * std) * exp(-linspace(-1, 0, number_b).^2 / std);
+      c = ones(1, n_time - number_a - number_b);
+     
+      window_fxn = cat(2, a, b, c);
+
+      figure(1000);
+      plot(window_fxn);
+      figure(1001);
+      plot(s.R1(:, 24) .* window_fxn');
+      
+      
+  end
+  
   for i = 1:n_freq
     switch fft_type
       case 'fft'
         R1(:,i) = fft(s.R1(:,i)',zeropad);
         R2(:,i) = fft(s.R2(:,i)',zeropad);
       case 'sgrsfft'
-        R1(:,i) = sgrsfft(s.R1(:,i),zeropad);
-        R2(:,i) = sgrsfft(s.R2(:,i),zeropad);
+        R1(:,i) = sgrsfft(s.R1(:,i) .* window_fxn', zeropad);
+        R2(:,i) = sgrsfft(s.R2(:,i) .* window_fxn', zeropad);
     end
   end
   
