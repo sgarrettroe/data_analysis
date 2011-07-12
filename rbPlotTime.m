@@ -56,7 +56,7 @@ end
 
 %linear time trace
 if pixel > 0
-  plot(axis_t, data(:,1));
+  plot(axis_t, data(:,pixel));
 end
 
 if pixel == 0

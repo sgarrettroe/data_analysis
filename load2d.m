@@ -99,7 +99,7 @@ if type_flag == 2
       file_R = [filebase, '_R_', num2str(scans(1)), '.dat'];
       file_NR = [filebase, '_NR_', num2str(scans(1)), '.dat'];
       if noise_flag == true
-        file_R_noise = [filebase, '_R_', num2str(scans(1)), '_noise_.dat'];
+        file_R_noise = [filebase, '_R_', num2str(scans(1)), '_noise.dat'];
         file_NR_noise = [filebase, '_NR_', num2str(scans(1)), '_noise_.dat'];
       end
     end
@@ -135,7 +135,7 @@ if type_flag == 2
       file_R = [filebase, '_R_', num2str(i), '.dat'];
       file_NR = [filebase, '_NR_', num2str(i), '.dat'];
       if noise_flag == true
-        file_R_noise = [filebase, '_R_', num2str(i), '_noise_.dat'];
+        file_R_noise = [filebase, '_R_', num2str(i), '_noise.dat'];
         file_NR_noise = [filebase, '_NR_', num2str(i), '_noise_.dat'];
       end
 
