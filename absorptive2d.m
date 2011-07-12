@@ -36,6 +36,7 @@ function s = absorptive2d(s,varargin)
 % 
 
 %default values
+flag_debug = false;
 n_contours = 20;
 zeropad = length(s.time); %means no zeropadding
 phase = 0;
@@ -48,6 +49,9 @@ flag_pumpprobe = true;
 flag_plot=true;
 flag_fftshift = 'off';
 zeropad = 2*length(s.time);
+
+% for the special window function
+apod_numbers = [10 10]; 
 
 %determine which version of the input arguments are being passed based on
 %if the first value is a property string or a phase
@@ -104,10 +108,14 @@ switch input_arguments_version
           fft_type = val;
         case 'apodization'
           apodization = val;
+        case 'apod_numbers'
+          apod_numbers = val;
         case {'pumpprobe_style','pumpprobe'}
           flag_pumpprobe = val;
         case 'plot'
           flag_plot = val;
+        case 'debug'
+          flag_debug = val;
         otherwise
           error(['my2dPlot: unknown option ',arg])
       end
@@ -131,7 +139,7 @@ n_time = length(s.time);
 %error checking of inputs here?
 if ~any(strcmpi(fft_type,fft_type_list)), error(['fft type ',fft_type,' not known in absorptive2d.m']);end
 if ~any(strcmpi(apodization,apodization_list)), error(['apodization type ',apodization,' not known in absorptive3d.m']);end
-s.comment = [s.comment,' fft_type ',fft_type,' apodization ',apodization];
+s.comment = [s.comment,' // fft-type ',fft_type,' apodization ',apodization];
 
 if flag_spectrometer
   %begin calculation
@@ -148,8 +156,8 @@ if flag_spectrometer
       window_fxn = exp(-(linspace(0,3,n_time)).^2);
     case 'test'
       % Gaussian
-      number_a = 11;
-      number_b = 11;
+      number_a = apod_numbers(1);
+      number_b = apod_numbers(2);
       std = 2*(0.4)^2;
       
       a = zeros(1, number_a);
@@ -158,11 +166,12 @@ if flag_spectrometer
      
       window_fxn = cat(2, a, b, c);
 
-      figure(1000);
-      plot(window_fxn);
-      figure(1001);
-      plot(s.R1(:, 24) .* window_fxn');
-      
+      if flag_debug == true
+        figure(1000);
+        plot(window_fxn);
+        figure(1001);
+        plot(s.R1(:, 24) .* window_fxn');
+      end
       
   end
   
