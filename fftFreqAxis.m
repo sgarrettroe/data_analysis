@@ -5,7 +5,14 @@ function [w,p] = fftFreqAxis(t,varargin)
 % 'fftshift' = {'on','off'}
 % 'zeropad' = zeropaddedlength
 % 'undersampling' = undersampling
-%
+% 'direction' = {'forward','fft','sgrsfft','reverse','inverse','ifft','sgrsifft'}
+%    'forward' or 'fft' indicate that the function fft was used. 'reverse',
+%    'inverse' and 'ifft' all indicate that an inverse fft was used. The
+%    main difference is where to put the zero frequency. Matlab's fft maps
+%    exp(iwt) to positive frequencies, so common formulas like exp(-iwt) in
+%    response function calculations would map to negative frequencies.
+%    Using the ifft maps them back to positive frequencies.
+% 'fft_type' = equiivalent to 'direction'
 % p is an optional struct of 
 % p.resolution
 % p.centerfreq
@@ -35,7 +42,8 @@ time_units = 'ps';
 freq_units = 'wavenumbers';
 shift = 'on';
 n_under = 0;
-
+flag_fft = true; %true = forward fft, false means inverse fft 
+forward_fft_list = {'fft' 'sgrsfft'};
 n_t = length(t);
 
 %read optional arguments
@@ -44,27 +52,33 @@ while length(varargin)>=2
   value = varargin{2};
 
   switch lower(arg)
-    case {'time','time_units'}
-      time_units= value;
-    case {'freq','freq_units'}
-      freq_units = value;
-    case {'fftshift','shift'}
-      shift = value;
-    case {'zeropad','zero_pad'}
-      if ~isempty(value)&&value~=0
-        n_t = value;
-      end
-    case {'undersampling','n_under'}
-      n_under = value;
-    otherwise
-      warning(['Unknown option ' arg ' in fftFreqAxis']);
+      case {'time','time_units'}
+          time_units= value;
+      case {'freq','freq_units'}
+          freq_units = value;
+      case {'fftshift','shift'}
+          shift = value;
+      case {'zeropad','zero_pad'}
+          if ~isempty(value)&&value~=0
+              n_t = value;
+          end
+      case {'undersampling','n_under'}
+          n_under = value;
+      case {'direction','fft_type'}
+          if any(strcmpi(value,forward_fft_list))
+              flag_fft = true;
+          else
+              flag_fft = false;
+          end
+      otherwise
+      warning('data_analysis:unknownArgument',['Unknown option ' arg ' in fftFreqAxis']);
   end
   varargin = varargin(3:end);
 end
 
 if n_under>0 && strcmpi(shift,'on')
   %shift = 'off';
-  warning('fftFreqAxis: use p.ind to find the right part of the spectrum');
+  warning('data_analysis:untested_feature','fftFreqAxis: use p.ind to find the right part of the spectrum');
 end
 
 if any(isempty([c h q ]))
@@ -104,10 +118,20 @@ switch lower(shift)
   case 'on'
     if mod(n_t,2)==0
       %disp('even')
-      w=(-a/2:dw:a/2-dw);
+      if flag_fft
+          w=(-a/2:dw:a/2-dw);
+      else
+          w=(-a/2+dw:dw:a/2);
+      end
     else
       %disp('odd')
-      w=(-a/2:dw:a/2-dw)+dw/2;
+      if flag_fft
+          w=(-a/2:dw:a/2-dw)+dw/2;
+      else
+          warning('data_analysis:untestedFeature',...
+              'freq axis for ifft with an odd number of points has not yet been tested thoroughly! Watchout!');
+          w=(-a/2+dw:dw:a/2)-dw/2;
+      end
     end
   case 'off'
     w = (0:(n_t-1))*dw;
