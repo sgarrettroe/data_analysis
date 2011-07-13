@@ -9,6 +9,7 @@ fft_type = 'sgrsfft';
 n_contours = 12;
 zlimit = 0;
 no_units = false;
+apod_nr = [10 10];
 
 while length(varargin) >= 2
   arg = varargin{1};
@@ -17,6 +18,8 @@ while length(varargin) >= 2
   switch lower(arg)
     case 'apodization'
       apodization = val;
+    case 'apod_nr'
+      apod_nr = val;
     case 'debug'
       flag_debug = val;
     case 'fft_type'
@@ -39,7 +42,7 @@ s = absorptive2d(s,...
   'range', [s.freq(1), s.freq(end)],...
   'fft_type', fft_type,...
   'apodization', apodization,...
-  'apod_numbers', [10 10],...
+  'apod_numbers', apod_nr,...
   'debug', flag_debug);
 
 title_string = ({strcat(num2str(mess_date),...
