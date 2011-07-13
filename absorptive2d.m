@@ -44,7 +44,7 @@ range = [2300 2700];
 fft_type = 'sgrsfft';
 fft_type_list = {'fft','sgrsfft'};
 apodization = 'none';
-apodization_list = {'none','triangular','gaussian', 'test'};
+apodization_list = {'none','triangular','gaussian', 'rbOnes', 'rbGauss'};
 flag_pumpprobe = true;
 flag_plot=true;
 flag_fftshift = 'off';
@@ -139,7 +139,7 @@ n_time = length(s.time);
 %error checking of inputs here?
 if ~any(strcmpi(fft_type,fft_type_list)), error(['fft type ',fft_type,' not known in absorptive2d.m']);end
 if ~any(strcmpi(apodization,apodization_list)), error(['apodization type ',apodization,' not known in absorptive3d.m']);end
-s.comment = [s.comment,' // fft-type ',fft_type,' apodization ',apodization];
+s.comment = [s.comment,' // fft-type ',fft_type,' apodization ', apodization];
 
 if flag_spectrometer
   %begin calculation
@@ -154,23 +154,46 @@ if flag_spectrometer
       window_fxn = linspace(1,0,n_time);
     case 'gaussian'
       window_fxn = exp(-(linspace(0,3,n_time)).^2);
-    case 'test'
+      if flag_debug == true
+        figure(1000);
+        plot(window_fxn);
+      end
+    case 'rbOnes'
       % Gaussian
       number_a = apod_numbers(1);
       number_b = apod_numbers(2);
-      std = 2*(0.4)^2;
+      std = 2*(0.39)^2;
       
       a = zeros(1, number_a);
-      b = 1/sqrt(pi * std) * exp(-linspace(-1, 0, number_b).^2 / std);
+      b = 1/sqrt(pi * std) * exp(-linspace(-1, 0, number_b).^2 / std) - 0.039;
       c = ones(1, n_time - number_a - number_b);
-     
+      %c = exp(-(linspace(0, 3, n_time - number_a - number_b)).^2);
       window_fxn = cat(2, a, b, c);
 
       if flag_debug == true
         figure(1000);
         plot(window_fxn);
         figure(1001);
-        plot(s.R1(:, 24) .* window_fxn');
+        plot(s.R1(:, 20) .* window_fxn');
+      end
+
+    case 'rbGauss'
+      % Gaussian
+      number_a = apod_numbers(1);
+      number_b = apod_numbers(2);
+      std = 2*(0.39)^2;
+      
+      a = zeros(1, number_a);
+      b = 1/sqrt(pi * std) * exp(-linspace(-1, 0, number_b).^2 / std) - 0.039;
+      %c = ones(1, n_time - number_a - number_b);
+      c = exp(-(linspace(0, 3, n_time - number_a - number_b)).^2);
+      window_fxn = cat(2, a, b, c);
+
+      if flag_debug == true
+        figure(1000);
+        plot(window_fxn);
+        figure(1001);
+        plot(s.R1(:, 20) .* window_fxn');
       end
       
   end
