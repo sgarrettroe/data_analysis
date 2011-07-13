@@ -39,7 +39,7 @@ flag_no_units = false;
 x_label = '\omega_3 / 2\pic';
 y_label = '\omega_1 / 2\pic';
 
-disp(varargin)
+%disp(varargin)
 
 % read varargin (part I)
 if isa(varargin{1}, 'struct')

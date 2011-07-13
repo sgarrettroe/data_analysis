@@ -1,4 +1,4 @@
-function varargout = myCaxis2(Z,n_contours)
+function varargout = myCaxis2(Z, n_contours)
 %function c = myCaxis(Z,n_contours) 
 % where Z is the data and n_contours is the number of contour levels!
 %this version is trying to get the stupid coloring to work out right
