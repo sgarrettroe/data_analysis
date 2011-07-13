@@ -44,7 +44,7 @@ range = [2300 2700];
 fft_type = 'sgrsfft';
 fft_type_list = {'fft','sgrsfft'};
 apodization = 'none';
-apodization_list = {'none','triangular','gaussian', 'rbOnes', 'rbGauss'};
+apodization_list = {'none','triangular','gaussian', 'rbOnes', 'rbGauss','test'};
 flag_pumpprobe = true;
 flag_plot=true;
 flag_fftshift = 'off';
@@ -162,12 +162,12 @@ if flag_spectrometer
       % Gaussian
       number_a = apod_numbers(1);
       number_b = apod_numbers(2);
-      std = 2*(0.39)^2;
       
       a = zeros(1, number_a);
-      b = 1/sqrt(pi * std) * exp(-linspace(-1, 0, number_b).^2 / std) - 0.039;
+      %b = 1/sqrt(pi * std) * exp(-linspace(-1, 0, number_b).^2 / std) - 0.039;
+      b = exp(-(5/1)*linspace(-1, 0, number_b).^2)
       c = ones(1, n_time - number_a - number_b);
-      %c = exp(-(linspace(0, 3, n_time - number_a - number_b)).^2);
+      
       window_fxn = cat(2, a, b, c);
 
       if flag_debug == true
@@ -181,12 +181,11 @@ if flag_spectrometer
       % Gaussian
       number_a = apod_numbers(1);
       number_b = apod_numbers(2);
-      std = 2*(0.39)^2;
       
       a = zeros(1, number_a);
-      b = 1/sqrt(pi * std) * exp(-linspace(-1, 0, number_b).^2 / std) - 0.039;
-      %c = ones(1, n_time - number_a - number_b);
+      b = exp(-(5/1)*linspace(-1, 0, number_b).^2)
       c = exp(-(linspace(0, 3, n_time - number_a - number_b)).^2);
+      
       window_fxn = cat(2, a, b, c);
 
       if flag_debug == true
@@ -196,6 +195,26 @@ if flag_spectrometer
         plot(s.R1(:, 20) .* window_fxn');
       end
       
+    case 'test'
+      number_a = apod_numbers(1);
+      number_b = apod_numbers(2);
+      
+      a = zeros(1, number_a);
+      b = exp(- linspace(0, number_a, n_time)) - 1;
+      c = exp(-(linspace(0, number_b, n_time)).^2);
+      
+      window_fxn = b .* c; % cat(2, b, c);
+      
+      if flag_debug == true
+        figure(1000),clf;
+        hold on;
+        plot(window_fxn);
+        plot(b);
+        plot(c);
+        hold off;
+        figure(1001),clf;
+        plot(s.R1(:, 20) .* window_fxn');
+      end      
   end
   
   for i = 1:n_freq
@@ -240,7 +259,6 @@ if flag_spectrometer
    
   map = myMapRGB2(n_contours+1);
   ind = find(s.w1>range(1) & s.w1<range(2));
-  figure(100),
   
   if flag_plot
     figure(100)
