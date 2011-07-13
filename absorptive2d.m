@@ -165,7 +165,7 @@ if flag_spectrometer
       
       a = zeros(1, number_a);
       %b = 1/sqrt(pi * std) * exp(-linspace(-1, 0, number_b).^2 / std) - 0.039;
-      b = exp(-(5/1)*linspace(-1, 0, number_b).^2)
+      b = exp(-(5/1)*linspace(-1, 0, number_b).^2);
       c = ones(1, n_time - number_a - number_b);
       
       window_fxn = cat(2, a, b, c);
@@ -183,7 +183,7 @@ if flag_spectrometer
       number_b = apod_numbers(2);
       
       a = zeros(1, number_a);
-      b = exp(-(5/1)*linspace(-1, 0, number_b).^2)
+      b = exp(-(5/1)*linspace(-1, 0, number_b).^2);
       c = exp(-(linspace(0, 3, n_time - number_a - number_b)).^2);
       
       window_fxn = cat(2, a, b, c);
