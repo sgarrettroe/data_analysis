@@ -16,15 +16,25 @@ function varargout = rb2dPlot(varargin)
 % used for the range and [n m] means that range will be plotted. In case of
 % errors (out of range etc) it will fall back to plot everything. Default
 % is xlim = [0 0] and ylim = [0 -1]. 
+%
 % - zlimit (opt), number: will change the intensity range. 0 means
 % everything is plotted (default). 0 < zlimit <= 1 will plot a range.
 % zlimit > 1 will plot an absolute value. The zlimit is always symmetric
 % around 0. 
+%
 % - n_contours (opt), number: the amount of contours. Using an odd number will give a
 % warning. Default is 12.
+%
 % - pumprobe (opt), BOOL: changes the axes. Default is FALSE.
+%
 % - title (opt), string: a title will be given to the plot.
 %
+% - no_units (opt), BOOL: will plot the spectrum, but with pixel and step
+% number instead of the frequency axis.
+% 
+% - brightness (opt), number: best left alone. It changes the range of
+% colors plotted. The lower the number, the brighter the colors. Default is 
+% 0.2, which means the range over which the color changes is 0.8. 
 
 
 
@@ -38,6 +48,7 @@ title_string = '';
 flag_no_units = false;
 x_label = '\omega_3 / 2\pic';
 y_label = '\omega_1 / 2\pic';
+brightness = 0.2;
 
 %disp(varargin)
 
@@ -74,6 +85,8 @@ while length(varargin) >= 2
       title_string = val;
     case 'no_units'
       flag_no_units = val;
+    case 'brightness'
+      brightness = val;
     otherwise
       error(['rb2dPlot: unknown option ', arg]);
   end 
@@ -128,7 +141,7 @@ end
 z = data(yrange,xrange);
 
 % load the color scheme
-map = myMapRGB2(n_contours);
+map = myMapRGB2(n_contours, brightness);
 
 % determine the range to be plotted
 if zlimit <= 0 
@@ -159,20 +172,10 @@ if flag_pumpprobe
 elseif flag_no_units
   x_label = 'pixels';
   y_label = 'FT(time)';
-%else
-%  x_label = '\omega_3 / 2\pic';
-%  y_label = '\omega_1 / 2\pic';
 end
 xlabel(x_label);
 ylabel(y_label);
 title(title_string);
 
-%a(1) = gca;
-%set(a(1), 'Position', 
-
-
-
-%plot([0 0], [3000 3000])
-%line([0 0], [3000 3000])
 
 

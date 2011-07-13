@@ -33,7 +33,9 @@ function s = absorptive2d(s,varargin)
 % s = absorptive2d(s,'plot',false) 
 %     Turn the plots on or off
 %
-% 
+% INPUT OPTIONS
+% - phase, in radian
+% - zeropad (number): zeropad the data until this number is reached.
 
 %default values
 flag_debug = false;
