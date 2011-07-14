@@ -158,8 +158,7 @@ else
   level_list = linspace(-zlimit, zlimit, n_contours+2);
 end
 
-disp(ca);
-level_list
+%disp(ca);
 title_string = [title_string num2str(level_list(end))]
 
 % plot, use colormap and set axes
