@@ -31,6 +31,7 @@ n_contours = 12;
 zlimit = 0;
 no_units = false;
 apod_nr = [10 10];
+line_width = 1;
 
 while length(varargin) >= 2
   arg = varargin{1};
@@ -51,11 +52,15 @@ while length(varargin) >= 2
       zlimit = val;
     case 'no_units'
       no_units = val;
+    case 'line_width'
+      line_width = val;
     otherwise
       error(['process2d: unknown option ', arg]);
   end 
   varargin = varargin(3:end);
 end
+
+if flag_debug; disp(['process2d: flag_debug:' int2str(flag_debug)]); end
 
 s = absorptive2d(s,...
   'phase', s.phase,...
@@ -65,9 +70,9 @@ s = absorptive2d(s,...
   'apodization', apodization,...
   'apod_numbers', apod_nr,...
   'debug', flag_debug,...
-  'plot', false);
+  'plot', flag_debug);
 
-title_string = ({strcat(num2str(s.date),...
+title_string = ({strcat(int2str(s.date),...
   ': ', s.basename,...
   ', T2: ', num2str(s.t2),...
   ', ts:', num2str(s.time_stamp),...
@@ -75,6 +80,6 @@ title_string = ({strcat(num2str(s.date),...
   s.comment}); 
 
 figure(number),clf
-rb2dPlot(s, 'n_contours', n_contours, 'zlimit', zlimit, 'title', title_string, 'no_units', no_units);
+rb2dPlot(s, 'n_contours', n_contours, 'zlimit', zlimit, 'title', title_string, 'no_units', no_units, 'debug', flag_debug, 'line_width', line_width);
 
 

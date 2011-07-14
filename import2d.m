@@ -1,7 +1,7 @@
 function s = import2d(name, pop_time, time_stamp, undersampling, zeropad_times, mess_date)
 
 s = load2d(name, pop_time, time_stamp, 'meta', true, 'noise', true);
-s.mess_date = mess_date;
+s.date = mess_date;
 s.undersampling = undersampling;
 s.zeropad = zeropad_times * length(s.time);
 s = freq2d(s);

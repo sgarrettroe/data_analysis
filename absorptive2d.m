@@ -124,13 +124,15 @@ if n_freq == 0
   flag_spectrometer = false;
   flag_remove_DC=false;
   flag_plot=false;
+  if flag_debug; disp(['absorptive2d: flag_spectrometer = false']); end
 else
   flag_spectrometer = true;
   flag_remove_DC=true;
+  if flag_debug; disp(['absorptive2d: flag_spectrometer = true']); end
 end
 n_time = length(s.time);
 
-
+if flag_debug; disp(['absorptive2d: n_time:' int2str(n_time) ', n_freq:' int2str(n_freq)]); end
 
 %error checking of inputs here?
 if ~any(strcmpi(fft_type,fft_type_list)), error(['fft type ',fft_type,' not known in absorptive2d.m']);end
@@ -212,6 +214,7 @@ if flag_spectrometer
         plot(s.R1(:, 20) .* window_fxn');
       end      
   end
+  % end switch apodization
   
   for i = 1:n_freq
     switch fft_type
@@ -252,7 +255,10 @@ if flag_spectrometer
   s = freq2d(s,'zeropad',zeropad,...
     'spectrometer',flag_spectrometer,...
     'fftshift',flag_fftshift);
-   
+  
+  
+  
+  
   map = myMapRGB2(n_contours+1);
   ind = find(s.w1>range(1) & s.w1<range(2));
   
@@ -272,6 +278,7 @@ if flag_spectrometer
       x_label = '\omega_1 / 2\pic';
       y_label = '\omega_3 / 2\pic'; 
     end
+    
     contourf(x,y,z,n_contours)
     axis square
     myCaxis2(z,n_contours);
@@ -301,7 +308,6 @@ if flag_spectrometer
     ylabel(y_label)
     
     figure(101),clf
-    
     if flag_pumpprobe
       x = s.w3;
       y = s.w1(ind);

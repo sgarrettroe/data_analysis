@@ -1,5 +1,5 @@
 function varargout = rb2dPlot(varargin)
-% rb2dPlot
+% rb2dPlot: plots a 2d spectrum
 %
 % 20110528, RB: started the function
 %
@@ -49,6 +49,8 @@ flag_no_units = false;
 x_label = '\omega_3 / 2\pic';
 y_label = '\omega_1 / 2\pic';
 brightness = 0.2;
+flag_debug = false;
+line_width = 1;
 
 %disp(varargin)
 
@@ -85,8 +87,12 @@ while length(varargin) >= 2
       title_string = val;
     case 'no_units'
       flag_no_units = val;
+    case 'line_width'
+      line_width = val;
     case 'brightness'
       brightness = val;
+    case 'debug'
+      flag_debug = val;
     otherwise
       error(['rb2dPlot: unknown option ', arg]);
   end 
@@ -143,10 +149,11 @@ z = data(yrange,xrange);
 % load the color scheme
 map = myMapRGB2(n_contours, brightness);
 
+
 % determine the range to be plotted
 if zlimit <= 0 
   % 0: use the whole range
-  [ca, level_list]= myCaxis2(z, n_contours);
+  [ca, level_list] = myCaxis2(z, n_contours);
 elseif zlimit > 0 && zlimit <= 1
   % 0 < zlimit <= 1: plot a ratio
   [ca, level_list] = myCaxis2(z, n_contours);
@@ -158,13 +165,17 @@ else
   level_list = linspace(-zlimit, zlimit, n_contours+2);
 end
 
+if flag_debug; disp(['rb2dPlot: contour levels:' num2str(ca(1)) ', ' num2str(ca(2))]); end
+
 %disp(ca);
 title_string = [title_string num2str(level_list(end))];
 
 % plot, use colormap and set axes
-contourf(x, y, z, level_list);
+contourf(x, y, z, level_list, 'LineWidth', line_width);
 colormap(map);
 caxis(ca);
+
+line([x(1) x(end)],[x(1) x(end)],'Color',[0 0 0], 'LineWidth', line_width);
 
 % labels for the plot
 if flag_pumpprobe
@@ -174,9 +185,9 @@ elseif flag_no_units
   x_label = 'pixels';
   y_label = 'FT(time)';
 end
-xlabel(x_label);
-ylabel(y_label);
-title(title_string);
+xlabel(x_label); %, 'FontSize', line_width * 10);
+ylabel(y_label); %, 'FontSize', line_width * 10);
+title(title_string); %, 'FontSize', line_width * 10);
 
 
 
