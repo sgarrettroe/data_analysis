@@ -6,8 +6,16 @@ function map = myMapRGB2(n_levels, varargin)
 
 min_val = 0.2;
 
-while length(varargin) >= 1
-  min_val = varargin{1};
+while length(varargin) >= 2
+  arg = varargin{1};
+  val = varargin{2};  
+  switch lower(arg)
+    case 'brightness'
+      min_val = val;
+    otherwise
+      error(['process2d: unknown option ', arg]);
+  end 
+  varargin = varargin(3:end);
 end
 
 n_2 = floor(n_levels/2);
