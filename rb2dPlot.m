@@ -159,7 +159,7 @@ else
 end
 
 %disp(ca);
-title_string = [title_string num2str(level_list(end))]
+title_string = [title_string num2str(level_list(end))];
 
 % plot, use colormap and set axes
 contourf(x, y, z, level_list);
