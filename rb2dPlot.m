@@ -95,7 +95,7 @@ end
 
 % error checking
 if mod(n_contours,2)
-  warning('my2dPlot4: Odd number of contour lines may produce unexpected results!')
+  warning('rb2dPlot: Odd number of contour lines may produce unexpected results!')
 end
 
 % determine the x and y axes
