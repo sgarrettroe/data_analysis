@@ -14,7 +14,7 @@ function varargout = myCaxis2(Z, n_contours)
 % NOTE
 % I'm not sure why myCaxis2 was so complicated.
 
-if mod(n_contours,2) == 0
+if mod(n_contours,2)
   warning('myCaxis2: Odd number of contour lines may produce unexpected results!')
 end
 
