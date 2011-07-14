@@ -1,41 +1,35 @@
 function s = absorptive2d(s,varargin)
 %calculate the absorptive spectrum from 2d data
 %
-% s = absorptive2d(s,'Property',value,...)
+%  - phase: use a phase, in radian
 %
-% s = absorptive2d(s,'phase',val)
-%     uses a phase of val
+% - zeropad (number): The zeropadded length. Should be equal to twice the 
+%   number of time points for the optimum amount of information in the real 
+%   spectrum (the default).
 %
-% s = absorptive2d(s,'zeropad',val)
-%     The zeropadded length. Should be equal to twice the number of time
-%     points for the optimum amount of information in the real spectrum
-%     (the default).
+% - range ([lim_l lim_u]): Plots over the frequency window of interest 
+%   given by the lower and upper limits
 %
-% s = absorptive2d(s,'range',[lim_l lim_u])
-%     Plots over the frequency window of interest given by the lower and 
-%     upper limits
+% - fft_type (name): Type can be 'fft', the normal fft, or 'sgrsfft' which 
+%   scales the first data point by 0.5. Default is sgrsfft. 
 %
-% s = absorptive2d(s,'fft_type','type')
-%     Type can be 'fft', the normal fft, or 'sgrsfft' which scales the 
-%     first data point by 0.5 
+% - apodization (name): Can be 'none', 'triangular', 'gaussian', 'rbOnes',
+%   'rbGauss' or 'test'. Others can be implemented by adding the methods to 
+%   the apodization_list and then changing the window_fxn. Default is none.
 %
-% s = absorptive2d(s,'apodization','type')
-%     Can be triangular or gaussian. Others can be implemented by adding
-%     the methods to the apodization_list and then changing the window_fxn
+% - apod_numbers ([a b]): For the rbOnes, rbGauss and test functions, this
+%   is the input needed. For rbOnes and rbGauss it determines the length
+%   where the window is set to 0 (a) and how long the Gaussian increase to
+%   1 takes (b). For test it is the factor in the exponential (a) and the
+%   factor in the gaussian (b). 
 %
-% s = absorptive2d(s,'pumpprobe',true) 
-%     The default behavior is to plot 'pump-probe' style 
+% - pumpprobe (BOOL): The default behavior is to plot 'pump-probe' style. 
+%   Default is true. 
 %
-% s = absorptive2d(s,'pumpprobe',false) 
-%     The plots are (x,y) = (omega_1, omega_3)  style 
+% - plot (BOOL): plot the rephasing and non-rephasing spectrum and the 
+%   apodization function. Default is true.
 %
-% s = absorptive2d(s,'plot',true) 
-% s = absorptive2d(s,'plot',false) 
-%     Turn the plots on or off
-%
-% INPUT OPTIONS
-% - phase, in radian
-% - zeropad (number): zeropad the data until this number is reached.
+
 
 %default values
 flag_debug = false;
@@ -46,9 +40,9 @@ range = [2300 2700];
 fft_type = 'sgrsfft';
 fft_type_list = {'fft','sgrsfft'};
 apodization = 'none';
-apodization_list = {'none','triangular','gaussian', 'rbOnes', 'rbGauss','test'};
+apodization_list = {'none','triangular','gaussian', 'rbOnes', 'rbGauss', 'test'};
 flag_pumpprobe = true;
-flag_plot=true;
+flag_plot = true;
 flag_fftshift = 'off';
 zeropad = 2*length(s.time);
 
@@ -172,7 +166,7 @@ if flag_spectrometer
       
       window_fxn = cat(2, a, b, c);
 
-      if flag_debug == true
+      if flag_plot == true
         figure(1000);
         plot(window_fxn);
         figure(1001);
@@ -190,7 +184,7 @@ if flag_spectrometer
       
       window_fxn = cat(2, a, b, c);
 
-      if flag_debug == true
+      if flag_plot == true
         figure(1000);
         plot(window_fxn);
         figure(1001);
@@ -207,7 +201,7 @@ if flag_spectrometer
       
       window_fxn = b .* c; % cat(2, b, c);
       
-      if flag_debug == true
+      if flag_plot == true
         figure(1000),clf;
         hold on;
         plot(window_fxn);

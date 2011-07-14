@@ -12,29 +12,29 @@ function varargout = rb2dPlot(varargin)
 %
 % other INPUT: 
 % - xlim, ylim (opt): the limits for the x and y axes. [0 0] means
-% the whole range will be plotted, [0 -1] means that the other axis will be
-% used for the range and [n m] means that range will be plotted. In case of
-% errors (out of range etc) it will fall back to plot everything. Default
-% is xlim = [0 0] and ylim = [0 -1]. 
+%   the whole range will be plotted, [0 -1] means that the other axis will be
+%   used for the range and [n m] means that range will be plotted. In case of
+%   errors (out of range etc) it will fall back to plot everything. Default
+%   is xlim = [0 0] and ylim = [0 -1]. 
 %
 % - zlimit (opt), number: will change the intensity range. 0 means
-% everything is plotted (default). 0 < zlimit <= 1 will plot a range.
-% zlimit > 1 will plot an absolute value. The zlimit is always symmetric
-% around 0. 
+%   everything is plotted (default). 0 < zlimit <= 1 will plot a range.
+%   zlimit > 1 will plot an absolute value. The zlimit is always symmetric
+%   around 0. 
 %
 % - n_contours (opt), number: the amount of contours. Using an odd number will give a
-% warning. Default is 12.
+%   warning. Default is 12.
 %
 % - pumprobe (opt), BOOL: changes the axes. Default is FALSE.
 %
 % - title (opt), string: a title will be given to the plot.
 %
 % - no_units (opt), BOOL: will plot the spectrum, but with pixel and step
-% number instead of the frequency axis.
+%   number instead of the frequency axis.
 % 
 % - brightness (opt), number: best left alone. It changes the range of
-% colors plotted. The lower the number, the brighter the colors. Default is 
-% 0.2, which means the range over which the color changes is 0.8. 
+%   colors plotted. The lower the number, the brighter the colors. Default is 
+%   0.2, which means the range over which the color changes is 0.8. 
 
 
 

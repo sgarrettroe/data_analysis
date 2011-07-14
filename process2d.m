@@ -1,6 +1,29 @@
 function s = process2d(s, mess_date, number, varargin)
 % process2d will process the data and make a plot. 
 % This should be enough for 90% of all needs 
+%
+% INPUT:
+% - s (struct): the 2d-struct with all data
+%
+% - mess_date (number): will be used in the title
+%
+% - number (number): will be used as a number for the figure
+%
+% OPTIONAL INPUT, for details, see the functions they refer to.
+% - apodization (name): will apply apodization in absorptive2d. Default is
+%   'none'.
+% - apod_nr ([a b]): factors for some of the apodization functions in
+%   absorptive2d. Default is [10 10], which works for 'rbOnes' and
+%   'rbGauss'.
+% - debug (BOOL): will write some stuff, handy for debugging :)
+% - fft_type (name): determines the type of fft in absorptive2d. Default is
+%   'sgrsfft'.
+% - n_contours (number): number of contours plotted by rb2dPlot. Default is
+%   12.
+% - zlimit (number): how much of the z-axis is plotted by rb2dPlot. Default
+%   is 0 (all). 
+% - no_units (BOOL): will print the indices instead of frequencies in
+%   rb2dPlot. Handy for finding broken pixels etc. Default is false.
 
 
 apodization = 'none';
