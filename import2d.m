@@ -1,6 +1,6 @@
-function s = import2d(name, pop_time, time_stamp, undersampling, zeropad_times, mess_date)
+function s = import2d(name, pop_time, time_stamp, undersampling, zeropad_times, mess_date, scans)
 
-s = load2d(name, pop_time, time_stamp, 'meta', true, 'noise', true);
+s = load2d(name, pop_time, time_stamp, 'meta', true, 'noise', true, 'scans', scans);
 s.date = mess_date;
 s.undersampling = undersampling;
 s.zeropad = zeropad_times * length(s.time);
