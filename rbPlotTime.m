@@ -12,8 +12,8 @@ function varargout = rbPlotTime(s, varargin)
 %RB, 20110505: started function
 
 pixel = 16;
-xlim = [0 0];
-ylim = [0 0];
+x_lim = [0 0];
+y_lim = [0 0];
 while length(varargin)>=2
   arg = varargin{1};
   val = varargin{2};
@@ -38,9 +38,9 @@ while length(varargin)>=2
         axis_w = s.freq;
       end
     case 'xlim'
-      xlim = val
+      x_lim = val
     case 'ylim'
-      ylim = val;
+      y_lim = val;
         
     case 'pixel'
       pixel = val;
@@ -58,11 +58,11 @@ end
 %linear time trace
 if pixel > 0
   plot(axis_t, data(:,pixel))
-  XLim(xlim);
+  xlim(x_lim);
 end
 
 if pixel == 0
-  rb2dPlot(axis_t, axis_w, data', 'xlim', xlim, 'ylim', ylim);
+  rb2dPlot(axis_t, axis_w, data', 'xlim', x_lim, 'ylim', y_lim);
 end
 
 

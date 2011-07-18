@@ -30,7 +30,7 @@ fft_type = 'sgrsfft';
 n_contours = 12;
 zlimit = 0;
 no_units = false;
-apod_nr = [10 10];
+apod_nr = [-0.5 3];
 line_width = 1;
 
 while length(varargin) >= 2
