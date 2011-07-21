@@ -177,7 +177,7 @@ title_string = [title_string num2str(level_list(end))];
 contourf(x, y, z, level_list, 'LineWidth', line_width);
 colormap(map);
 % since we have the level_list, we don't need the caxis
-%caxis(ca);
+caxis(ca);
 
 % diagonal line
 line([x(1) x(end)], [x(1) x(end)], 'Color',[0 0 0], 'LineWidth', line_width);
