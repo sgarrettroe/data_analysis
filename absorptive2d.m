@@ -219,6 +219,8 @@ if flag_spectrometer
       
       window_fxn = b .* c; % cat(2, b, c);
       
+      window_fxn = window_fxn / max(window_fxn);
+      
       if flag_plot == true
         figure(1000),clf;
         hold on;
