@@ -32,6 +32,8 @@ zlimit = 0;
 no_units = false;
 apod_nr = [-0.5 3];
 line_width = 1;
+xlim = [0 0];
+ylim = [0 -1];
 
 while length(varargin) >= 2
   arg = varargin{1};
@@ -42,6 +44,10 @@ while length(varargin) >= 2
       apodization = val;
     case 'apod_nr'
       apod_nr = val;
+    case 'xlim'
+      xlim = val;
+    case 'ylim'
+      ylim = val;
     case 'debug'
       flag_debug = val;
     case 'fft_type'
@@ -80,6 +86,14 @@ title_string = ({strcat(int2str(s.date),...
   s.comment}); 
 
 figure(number),clf
-rb2dPlot(s, 'n_contours', n_contours, 'zlimit', zlimit, 'title', title_string, 'no_units', no_units, 'debug', flag_debug, 'line_width', line_width);
+rb2dPlot(s,... 
+  'n_contours', n_contours,...
+  'zlimit', zlimit,...
+  'title', title_string,...
+  'no_units', no_units,...
+  'debug', flag_debug,...
+  'line_width', line_width,...
+  'xlim', xlim,...
+  'ylim', ylim);
 
 

@@ -197,7 +197,7 @@ if flag_spectrometer
       number_a = apod_numbers(1);
       number_b = apod_numbers(2);
       
-      a = zeros(1, number_a);
+      %a = zeros(1, number_a);
       b = exp(- linspace(0, number_a, n_time)) - 1;
       c = exp(-(linspace(0, number_b, n_time)).^2);
       
@@ -211,7 +211,7 @@ if flag_spectrometer
         plot(c);
         hold off;
         figure(1001),clf;
-        plot(s.R1(:, 20) .* window_fxn');
+        plot(s.R1(:, 10) .* window_fxn');
       end      
   end
   % end switch apodization
