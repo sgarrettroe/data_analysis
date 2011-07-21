@@ -160,7 +160,7 @@ if flag_spectrometer
       window_fxn = linspace(1,0,n_time);
       if flag_debug == true
         figure(1000);
-        plot(window_fxn);        
+        plot(window_fxn);         
         figure(1001),clf;
         plot(s.R1(:, apod_pixel) .* window_fxn');
       end
