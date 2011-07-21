@@ -41,10 +41,13 @@ fft_type = 'sgrsfft';
 fft_type_list = {'fft','sgrsfft'};
 apodization = 'none';
 apodization_list = {'none','triangular','gaussian', 'rbOnes', 'rbGauss', 'test'};
+apod_numbers = [-0.5 3];
+apod_pixel = 16;
 flag_pumpprobe = true;
 flag_plot = true;
 flag_fftshift = 'off';
 zeropad = 2*length(s.time);
+
 
 % for the special window function
 apod_numbers = [10 10]; 
@@ -106,6 +109,8 @@ switch input_arguments_version
           apodization = val;
         case 'apod_numbers'
           apod_numbers = val;
+        case 'apod_pixel'
+          apod_pixel = val;
         case {'pumpprobe_style','pumpprobe'}
           flag_pumpprobe = val;
         case 'plot'
@@ -147,14 +152,25 @@ if flag_spectrometer
   switch apodization
     case 'none'
       window_fxn = ones(1, n_time);
-      %window_fxn
+      if flag_debug == true
+        figure(1001),clf;
+        plot(s.R1(:, apod_pixel) .* window_fxn');
+      end
     case 'triangular'
       window_fxn = linspace(1,0,n_time);
+      if flag_debug == true
+        figure(1000);
+        plot(window_fxn);        
+        figure(1001),clf;
+        plot(s.R1(:, apod_pixel) .* window_fxn');
+      end
     case 'gaussian'
       window_fxn = exp(-(linspace(0,3,n_time)).^2);
       if flag_debug == true
         figure(1000);
         plot(window_fxn);
+        figure(1001),clf;
+        plot(s.R1(:, apod_pixel) .* window_fxn');
       end
     case 'rbOnes'
       % Gaussian
@@ -172,7 +188,7 @@ if flag_spectrometer
         figure(1000);
         plot(window_fxn);
         figure(1001);
-        plot(s.R1(:, 20) .* window_fxn');
+        plot(s.R1(:, apod_pixel) .* window_fxn');
       end
 
     case 'rbGauss'
@@ -190,7 +206,7 @@ if flag_spectrometer
         figure(1000);
         plot(window_fxn);
         figure(1001);
-        plot(s.R1(:, 20) .* window_fxn');
+        plot(s.R1(:, apod_pixel) .* window_fxn');
       end
       
     case 'test'
@@ -211,7 +227,7 @@ if flag_spectrometer
         plot(c);
         hold off;
         figure(1001),clf;
-        plot(s.R1(:, 10) .* window_fxn');
+        plot(s.R1(:, apod_pixel) .* window_fxn');
       end      
   end
   % end switch apodization
