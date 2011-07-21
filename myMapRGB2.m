@@ -29,7 +29,16 @@ g=[min_val:dx:1, 1-dx:-dx:min_val];
 b=[ones(1,n_2), 1:-dx:min_val];
 
 map = [r',g',b'];
-  
+
+% n_steps = (n_levels-2)/2;
+% 
+% dx = (1-0.2)/n_steps;
+% r = [0.2:dx:1-dx, ones(1, n_steps+1)];
+% g = [0.2:dx:1, 1-dx:-dx:0.2];
+% b = [ones(1, n_steps+1), 1-dx:-dx:0.2];
+% 
+% map = [r',g',b']
+
 % 
 % % This script can be used to test if the colorbar is correct
 % % produce some data

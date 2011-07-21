@@ -147,6 +147,8 @@ end
 z = data(yrange,xrange);
 
 % load the color scheme
+map = [];
+level_list = [];
 map = myMapRGB2(n_contours, brightness);
 
 
@@ -170,10 +172,13 @@ if flag_debug; disp(['rb2dPlot: contour levels:' num2str(ca(1)) ', ' num2str(ca(
 %disp(ca);
 title_string = [title_string num2str(level_list(end))];
 
+map
+level_list
+
 % plot, use colormap and set axes
 contourf(x, y, z, level_list, 'LineWidth', line_width);
 colormap(map);
-caxis(ca);
+%caxis(ca);
 
 line([x(1) x(end)],[x(1) x(end)],'Color',[0 0 0], 'LineWidth', line_width);
 
