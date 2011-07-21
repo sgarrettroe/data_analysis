@@ -19,9 +19,9 @@ end
 %  n_levels = 65;
   n_2 = floor(n_levels/2);
   dx = (1- brightness)/n_2;
-  r=[brightness:dx:1,ones(1,n_2)]
-  g=[brightness:dx:1,1-dx:-dx:brightness]
-  b=[ones(1,n_2),1:-dx:brightness]
+  r=[brightness:dx:1,ones(1,n_2)];
+  g=[brightness:dx:1,1-dx:-dx:brightness];
+  b=[ones(1,n_2),1:-dx:brightness];
   
   
   map = [r',g',b'];
