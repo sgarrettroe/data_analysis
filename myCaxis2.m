@@ -23,7 +23,7 @@ MAX = max(abs(Z(:)));
 % When viewing the colorbar in a plot, the result seems to be incorrect,
 % but it is actually a problem with the colorbar, not this script (see test
 % script below the code).
-level_list = linspace(-MAX, MAX, n_contours+2);
+level_list = linspace(-MAX, MAX, n_contours + 2);
 
 cmin = level_list(1);
 cmax = level_list(end);

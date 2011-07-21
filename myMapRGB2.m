@@ -1,4 +1,4 @@
-function map = myMapRGB2(n_levels, varargin)
+function map = myMapRGB2(n_contours, varargin)
 % myMapRGB2(Z) makes a red-white-blue colormap for the 2d-plots.
 %
 % RB, 20110713: now you can set hwo pale you want to have it! Default
@@ -7,37 +7,28 @@ function map = myMapRGB2(n_levels, varargin)
 % There is a problem with the colorbar in Matlab. Use the test script below
 % to make sure that the colors and levels are correct.
 
-min_val = 0.2;
+brightness = 0.2;
 
 while length(varargin) >= 2
   arg = varargin{1};
   val = varargin{2};  
   switch lower(arg)
     case 'brightness'
-      min_val = val;
+      brightness = val;
     otherwise
-      error(['process2d: unknown option ', arg]);
+      error(['myMapRGB2: unknown option ', arg]);
   end 
   varargin = varargin(3:end);
 end
 
-n_2 = floor(n_levels/2);
+n_2 = floor(n_contours/2);
 
-dx = (1 - min_val)/n_2;
-r=[min_val:dx:1, ones(1,n_2)];
-g=[min_val:dx:1, 1-dx:-dx:min_val];
-b=[ones(1,n_2), 1:-dx:min_val];
+dx = (1 - brightness)/n_2;
+r=[brightness:dx:1, ones(1,n_2)];
+g=[brightness:dx:1, 1-dx:-dx:brightness];
+b=[ones(1,n_2), 1:-dx:brightness];
 
 map = [r',g',b'];
-
-% n_steps = (n_levels-2)/2;
-% 
-% dx = (1-0.2)/n_steps;
-% r = [0.2:dx:1-dx, ones(1, n_steps+1)];
-% g = [0.2:dx:1, 1-dx:-dx:0.2];
-% b = [ones(1, n_steps+1), 1-dx:-dx:0.2];
-% 
-% map = [r',g',b']
 
 % 
 % % This script can be used to test if the colorbar is correct
