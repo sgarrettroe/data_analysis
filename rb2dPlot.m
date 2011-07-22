@@ -93,6 +93,10 @@ while length(varargin) >= 2
       brightness = val;
     case 'debug'
       flag_debug = val;
+    case 'xlabel'
+      x_label = val;
+    case 'ylabel'
+      y_label = val;
     otherwise
       error(['rb2dPlot: unknown option ', arg]);
   end 
@@ -183,12 +187,9 @@ caxis(ca);
 line([x(1) x(end)], [x(1) x(end)], 'Color',[0 0 0], 'LineWidth', line_width);
 
 % labels for the plot
-if flag_pumpprobe
-  x_label = '\omega_{probe} / 2\pic';
-  y_label = '\omega_{pump} / 2\pic';
-elseif flag_no_units
+if flag_no_units
   x_label = 'pixels';
-  y_label = 'FT(time)';
+  y_label = 'step';
 end
 xlabel(x_label); %, 'FontSize', line_width * 10);
 ylabel(y_label); %, 'FontSize', line_width * 10);
