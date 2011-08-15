@@ -46,6 +46,9 @@ xlim = [0 0];
 ylim = [0 -1];
 title_string = '';
 flag_no_units = false;
+flag_no_title = false;
+flag_no_horizontal_labels = false;
+flag_no_vertical_labels = false;
 x_label = '\omega_3 / 2\pic';
 y_label = '\omega_1 / 2\pic';
 brightness = 0.2;
@@ -97,6 +100,12 @@ while length(varargin) >= 2
       x_label = val;
     case 'ylabel'
       y_label = val;
+     case 'no_title'
+      flag_no_title = val;
+    case 'no_vertical_labels'
+      flag_no_vertical_labels = val;
+    case 'no_horizontal_labels'
+      flag_no_horizontal_labels = val;
     otherwise
       error(['rb2dPlot: unknown option ', arg]);
   end 
@@ -191,9 +200,14 @@ if flag_no_units
   x_label = 'pixels';
   y_label = 'step';
 end
-xlabel(x_label); %, 'FontSize', line_width * 10);
-ylabel(y_label); %, 'FontSize', line_width * 10);
-title(title_string); %, 'FontSize', line_width * 10);
-
+if ~flag_no_horizontal_labels
+  xlabel(x_label); %, 'FontSize', line_width * 10);
+end
+if ~flag_no_vertical_labels
+  ylabel(y_label); %, 'FontSize', line_width * 10);
+end
+if ~flag_no_title
+  title(title_string); %, 'FontSize', line_width * 10);
+end
 
 
