@@ -6,7 +6,7 @@
 
 global c c_SI c_cm c_cmfs wavenumbersToInvFs wavenumbersToInvPs ...
   wavenumbersToInvSec invSecToWavenumbers invFsToWavenumbers ...
-  invPsToWavenumbers fringeToFs ...
+  invPsToWavenumbers fringeToFs fringeToPs...
   q h hbar epsilon_0 mu_0 debyeToCm N_A ...
   k_B amuToKg
 c_SI = 2.9979e8;
@@ -20,6 +20,7 @@ invFsToWavenumbers=1/wavenumbersToInvFs;
 invPsToWavenumbers=1/wavenumbersToInvPs;
 invSecToWavenumbers = 1/wavenumbersToInvSec;
 fringeToFs = 632.8e-7/c_cmfs; %FIXME!!!
+fringeToPs = fringeToFs/1000;
 q = 1.6e-19; %charge coulombs
 h = 6.626e-34; %plancks
 hbar = 1.054571596e-34;
