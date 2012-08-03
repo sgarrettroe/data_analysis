@@ -11,13 +11,25 @@ function x2 = sgrsfft(x,varargin)
 % x2 = sgrsfft(x,n_zp)
 %
 % additionally zero pads both dimensions to n_zp in length
+%
+% x2 = sgrsfft(x,[],dim) or sgrsfft(x,n_zp,dim) applies the fft operation
+% across the dimension dim.
 
 %the length of the input
 n_zp = length(x);
+flag_dim = false;
+dim = 0;
 
 %look for zero-padding, if any
-if nargin==2
-  n_zp =varargin{1};
+if nargin>=2
+  if ~isempty(varargin{1})
+    n_zp =varargin{1};
+  end
+end
+%look for a dimension specification
+if nargin>=3
+  flag_dim = true;
+  dim = varargin{2};
 end
 
 %copy the input (maybe not necessary but this keeps the steps similar to
@@ -28,4 +40,8 @@ x2 = x;
 x2(1) = (x(1)+x(end))/2;
 
 %to the fft with any zero-padding
-x2 = fft(x2,n_zp);
+if flag_dim
+  x2 = fft(x2,n_zp,dim);
+else
+  x2 = fft(x2,n_zp);
+end  
