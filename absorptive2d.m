@@ -1,41 +1,38 @@
 function s = absorptive2d(s,varargin)
 %calculate the absorptive spectrum from 2d data
 %
-% s = absorptive2d(s,'Property',value,...)
+%  - phase: use a phase, in radian
 %
-% s = absorptive2d(s,'phase',val)
-%     uses a phase of val
+% - zeropad (number): The zeropadded length. Should be equal to twice the 
+%   number of time points for the optimum amount of information in the real 
+%   spectrum (the default).
 %
-% s = absorptive2d(s,'zeropad',val)
-%     The zeropadded length. Should be equal to twice the number of time
-%     points for the optimum amount of information in the real spectrum
-%     (the default).
+% - range ([lim_l lim_u]): Plots over the frequency window of interest 
+%   given by the lower and upper limits
 %
-% s = absorptive2d(s,'range',[lim_l lim_u])
-%     Plots over the frequency window of interest given by the lower and 
-%     upper limits
+% - fft_type (name): Type can be 'fft', the normal fft, or 'sgrsfft' which 
+%   scales the first data point by 0.5. Default is sgrsfft. 
 %
-% s = absorptive2d(s,'fft_type','type')
-%     Type can be 'fft', the normal fft, or 'sgrsfft' which scales the 
-%     first data point by 0.5 
+% - apodization (name): Can be 'none', 'triangular', 'gaussian', 'rbOnes',
+%   'rbGauss' or 'test'. Others can be implemented by adding the methods to 
+%   the apodization_list and then changing the window_fxn. Default is none.
 %
-% s = absorptive2d(s,'apodization','type')
-%     Can be triangular or gaussian. Others can be implemented by adding
-%     the methods to the apodization_list and then changing the window_fxn
+% - apod_numbers ([a b]): For the rbOnes, rbGauss and test functions, this
+%   is the input needed. For rbOnes and rbGauss it determines the length
+%   where the window is set to 0 (a) and how long the Gaussian increase to
+%   1 takes (b). For test it is the factor in the exponential (a) and the
+%   factor in the gaussian (b). 
 %
-% s = absorptive2d(s,'pumpprobe',true) 
-%     The default behavior is to plot 'pump-probe' style 
+% - pumpprobe (BOOL): The default behavior is to plot 'pump-probe' style. 
+%   Default is true. 
 %
-% s = absorptive2d(s,'pumpprobe',false) 
-%     The plots are (x,y) = (omega_1, omega_3)  style 
+% - plot (BOOL): plot the rephasing and non-rephasing spectrum and the 
+%   apodization function. Default is true.
 %
-% s = absorptive2d(s,'plot',true) 
-% s = absorptive2d(s,'plot',false) 
-%     Turn the plots on or off
-%
-% 
+
 
 %default values
+flag_debug = false;
 n_contours = 20;
 zeropad = length(s.time); %means no zeropadding
 phase = 0;
@@ -43,11 +40,17 @@ range = [2300 2700];
 fft_type = 'sgrsfft';
 fft_type_list = {'fft','sgrsfft'};
 apodization = 'none';
-apodization_list = {'none','triangular','gaussian'};
+apodization_list = {'none','triangular','gaussian', 'rbOnes', 'rbGauss', 'test'};
+apod_numbers = [-0.5 3];
+apod_pixel = 16;
 flag_pumpprobe = true;
-flag_plot=true;
+flag_plot = true;
 flag_fftshift = 'off';
 zeropad = 2*length(s.time);
+
+
+% for the special window function
+apod_numbers = [10 10]; 
 
 %determine which version of the input arguments are being passed based on
 %if the first value is a property string or a phase
@@ -104,10 +107,16 @@ switch input_arguments_version
           fft_type = val;
         case 'apodization'
           apodization = val;
+        case 'apod_numbers'
+          apod_numbers = val;
+        case 'apod_pixel'
+          apod_pixel = val;
         case {'pumpprobe_style','pumpprobe'}
           flag_pumpprobe = val;
         case 'plot'
           flag_plot = val;
+        case 'debug'
+          flag_debug = val;
         otherwise
           error(['my2dPlot: unknown option ',arg])
       end
@@ -120,31 +129,119 @@ if n_freq == 0
   flag_spectrometer = false;
   flag_remove_DC=false;
   flag_plot=false;
+  if flag_debug; disp(['absorptive2d: flag_spectrometer = false']); end
 else
   flag_spectrometer = true;
   flag_remove_DC=true;
+  if flag_debug; disp(['absorptive2d: flag_spectrometer = true']); end
 end
 n_time = length(s.time);
 
-
+if flag_debug; disp(['absorptive2d: n_time:' int2str(n_time) ', n_freq:' int2str(n_freq)]); end
 
 %error checking of inputs here?
 if ~any(strcmpi(fft_type,fft_type_list)), error(['fft type ',fft_type,' not known in absorptive2d.m']);end
 if ~any(strcmpi(apodization,apodization_list)), error(['apodization type ',apodization,' not known in absorptive3d.m']);end
-s.comment = [s.comment,' fft_type ',fft_type,' apodization ',apodization];
+s.comment = [s.comment,' // fft-type ',fft_type,' apodization ', apodization];
 
 if flag_spectrometer
   %begin calculation
   R1 = zeros(zeropad,n_freq);
   R2 = zeros(zeropad,n_freq);
+  
+  switch apodization
+    case 'none'
+      window_fxn = ones(1, n_time);
+      if flag_debug == true
+        figure(1001),clf;
+        plot(s.R1(:, apod_pixel) .* window_fxn');
+      end
+    case 'triangular'
+      window_fxn = linspace(1,0,n_time);
+      if flag_debug == true
+        figure(1000);
+        plot(window_fxn);         
+        figure(1001),clf;
+        plot(s.R1(:, apod_pixel) .* window_fxn');
+      end
+    case 'gaussian'
+      window_fxn = exp(-(linspace(0,3,n_time)).^2);
+      if flag_debug == true
+        figure(1000);
+        plot(window_fxn);
+        figure(1001),clf;
+        plot(s.R1(:, apod_pixel) .* window_fxn');
+      end
+    case 'rbOnes'
+      % Gaussian
+      number_a = apod_numbers(1);
+      number_b = apod_numbers(2);
+      
+      a = zeros(1, number_a);
+      %b = 1/sqrt(pi * std) * exp(-linspace(-1, 0, number_b).^2 / std) - 0.039;
+      b = exp(-(5/1)*linspace(-1, 0, number_b).^2);
+      c = ones(1, n_time - number_a - number_b);
+      
+      window_fxn = cat(2, a, b, c);
+
+      if flag_plot == true
+        figure(1000);
+        plot(window_fxn);
+        figure(1001);
+        plot(s.R1(:, apod_pixel) .* window_fxn');
+      end
+
+    case 'rbGauss'
+      % Gaussian
+      number_a = apod_numbers(1);
+      number_b = apod_numbers(2);
+      
+      a = zeros(1, number_a);
+      b = exp(-(5/1)*linspace(-1, 0, number_b).^2);
+      c = exp(-(linspace(0, 3, n_time - number_a - number_b)).^2);
+      
+      window_fxn = cat(2, a, b, c);
+
+      if flag_plot == true
+        figure(1000);
+        plot(window_fxn);
+        figure(1001);
+        plot(s.R1(:, apod_pixel) .* window_fxn');
+      end
+      
+    case 'test'
+      number_a = apod_numbers(1);
+      number_b = apod_numbers(2);
+      
+      %a = zeros(1, number_a);
+      b = exp(- linspace(0, number_a, n_time)) - 1;
+      c = exp(-(linspace(0, number_b, n_time)).^2);
+      
+      window_fxn = b .* c; % cat(2, b, c);
+      
+      window_fxn = window_fxn / max(window_fxn);
+      
+      if flag_plot == true
+        figure(1000),clf;
+        hold on;
+        plot(window_fxn);
+        plot(b);
+        plot(c);
+        hold off;
+        figure(1001),clf;
+        plot(s.R1(:, apod_pixel) .* window_fxn');
+      end      
+  end
+  % end switch apodization
+  
   for i = 1:n_freq
     switch fft_type
       case 'fft'
         R1(:,i) = fft(s.R1(:,i)',zeropad);
         R2(:,i) = fft(s.R2(:,i)',zeropad);
       case 'sgrsfft'
-        R1(:,i) = sgrsfft(s.R1(:,i),zeropad);
-        R2(:,i) = sgrsfft(s.R2(:,i),zeropad);
+        R1(:,i) = sgrsfft(s.R1(:,i) .* window_fxn', zeropad);
+        R2(:,i) = sgrsfft(s.R2(:,i) .* window_fxn', zeropad);
     end
   end
   
@@ -176,10 +273,12 @@ if flag_spectrometer
   s = freq2d(s,'zeropad',zeropad,...
     'spectrometer',flag_spectrometer,...
     'fftshift',flag_fftshift);
-   
+  
+  
+  
+  
   map = myMapRGB2(n_contours+1);
   ind = find(s.w1>range(1) & s.w1<range(2));
-  figure(100),
   
   if flag_plot
     figure(100)
@@ -197,6 +296,7 @@ if flag_spectrometer
       x_label = '\omega_1 / 2\pic';
       y_label = '\omega_3 / 2\pic'; 
     end
+    
     contourf(x,y,z,n_contours)
     axis square
     myCaxis2(z,n_contours);
@@ -226,7 +326,6 @@ if flag_spectrometer
     ylabel(y_label)
     
     figure(101),clf
-    
     if flag_pumpprobe
       x = s.w3;
       y = s.w1(ind);

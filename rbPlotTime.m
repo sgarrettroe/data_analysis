@@ -5,14 +5,16 @@ function varargout = rbPlotTime(s, varargin)
 %-data: R(1) or R(2)
 %-pixel(opt): default is pixel 16. Pixel > 0 gives a trace of 1 pixel.
 %pixel = 0 gives a 2d-plot
+%-xlim(opt): limits for the x-axis (is time)
 %
 %output is a 2dplot 
 %
 %RB, 20110505: started function
 
 pixel = 16;
-xlim = [0 0];
-ylim = [0 0];
+zlimit = 0;
+x_lim = [0 0];
+y_lim = [0 0];
 while length(varargin)>=2
   arg = varargin{1};
   val = varargin{2};
@@ -37,10 +39,11 @@ while length(varargin)>=2
         axis_w = s.freq;
       end
     case 'xlim'
-      xlim = val;
+      x_lim = val
     case 'ylim'
-      ylim = val;
-        
+      y_lim = val;
+    case 'zlimit'
+      zlimit = val;
     case 'pixel'
       pixel = val;
       %see if pixel is in range
@@ -54,13 +57,20 @@ while length(varargin)>=2
   varargin = varargin(3:end);
 end
 
+if x_lim == [0 0]
+  x_lim = [axis_t(1) axis_t(end)];  
+end
+
 %linear time trace
 if pixel > 0
-  plot(axis_t, data(:,1));
+  plot(axis_t, data(:,pixel))
+  xlim(x_lim);
+  ylim([-zlimit zlimit]);
 end
 
 if pixel == 0
-  rb2dPlot(axis_w, axis_t, data, 'xlim', xlim, 'ylim', ylim);
+  rb2dPlot(axis_t, axis_w, data', 'xlim', x_lim, 'ylim', y_lim, 'n_contours', 20,...
+  'zlimit', zlimit, 'xlabel', 'time (fs)', 'ylabel', '\omega_3 / 2\pic');
 end
 
 

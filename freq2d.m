@@ -33,8 +33,10 @@ if nargin>=3
   end
 end
 
-if zeropad
+if zeropad 
   s.zeropad = zeropad;
+end
+if s.zeropad ~= length(s.time)
   s.comment = [s.comment,' zeropad ',num2str(zeropad)];
 end
 if isempty(s.undersampling)
