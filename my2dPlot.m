@@ -58,13 +58,13 @@ map=myMapRGB2(n_contours);
 % large than 1, it will use that value.
 if zlimit <= 0 
   [ca, level_list]= myCaxis2(z, n_contours);
-  ca 
+  %ca 
 elseif zlimit > 0 && zlimit <= 1
   [ca, level_list] = myCaxis2(z, n_contours);
-  ca = ca * zlimit
+  ca = ca * zlimit;
   level_list = level_list * zlimit;
 else
-  ca = [-zlimit zlimit]
+  ca = [-zlimit zlimit];
   level_list = linspace(-zlimit, zlimit, n_contours+2);
 end
   
