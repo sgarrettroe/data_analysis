@@ -27,7 +27,7 @@ function [w,p] = fftFreqAxis(t,varargin)
 % nyquist dt_ny = 5 fs, so undersampling n=1 means dt = (2*1+1)*5 =15 fs,
 % n=2 => 25 fs etc
 
-global c q h
+global c_cm q h
 % c = 2.9979e10;
 % q = 1.6e-19;
 % h = 6.626e-34;
@@ -81,13 +81,13 @@ if n_under>0 && strcmpi(shift,'on')
   warning('data_analysis:untested_feature','fftFreqAxis: use p.ind to find the right part of the spectrum');
 end
 
-if any(isempty([c h q ]))
+if any(isempty([c_cm h q ]))
   error('Physical constants c h and q are missing! Rerun startup.m or define them as global')
 end
 conversion = 1;
 switch lower(freq_units)
   case {'wavenumbers','cm-1'}
-    conversion =conversion*c;
+    conversion =conversion*c_cm;
   case 'hz'
     warning([freq_units ' not yet tested!']);
   case 'ev'
