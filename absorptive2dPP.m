@@ -50,7 +50,8 @@ flag_plot=true;
 flag_fftshift = 'on';
 time = s.time;
 flag_freq_domain_filter = false;
-freq_domain_filter_params = [2050 4000]; %center and fwhm in cm-1
+freq_domain_filter_center = 2050; 
+freq_domain_filter_fwhm = 400;
 
 %determine which version of the input arguments are being passed based on
 %if the first value is a property string or a phase
@@ -112,8 +113,14 @@ if nargin>1
             flag_pumpprobe = val;
           case 'plot'
             flag_plot = val;
-          case 'freq_domain_filter'
+          case {'freq_domain_filter','filter'}
             flag_freq_domain_filter = val;
+          case 'filter_center'
+            flag_freq_domain_filter = true;
+            freq_domain_filter_center = val;
+          case 'filter_fwhm'
+            flag_freq_domain_filter = true;
+            freq_domain_filter_fwhm = val;
           otherwise
             error(['my2dPlot: unknown option ',arg])
         end
@@ -192,7 +199,26 @@ if flag_spectrometer
 
   %filter in frequency domain if requested
   if flag_freq_domain_filter
-    warning('SGRLAB:NotImplemented','freq domain filter not yet implemented');
+    
+    nrows = length(s.w3);
+
+    %make a window function (a gaussian) to surpress frequencies outside of the
+    %region of interest. The factor of 2.355 converts fwhm to standard
+    %deviation
+    window_fxn = exp(-(w1-freq_domain_filter_center).^2./(2*(freq_domain_filter_fwhm/2.355)^2));
+    
+    %copy the window_fxn so it is the same size as the data
+    WIN = repmat(window_fxn,nrows,1);
+    %calc new PP data by 
+    %1) multiply by window
+    %2) shift so zero frequency is the first element of the array
+    %3) inverse fft
+    %4) take only the real part
+    PP = real(ifft(ifftshift(s.R.*WIN,2),[],2));
+    
+    %fix the time axis to match the fft length
+    dt = time(2) - time(1);
+    time = (0:(zeropad-1))*dt;
   end
   
   %
@@ -206,13 +232,13 @@ if flag_spectrometer
     figure(100),clf
     if flag_pumpprobe
       x = s.freq;
-      y = s.time;
+      y = time;
 %      z = real(s.PP)';
       z = real(PP)';
       x_label = '\omega_{probe} / 2\pic';
       y_label = 't_{pump} / fs'; 
     else
-      x = s.time;
+      x = time;
       y = s.freq;
 %      z = real(s.PP);
       z = real(PP);
