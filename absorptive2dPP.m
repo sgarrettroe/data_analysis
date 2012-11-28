@@ -1,4 +1,4 @@
-function s = absorptive2dPP(s,varargin)
+function [s,PP] = absorptive2dPP(s,varargin)
 %calculate the absorptive spectrum from pump-probe 2d data
 %
 % s = absorptive2d(s,'Property',value,...)
@@ -33,7 +33,7 @@ function s = absorptive2dPP(s,varargin)
 % s = absorptive2d(s,'plot',false) 
 %     Turn the plots on or off
 %
-% 
+% [s,PP] = absorptive2dPP(...) returns the processed time domain data 
 
 %default values
 n_contours = 20;
@@ -49,6 +49,8 @@ flag_pumpprobe = false; %plot style is (w1,w3) as (x,y)
 flag_plot=true;
 flag_fftshift = 'on';
 time = s.time;
+flag_freq_domain_filter = false;
+freq_domain_filter_params = [2050 4000]; %center and fwhm in cm-1
 
 %determine which version of the input arguments are being passed based on
 %if the first value is a property string or a phase
@@ -94,7 +96,7 @@ if nargin>1
         case 'n_contours'
           n_contours = val;
           if mod(n_contours,2)
-            warning('my2dPlot: Odd number of contour lines may produce unexpected results!')
+            warning('SGRLAB:ContourLines','my2dPlot: Odd number of contour lines may produce unexpected results!');
           end
           case 'phase'
             phase = val(1); %take only the first element if it is an array
@@ -110,6 +112,8 @@ if nargin>1
             flag_pumpprobe = val;
           case 'plot'
             flag_plot = val;
+          case 'freq_domain_filter'
+            flag_freq_domain_filter = val;
           otherwise
             error(['my2dPlot: unknown option ',arg])
         end
@@ -126,7 +130,7 @@ else
   flag_spectrometer = true;
   flag_remove_DC=true;
 end
-n_time = length(s.time);
+%n_time = length(s.time);
 
 
 
@@ -139,10 +143,20 @@ if flag_spectrometer
   %begin calculation
   R = zeros(zeropad,n_freq);
   PP = s.PP;
+
+  if flag_remove_DC
+    ncol = size(PP,2);
+    PP = PP - repmat(mean(PP,2),1,ncol);
+  end
   
   %all data before 0 gets set to 0 because it is from a mixture of
   %different population times
   PP(:,1:t0_bin-1) = 0; 
+  
+  %make it the mean rather than 0 to reduce zeropadding artifacts. The
+  %alternative would be to subtract the mean from all elements of the PP
+  %data.
+  %PP(:,1:t0_bin-1) = repmat(mean(PP(:,t0_bin:end),2),1,t0_bin-1);
   
   %rotate bins to put t0 as the first bin
   PP = circshift(PP,[0 -t0_bin+1]);
@@ -157,9 +171,9 @@ if flag_spectrometer
   R = real(R.*exp(1i*phase*pi/180));
   R = fftshift(R,2);
   
-  if flag_remove_DC
-    R(:,1)=0;
-  end
+%   if flag_remove_DC
+%     R(:,1)=0;
+%   end
     
   w1 = fftFreqAxis(time,'time_units',s.time_units,...
     'freq_units',s.freq_units,...
@@ -176,11 +190,16 @@ if flag_spectrometer
   s.w3 = s.freq;
   s.R = R;
 
+  %filter in frequency domain if requested
+  if flag_freq_domain_filter
+    warning('SGRLAB:NotImplemented','freq domain filter not yet implemented');
+  end
+  
   %
   %    Plot results
   %
   map = myMapRGB2(n_contours+1);
-  ind = find(s.w1>range(1) & s.w1<range(2))
+  ind = find(s.w1>range(1) & s.w1<range(2));
   
   if flag_plot
     %input raw data
@@ -188,21 +207,23 @@ if flag_spectrometer
     if flag_pumpprobe
       x = s.freq;
       y = s.time;
-      z = real(s.PP)';
+%      z = real(s.PP)';
+      z = real(PP)';
       x_label = '\omega_{probe} / 2\pic';
       y_label = 't_{pump} / fs'; 
     else
       x = s.time;
       y = s.freq;
-      z = real(s.PP);
+%      z = real(s.PP);
+      z = real(PP);
       x_label = 't_1 / fs';
       y_label = '\omega_3 / 2\pic'; 
     end
-    size(x)
-    size(y)
-    size(z)
+%    size(x)
+%    size(y)
+%    size(z)
     contourf(x,y,z,n_contours)
-    axis square
+    %axis square
     myCaxis2(z,n_contours);
     colormap(map)
     xlabel(x_label)
