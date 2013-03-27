@@ -31,7 +31,11 @@ function [s,PP] = absorptive2dPP(s,varargin)
 %
 % s = absorptive2d(s,'plot',true) 
 % s = absorptive2d(s,'plot',false) 
-%     Turn the plots on or off
+%     Turn all the plots on or off
+%
+% s = absorptive2d(s,'plotraw',true) 
+% s = absorptive2d(s,'plotraw',false) 
+%     Turn the plots of the raw data on or off
 %
 % [s,PP] = absorptive2dPP(...) returns the processed time domain data 
 
@@ -47,6 +51,7 @@ apodization = 'none';
 apodization_list = {'none','triangular','gaussian'};
 flag_pumpprobe = false; %plot style is (w1,w3) as (x,y)
 flag_plot=true;
+flag_plotraw = false;
 flag_fftshift = 'on';
 time = s.time;
 flag_freq_domain_filter = false;
@@ -175,7 +180,7 @@ if flag_spectrometer
   end
 
   %correct for the phase calculated by the phasing routine
-  R = real(R.*exp(1i*phase*pi/180));
+  R = real(R.*exp(-1i*phase*pi/180));
   R = fftshift(R,2);
   
 %   if flag_remove_DC
@@ -229,6 +234,7 @@ if flag_spectrometer
   
   if flag_plot
     %input raw data
+    if flag_plotraw
     figure(100),clf
     if flag_pumpprobe
       x = s.freq;
@@ -255,6 +261,7 @@ if flag_spectrometer
     xlabel(x_label)
     ylabel(y_label)
     drawnow
+    end
     
     %fft data the "real" spectrum
     figure(101),clf
