@@ -180,7 +180,7 @@ if flag_spectrometer
   end
 
   %correct for the phase calculated by the phasing routine
-  R = -real(R.*exp(-1i*phase*pi/180));
+  R = real(R.*exp(-1i*phase*pi/180));
   R = fftshift(R,2);
   
 %   if flag_remove_DC
