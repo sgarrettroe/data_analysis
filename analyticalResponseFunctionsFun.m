@@ -138,7 +138,16 @@ end
 % end
   
 switch damping,
-  case {'overdamped', '1exp'}
+    case 'voigt'
+    Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
+    T2 = p(2); %first timescale (ps)
+    anh_cm = p(3);
+        
+    Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
+
+    g = @(t) t./T2 + Delta1^2/2.*t.^2;
+        
+    case {'overdamped', '1exp'}
     %overdamped exp(-t/tau)
     Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
     tau1 = p(2); %first timescale (ps)
@@ -159,8 +168,8 @@ switch damping,
     Lambda1 = 1/tau1;
     anh = anh_cm*wavenumbersToInvPs*2*pi;
 
-    g = @(t) Delta^2/4/Lambda^2.*exp(-2.*Lambda.*t) ...
-      .*(3 + 2*Lambda*t + exp(2.*Lambda.*t).*(4*Lambda.*t - 3));
+    g = @(t) Delta1^2/4/Lambda1^2.*exp(-2.*Lambda1.*t) ...
+      .*(3 + 2*Lambda1*t + exp(2.*Lambda1.*t).*(4*Lambda1.*t - 3));
   case '2expcrit'
     Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
     Delta2_cm = p(2);%linewidth (sigma) in wavenumbers of the other motion
