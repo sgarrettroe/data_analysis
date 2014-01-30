@@ -137,6 +137,8 @@ end
 %   disp('No orentational response functions');
 % end
   
+c2 = [];
+g = [];
 switch damping,
     case 'voigt'
     Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
@@ -145,6 +147,7 @@ switch damping,
         
     Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
 
+    c2 = @(t) (t==0)/T2 + Delta1^2;
     g = @(t) t./T2 + Delta1^2/2.*t.^2;
         
     case {'overdamped', '1exp'}
@@ -157,6 +160,7 @@ switch damping,
     Lambda1 = 1/tau1;
     anh = anh_cm*wavenumbersToInvPs*2*pi;
 
+    c2 = @(t) Delta1^2.*exp(-Lambda1.*t);
     g = @(t) Delta1^2/Lambda1^2.*(exp(-Lambda1.*t)-1+Lambda1.*t);
   case 'critical'
     %critically damped (1+2t/tau)exp(-2t/tau)
@@ -168,6 +172,7 @@ switch damping,
     Lambda1 = 1/tau1;
     anh = anh_cm*wavenumbersToInvPs*2*pi;
 
+    c2 = @(t) Delta1^2.*(1+2*Lambda1.*t).*exp(-2*Lambda1.*t);
     g = @(t) Delta1^2/4/Lambda1^2.*exp(-2.*Lambda1.*t) ...
       .*(3 + 2*Lambda1*t + exp(2.*Lambda1.*t).*(4*Lambda1.*t - 3));
   case '2expcrit'
@@ -343,6 +348,7 @@ if order==1
       %S2 = fftshift(real(sgrsfft(S2)));
   end
   
+ s.c2 = c2(t);
  s.g = g(t);
  s.S1 = S1;
  s.t = t;
