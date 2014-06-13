@@ -140,12 +140,14 @@ end
 c2 = [];
 g = [];
 switch damping,
+
     case 'voigt'
     Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
     T2 = p(2); %first timescale (ps)
     anh_cm = p(3);
         
     Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
+    anh = anh_cm*wavenumbersToInvPs*2*pi;
 
     c2 = @(t) (t==0)/T2 + Delta1^2;
     g = @(t) t./T2 + Delta1^2/2.*t.^2;
@@ -162,6 +164,22 @@ switch damping,
 
     c2 = @(t) Delta1^2.*exp(-Lambda1.*t);
     g = @(t) Delta1^2/Lambda1^2.*(exp(-Lambda1.*t)-1+Lambda1.*t);
+    
+     case {'1exp1fast'}
+    %overdamped exp(-t/tau)
+    Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
+    tau1 = p(2); %first timescale (ps)
+    T2 = p(3); %T2 time (fast process)
+    anh_cm = p(4);
+
+    Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
+    Lambda1 = 1/tau1;
+    anh = anh_cm*wavenumbersToInvPs*2*pi;
+
+    c2 = @(t) (t==0)/T2 + Delta1^2.*exp(-Lambda1.*t);
+    g = @(t) t./T2 + Delta1^2/Lambda1^2.*(exp(-Lambda1.*t)-1+Lambda1.*t);
+    
+    
   case 'critical'
     %critically damped (1+2t/tau)exp(-2t/tau)
     Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
@@ -463,6 +481,13 @@ if order==3
     out(:,:,i) = interp2(W1,W3,P,w1_in,w3_in','*linear');
     
   end %end t2_array loop
+  
+ try
+     s.c2 = c2(t);
+     s.g = g(t);
+    s.t = t;
+    extra = s;
+ end
 end %end if order 3
 
 if order==5
