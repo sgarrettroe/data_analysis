@@ -87,6 +87,13 @@ flag_rotating_frame = true;
 two_level_system = false;
 %two_level_system = true;
 
+flag_bootstrap = false;
+if isfield(options,'bootstrap')
+    if ~isempty(options.bootstrap)
+        flag_bootstrap = true;
+        bootstrap_index = options.bootstrap;
+    end
+end
 
 %details of fft
 %fft_type = 'fft';
@@ -501,6 +508,10 @@ if order==3
     out(:,:,i) = interp2(W1,W3,P,w1_in,w3_in','*linear');
     
   end %end t2_array loop
+  
+  if flag_bootstrap
+      out = out(bootstrap_index);
+  end
   
  try
      s.c2 = c2(t);
