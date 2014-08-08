@@ -56,20 +56,44 @@ n_t2_array = length(t2_array);
 dt = options.dt;
 n_t = options.n_t; %number of time steps
 w_0_cm = options.w_0_cm;% %center frequency
+phi = 0; %phase shift (radians) exp(1i*phi)
+mu01_2 = 1; %default
+mu12_2 = 2; %default
+
+%look to see if parameters from inputs
+nparams = length(options.pnames);
+for ii = 1:nparams
+    switch options.pnames{ii}
+        case 'w0 (cm-1)'
+            w_0_cm = p(ii);
+        case 'mu01_2'
+            mu01_2 = p(ii);
+        case 'mu12_2'
+            mu12_2 = p(ii);
+        case 'phi (rad)'
+            phi = p(ii);
+        case 'phi (deg)'
+            phi = p(ii)*pi/180;
+    end   
+end
+
+%check for what order (third 
 if isfield(options,'order')
     order = options.order;
 end
 
 flag_rotating_frame = true;
 
-range = [1960 2160];
-labels = [-400:200:400]; %not used in 2d plots
-%range = [-200 200];
-%labels = [-150:150:150];
-
 two_level_system = false;
 %two_level_system = true;
 
+flag_bootstrap = false;
+if isfield(options,'bootstrap')
+    if ~isempty(options.bootstrap)
+        flag_bootstrap = true;
+        bootstrap_index = options.bootstrap;
+    end
+end
 
 %details of fft
 %fft_type = 'fft';
@@ -88,8 +112,9 @@ apodization = 'none';
 %projection_type = 'window';
 projection_type = 'all';
 
-% play with phase shifts
-phi = 0; %phase shift in deg
+
+
+%simulate noise
 noise = 0.0;
 
 % simulate laser bandwidth
@@ -396,13 +421,15 @@ if order==3
         %disp('multilevel system')
         %P1=real(exp(1i*w_0.*(-T1+T3)+1i*phi).*exp(-g(T1)+g(t2)-g(T3)-g(T1+t2)-g(t2+T3)+g(T1+t2+T3)).*(2-2.*exp(-sqrt(-1)*anh.*T3)));
         %P2=real(exp(1i*w_0.*(T1+T3)+1i*phi).*exp(-g(T1)-g(t2)-g(T3)+g(T1+t2)+g(t2+T3)-g(T1+t2+T3)).*(2-2.*exp(-sqrt(-1)*anh.*T3)));
-        P1=exp(-g(T1)+g(t2)-g(T3)-g(T1+t2)-g(t2+T3)+g(T1+t2+T3)).*(2-2.*exp(-sqrt(-1)*anh.*T3));
-        P2=exp(-g(T1)-g(t2)-g(T3)+g(T1+t2)+g(t2+T3)-g(T1+t2+T3)).*(2-2.*exp(-sqrt(-1)*anh.*T3));
+        P1=exp(-g(T1)+g(t2)-g(T3)-g(T1+t2)-g(t2+T3)+g(T1+t2+T3)).*(2*mu01_2-mu12_2.*exp(-1i*anh.*T3));
+        P2=exp(-g(T1)-g(t2)-g(T3)+g(T1+t2)+g(t2+T3)-g(T1+t2+T3)).*(2*mu01_2-mu12_2.*exp(-1i*anh.*T3));
     end
     
+    P1 = exp(1i*phi).*P1;
+    P2 = exp(-1i*phi).*P2;
     if flag_rotating_frame == false
-        P1 = exp(1i*w_0.*(-T1+T3)+1i*phi).*P1;
-        P2 = exp(1i*w_0.*(T1+T3)+1i*phi).*P2;
+        P1 = exp(1i*w_0.*(-T1+T3)).*P1;
+        P2 = exp(1i*w_0.*(T1+T3)).*P2;
     end
     
     if orientational_response
@@ -477,10 +504,14 @@ if order==3
     end
 
     [W1,W3] = meshgrid(w,w);
-    P = P./max(P(:));
+    P = P./abs(min(P(:))); %normalize to the 01 band (negative)
     out(:,:,i) = interp2(W1,W3,P,w1_in,w3_in','*linear');
     
   end %end t2_array loop
+  
+  if flag_bootstrap
+      out = out(bootstrap_index);
+  end
   
  try
      s.c2 = c2(t);
