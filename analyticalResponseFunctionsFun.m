@@ -211,7 +211,7 @@ switch damping,
         Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
         tau1 = p(2);%first timescale (ps)
         Delta2_cm = p(3); %linewidth of second motion
-        tau1 = p(4); %second timescale (ps)
+        tau2 = p(4); %second timescale (ps)
         T2 = p(5); %T2 time (fast / homogeneous processes)
         anh_cm = p(6);
         
