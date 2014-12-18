@@ -167,47 +167,80 @@ g = [];
 switch damping,
 
     case 'voigt'
-    Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
-    T2 = p(2); %first timescale (ps)
-    anh_cm = p(3);
-        
-    Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
-    anh = anh_cm*wavenumbersToInvPs*2*pi;
+        Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
+        T2 = p(2); %first timescale (ps)
+        anh_cm = p(3);
 
-    c2 = @(t) (t==0)/T2 + Delta1^2;
-    g = @(t) t./T2 + Delta1^2/2.*t.^2;
+        Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
+        anh = anh_cm*wavenumbersToInvPs*2*pi;
+
+        c2 = @(t) (t==0)/T2 + Delta1^2;
+        g = @(t) t./T2 + Delta1^2/2.*t.^2;
         
     case {'overdamped', '1exp'}
-    %overdamped exp(-t/tau)
-    Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
-    tau1 = p(2); %first timescale (ps)
-    anh_cm = p(3);
+        %overdamped exp(-t/tau)
+        Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
+        tau1 = p(2); %first timescale (ps)
+        anh_cm = p(3);
 
-    Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
-    Lambda1 = 1/tau1;
-    anh = anh_cm*wavenumbersToInvPs*2*pi;
+        Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
+        Lambda1 = 1/tau1;
+        anh = anh_cm*wavenumbersToInvPs*2*pi;
 
-    c2 = @(t) Delta1^2.*exp(-Lambda1.*t);
-    g = @(t) Delta1^2/Lambda1^2.*(exp(-Lambda1.*t)-1+Lambda1.*t);
-    
-     case {'1exp1fast'}
-    %overdamped exp(-t/tau)
-    Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
-    tau1 = p(2); %first timescale (ps)
-    T2 = p(3); %T2 time (fast process)
-    anh_cm = p(4);
+        c2 = @(t) Delta1^2.*exp(-Lambda1.*t);
+        g = @(t) Delta1^2/Lambda1^2.*(exp(-Lambda1.*t)-1+Lambda1.*t);
 
-    Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
-    Lambda1 = 1/tau1;
-    anh = anh_cm*wavenumbersToInvPs*2*pi;
+    case {'1exp1fast'}
+        %overdamped exp(-t/tau)
+        Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
+        tau1 = p(2); %first timescale (ps)
+        T2 = p(3); %T2 time (fast process)
+        anh_cm = p(4);
 
-    c2 = @(t) (t==0)/T2 + Delta1^2.*exp(-Lambda1.*t);
-    g = @(t) t./T2 + Delta1^2/Lambda1^2.*(exp(-Lambda1.*t)-1+Lambda1.*t);
+        Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
+        Lambda1 = 1/tau1;
+        anh = anh_cm*wavenumbersToInvPs*2*pi;
+
+        c2 = @(t) (t==0)/T2 + Delta1^2.*exp(-Lambda1.*t);
+        g = @(t) t./T2 + Delta1^2/Lambda1^2.*(exp(-Lambda1.*t)-1+Lambda1.*t);
+
+    case {'1exp1slow'}
+        Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
+        tau1 = p(2);%first motion's timescale (ps)
+        Delta2_cm = p(3);%linewidth (sigma) in wavenumbers of the inhomogeneous component
+        anh_cm = p(4); %Anharmonicity in wavenumbers
+
+        Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
+        Lambda1 = 1/tau1;
+        Delta2 = Delta2_cm*wavenumbersToInvPs*2*pi;
+        anh = anh_cm*wavenumbersToInvPs*2*pi;
+
+        c2 = @(t) Delta1^2.*exp(-Lambda1.*t) ...
+            + Delta2^2;
+        g = @(t) Delta1^2/Lambda1^2.*(exp(-Lambda1.*t)-1+Lambda1.*t) ...
+        + (Delta2^2).*t.^2/2;
+        
+    case {'1exp1fast1slow'}
+        Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
+        tau1 = p(2);%first motion's timescale (ps)
+        Delta2_cm = p(3);%linewidth (sigma) in wavenumbers of the inhomogeneous component
+        T2 = p(4); %Homogeneous dephasing time
+        anh_cm = p(5); %Anharmonicity in wavenumbers
+
+        Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
+        Lambda1 = 1/tau1;
+        Delta2 = Delta2_cm*wavenumbersToInvPs*2*pi;
+        anh = anh_cm*wavenumbersToInvPs*2*pi;
+
+        c2 = @(t) (t==0)/T2 + Delta1^2.*exp(-Lambda1.*t) ...
+            + Delta2^2;
+        g = @(t) t./T2 + Delta1^2/Lambda1^2.*(exp(-Lambda1.*t)-1+Lambda1.*t) ...
+        + (Delta2^2).*t.^2/2;
   
     case {'2exp1fast'}
-    % Developed for use with Zhe's SCN- data in ILs, where he has two
-    % inhomogeneous timescales, one longer, and one shorter.
-    % Expanded form of '1exp1fast' above --Tom
+        % Developed for use with Zhe's SCN- data in ILs, where he has two
+        % inhomogeneous timescales, one longer, and one shorter.
+        % Expanded form of '1exp1fast' above --Tom
         Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
         tau1 = p(2);%first timescale (ps)
         Delta2_cm = p(3); %linewidth of second motion
@@ -221,11 +254,76 @@ switch damping,
         Lambda2 = 1/tau2;
         anh = anh_cm*wavenumbersToInvPs*2*pi;
 
-    c2 = @(t) (t==0)/T2 + Delta1^2.*exp(-Lambda1.*t) ...
-        + Delta2^2.*exp(-Lambda2.*t);
-    g = @(t) t./T2 + Delta1^2/Lambda1^2.*(exp(-Lambda1.*t)-1+Lambda1.*t) ...
-        + Delta2^2/Lambda2^2.*(exp(-Lambda2.*t)-1+Lambda2.*t);
+        c2 = @(t) (t==0)/T2 + Delta1^2.*exp(-Lambda1.*t) ...
+            + Delta2^2.*exp(-Lambda2.*t);
+        g = @(t) t./T2 + Delta1^2/Lambda1^2.*(exp(-Lambda1.*t)-1+Lambda1.*t) ...
+            + Delta2^2/Lambda2^2.*(exp(-Lambda2.*t)-1+Lambda2.*t);
+    
+  case {'2exp1fast1slow'}
+        Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
+        tau1 = p(2);%first motion's timescale (ps)
+        Delta2_cm = p(3);%linewidth (sigma) in wavenumbers of the other motion
+        tau2 = p(4);%second motion's timescale (ps)
+        Delta3_cm = p(5);%linewidth (sigma) in wavenumbers of the inhomogeneous component
+        T2 = p(6); %Homogeneous dephasing time
+        anh_cm = p(7); %Anharmonicity in wavenumbers
+      
+        Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
+        Lambda1 = 1/tau1;
+        Delta2 = Delta2_cm*wavenumbersToInvPs*2*pi;
+        Lambda2 = 1/tau2;
+        Delta3 = Delta3_cm*wavenumbersToInvPs*2*pi;
+        anh = anh_cm*wavenumbersToInvPs*2*pi;
+
+        c2 = @(t) (t==0)/T2 + Delta1^2.*exp(-Lambda1.*t) ...
+            + Delta2^2.*exp(-Lambda2.*t) + Delta3^2;
+        g = @(t) t./T2 + Delta1^2/Lambda1^2.*(exp(-Lambda1.*t)-1+Lambda1.*t) ...
+        + Delta2^2/Lambda2^2.*(exp(-Lambda2.*t)-1+Lambda2.*t) + (Delta3^2).*t.^2/2;
+    
+    case {'2exp1slow'}
+        Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
+        tau1 = p(2);%first motion's timescale (ps)
+        Delta2_cm = p(3);%linewidth (sigma) in wavenumbers of the other motion
+        tau2 = p(4);%second motion's timescale (ps)
+        Delta3_cm = p(5);%linewidth (sigma) in wavenumbers of the inhomogeneous component
+        anh_cm = p(6); %Anharmonicity in wavenumbers
+      
+        Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
+        Lambda1 = 1/tau1;
+        Delta2 = Delta2_cm*wavenumbersToInvPs*2*pi;
+        Lambda2 = 1/tau2;
+        Delta3 = Delta3_cm*wavenumbersToInvPs*2*pi;
+        anh = anh_cm*wavenumbersToInvPs*2*pi;
+
+        c2 = @(t) Delta1^2.*exp(-Lambda1.*t) ...
+            + Delta2^2.*exp(-Lambda2.*t) + Delta3^2;
+        g = @(t) Delta1^2/Lambda1^2.*(exp(-Lambda1.*t)-1+Lambda1.*t) ...
+        + Delta2^2/Lambda2^2.*(exp(-Lambda2.*t)-1+Lambda2.*t) + (Delta3^2).*t.^2/2;
   
+    case {'3exp1fast'}
+        Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
+        tau1 = p(2);%first timescale (ps)
+        Delta2_cm = p(3); %linewidth of second motion
+        tau2 = p(4); %second timescale (ps)
+        Delta3_cm = p(5);
+        tau3 = p(6);
+        T2 = p(7); %T2 time (fast / homogeneous processes)
+        anh_cm = p(8);
+        
+        Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
+        Lambda1 = 1/tau1;
+        Delta2 = Delta2_cm*wavenumbersToInvPs*2*pi;
+        Lambda2 = 1/tau2;
+        Delta3 = Delta3_cm*wavenumbersToInvPs*2*pi;
+        Lambda3 = 1/tau3;
+        anh = anh_cm*wavenumbersToInvPs*2*pi;
+
+        c2 = @(t) (t==0)/T2 + Delta1^2.*exp(-Lambda1.*t) ...
+            + Delta2^2.*exp(-Lambda2.*t) + Delta3^2.*exp(-Lambda3.*t);
+        g = @(t) t./T2 + Delta1^2/Lambda1^2.*(exp(-Lambda1.*t)-1+Lambda1.*t) ...
+            + Delta2^2/Lambda2^2.*(exp(-Lambda2.*t)-1+Lambda2.*t) ...
+            + Delta3^2/Lambda3^2.*(exp(-Lambda3.*t)-1+Lambda3.*t);
+    
     
     case 'critical'
     %critically damped (1+2t/tau)exp(-2t/tau)
@@ -240,6 +338,7 @@ switch damping,
     c2 = @(t) Delta1^2.*(1+2*Lambda1.*t).*exp(-2*Lambda1.*t);
     g = @(t) Delta1^2/4/Lambda1^2.*exp(-2.*Lambda1.*t) ...
       .*(3 + 2*Lambda1*t + exp(2.*Lambda1.*t).*(4*Lambda1.*t - 3));
+  
   case '2expcrit'
     Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
     Delta2_cm = p(2);%linewidth (sigma) in wavenumbers of the other motion
@@ -256,7 +355,7 @@ switch damping,
       .*(3.*exp(-2.*Lambda1.*t) + 2*Lambda1*t.*exp(-2.*Lambda1.*t) + (4*Lambda1.*t - 3)) ...
       + Delta2^2/4/Lambda2^2 ...
       .*(3.*exp(-2.*Lambda2.*t) + 2*Lambda2*t.*exp(-2.*Lambda2.*t) + (4*Lambda2.*t - 3));
-
+  
   case '3expcrit'
     Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
     Delta2_cm = p(2);%linewidth (sigma) in wavenumbers of the other motion
