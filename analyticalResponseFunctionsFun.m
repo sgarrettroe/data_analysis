@@ -1,34 +1,59 @@
 function [out,extra] = analyticalResponseFunctionsFun(p,w1_in,w3_in,options)
-%This is an example of how to use analyticalResponseFunctions.m
-%all time parameters are in units of ps
-
-%Here are the things you need to define:
-flag_print = 0; %1 => figures or 0 => no figures
-flag_plot = 0;
-order = 3; %order of spectroscopy to calculate. 3 = 2DIR, 5 = 3DIR
+%Create simulated spectral data using an analytical form for the nth-order
+%response function (see Hamm and Zanni Ch. 7 in particular).
+%  [OUT,EXTRA] = analyticalResponseFunctionsFun(P,W1_IN,W3_IN,OPTIONS) will
+%  generate a matrix with the simulated response in W1 and W3, based on the
+%  starting point (P) and options (OPTIONS) you provide.
+%
+%   OPTIONS should be a structure with the fields:
+%
+%       't2_array'              t2 values in ps, in array format, e.g.:
+%                               [1 2 3 4 5]
+%       'dt'                    Size of the timestep (0.4 is the default)
+%       'n_t'                   Number of time points (64 is the default)
+%       'noise' (optional)
+%       'order' (optional)      1 -- First order (linear)
+%                               3 -- Third order (2D)
+%                               5 -- Fifth order (3D)
+%       'w_0_cm'                Now a fitting parameter -- allows variation 
+%                               of w_0 for the fit -- Leave this [].
+%       'bootstrap'             No bootstrapping for now (set as []).
+%       ----------------------
+%       'damping'               Gives the form of the correlation function
+%       'pnames'                Gives names for the inputs from P
+%       'p0'                    Starting point.
+%
+%       Damping determines the elements in pnames and p0. We'll
+%       have to make this a little more user friendly over time. The
+%       general form for OPTIONS.pnames is ~~:
+%           options.pnames = {'Delta (cm-1)','tau (ps)','anh (cm-1)',...
+%                               'mu12_2','w0 (cm-1)','phi (rad)'};
+%       ----------------------
+%
+%
+%   ALL TIME PARAMETERS ARE IN UNITS OF PICOSECONDS (ps). By default, this
+%   function currently simulates 3rd order (2D-IR) spectra.
 
 %----------------------
-%
 %  system properties 
-%
 %----------------------
 %specify the form and parameters of the frequency fluctuation correlation
 %functions. Uncomment a block to use that form and its parameters
-
+% 
 %%for a single overdamped motion 
 %damping = 'overdamped'; %i.e. exponential decay
 %Delta_cm = 10; %linewidth (sigma) in wavenumbers
 %tau = 2.; % correlation time in ps
-
+% 
 %%for critical damping (slightly more oscillation in the correlation function)
 %damping = 'critical';
 %Delta_cm = 10; %linewidth (sigma) in wavenumbers
 %tau = 2.; % correlation time in ps
-
+% 
 %%for water one can use a fit to results from simulation (all parameters are
 %%hard coded basically)
 %damping = 'hynesform';
-
+% 
 %for multiexponential decay (fast and slow motion). 
 %damping = 'multiexp';
 
@@ -53,8 +78,23 @@ n_t2_array = length(t2_array);
 %dt = 2*0.0021108; %ps
 %dt = 0.02;
 %n_t = 256; %number of time steps
-dt = options.dt;
-n_t = options.n_t; %number of time steps
+
+flag_print = 0; %1 => figures or 0 => no figures
+flag_plot = 0;
+order = 3; %order of spectroscopy to calculate. 3 = 2DIR, 5 = 3DIR
+
+if isfield(options,'dt')
+    dt = options.dt;
+else
+    dt = 0.400;
+end
+
+if isfield(options,'n_t')
+    n_t = options.n_t;
+else
+    n_t = 64;
+end
+
 w_0_cm = options.w_0_cm;% %center frequency
 phi = 0; %phase shift (radians) exp(1i*phi)
 mu01_2 = 1; %default
@@ -112,10 +152,16 @@ apodization = 'none';
 %projection_type = 'window';
 projection_type = 'all';
 
-
-
 %simulate noise
-noise = 0.0;
+if isfield(options,'noise')
+    if isempty(options.noise)
+        noise = 0;
+    else
+        noise = options.noise;
+    end
+else
+    noise = 0;
+end
 
 % simulate laser bandwidth
 simulate_bandwidth = false;
