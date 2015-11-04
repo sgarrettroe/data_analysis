@@ -6,7 +6,7 @@ for ii = 1:length(dataobj)
     w1 = dataobj(ii).w1;
     y = maxMatrix(ii,:,1)';
     y_std = maxMatrix(ii,:,2)';
-    CLS_fit = fit(w1(:), y(:), FSlope, 'StartPoint', [0.5, -20],...
+    [fitresult,gof,fitinfo] = fit(w1(:), y(:), FSlope, 'StartPoint', [0.5, -20],...
         'lower', [-Inf, -100], 'upper',[10, Inf],'Weight',1./y_std.^2,...
         'Robust','Bisquare');
     
@@ -18,11 +18,13 @@ for ii = 1:length(dataobj)
         map =myMapRGB(n_contours);
         contourf(dataobj(ii).w1,dataobj(ii).w3,dataobj(ii).R)
         colormap(map), hold on,...
-        plot(w1, CLS_fit(w1), 'r','LineWidth',1.5),...
+        plot(w1, fitresult(w1), 'r','LineWidth',1.5),...
         errorbar(w1,y,y_std,'ro'), hold off;
         xlabel('\omega_1 (cm-1)','FontSize',16)
         ylabel('\omega_3 (cm-1)','FontSize',16)
         set(gcf,'color','white')
     end
-    out(ii).CLSfit = CLS_fit;
+    out(ii).fitresult = fitresult;
+    out(ii).gof = gof;
+    out(ii).fitinfo = fitinfo;
 end

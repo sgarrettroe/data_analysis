@@ -41,6 +41,7 @@ startpoint = options.startpoint;
 lb = options.lb;
 ub = options.ub;
 fitfcn = options.fitfcn;
+zp_factor = options.zp_factor;
 % currently there's a bit of a loophole. We've got a starting point, and a
 % lower and upper bound, but we're not passing in a fitting function.
 % Currently our fitting function is hard coded into this script (fitfcn
@@ -61,7 +62,7 @@ CFoptions.flag_plot = flag_plot;
 % against the data that generated them.
 
 %let's add some interpolation
-data = interp2D(data,2);
+data = interp2D(data,zp_factor);
 
 dataobj = cropData(data,range1,range3);
 % We're taking the amount of 'data' that we're going to be working with
@@ -76,8 +77,8 @@ peakFit = extractMaxima(dataobj,startpoint,lb,ub,fitfcn,flag_plot);
 maxMatrix = zeros(m,n,2);
 for ii = 1:m
     for jj = 1:n
-         maxMatrix(ii,jj,1) = peakFit(ii,jj).fit.center;
-         dummy = confint(peakFit(ii,jj).fit);
+         maxMatrix(ii,jj,1) = peakFit(ii,jj).fitresult.center;
+         dummy = confint(peakFit(ii,jj).fitresult);
          err_b = dummy(:,1);
          maxMatrix(ii,jj,2) = (err_b(2)-err_b(1))/2;
     end

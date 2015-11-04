@@ -19,7 +19,7 @@ R = dataobj(ii).R;
        % the fitting part
        [fitresult,gof,fitinfo] = fit(w3(:),R(:,ij),fitfcn, 'StartPoint',startpoint,...
            'lower',lb,'upper',ub);
-       out(ii,ij).fit = fitresult;
+       out(ii,ij).fitresult = fitresult;
        out(ii,ij).gof = gof;
        out(ii,ij).fitinfo = fitinfo;
        if flag_plot

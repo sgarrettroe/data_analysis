@@ -26,7 +26,7 @@ for ii = 1:ndirs
         m = load(sprintf('%03i.mat',jj)); % Why the syntax?
         data(scanoffset + jj) = m.data;
         data(scanoffset + jj).w3 = spectrum_calibration(1).*data(scanoffset ...
-            + jj).w3 + spectrum_calibration(2);
+            + jj).freq + spectrum_calibration(2);
         data(scanoffset + jj).spec_calib = spectrum_calibration;
     end
     for jj = thisscanlist_holder
