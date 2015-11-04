@@ -28,9 +28,9 @@ out = struct('Fit',[]);
         out(ij).Fit = fit(w3(:),R(:,ij), F2GausCO2_p, ...
             'StartPoint',CLS.startpoint, 'lower', CLS.lower_bound,...
             'upper',CLS.upper_bound);
-        figure(ij + ii - 1),hold on
-        plot(w3(:),R(:,ij),'x')
-        plot(w3a,out(ij).Fit(w3a));
+%         figure(ij + ii - 1),clf,hold on
+%         plot(w3(:),R(:,ij),'x')
+%         plot(w3a,out(ij).Fit(w3a));
     end
 hold off
 % get the peak position and errorbars
@@ -86,8 +86,8 @@ CLS.t2 = [data.t2];
 clear out
 CLS.fit.biexp = fit(CLS.t2(:), CLS.slope(:), F2Exp, 'StartPoint', [1, 1, 2e3, 2e4, 0.05],...
 'lower', [0, 0, 0, 0, 0],'Weight',wt);
-CLS.fit.monoexp = fit(CLS.t2(:), CLS.slope(:), FExp, 'StartPoint', [1, 10e4, 0],...
-'lower', [0, 0, 0],'Weight',wt);
+% CLS.fit.monoexp = fit(CLS.t2(:), CLS.slope(:), FExp, 'StartPoint', [1, 10e4, 0],...
+% 'lower', [0, 0, 0],'Weight',wt);
 clear wt wt_mean
 
 %%
@@ -98,9 +98,11 @@ t = 1:A/100:A;
 figure(99),clf
 hold on
 errorbar(CLS.t2,CLS.slope,CLS.std_slope,'rx');
-plot(t,CLS.fit.monoexp(t),'r--');
+% plot(t,CLS.fit.monoexp(t),'r--');
 plot(t,CLS.fit.biexp(t),'b--');
-legend('Data','Exponential','Biexponential')
+% legend('Data','Exponential','Biexponential')
+legend('Data','Biexponential')
+
 title(data(1).name)
 h = gca;
 xlabel('t_2 (fs)')
