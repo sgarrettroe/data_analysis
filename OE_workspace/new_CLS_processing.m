@@ -1,5 +1,5 @@
 function [peakFit,CLS,CFFit] = new_CLS_processing(data,options,CFoptions)
-% This function is designed to help us troubleshoot the fitting of our CO2
+% NEW_CLS_PROCESSING is for troubleshooting the fitting of our CO2
 % data with the centerline slope (CLS) method.
 %
 % It is assumed that both 'options' and 'CFoptions' will be structures with
@@ -17,6 +17,11 @@ function [peakFit,CLS,CFFit] = new_CLS_processing(data,options,CFoptions)
 %                    a2.*voigt(w,center - anh,w_g,w_l);
 %        For now, you must name your center frequency 'center'. I suggest
 %        putting relatively tight bounds on the anharmonicity.
+% optional peak fitting options:
+%       -flag_plot (a non-zero value will cause the function to plot
+%       results as we go)
+%       -zero-padding factor (zp_factor) - setting this will change the
+%       zero padding on our data, and then re-interpolate it along w1
 %
 % necessary correlation function options:
 %       -starting point ('startpoint')
@@ -31,8 +36,7 @@ function [peakFit,CLS,CFFit] = new_CLS_processing(data,options,CFoptions)
 %       -- Test for goodness of peak fitting (ie. a Voigt profile
 %       does not capture the wings that we see on the experiment), and
 %       subsequent limiting of the fitting area
-%       -- Automatic interpolation along w1 (from extra zero padding of and
-%       re-running absorptive2dPP
+
 
 t2_array = [data.t2]./1000;
 range1 = options.range1;
@@ -41,16 +45,10 @@ startpoint = options.startpoint;
 lb = options.lb;
 ub = options.ub;
 fitfcn = options.fitfcn;
-zp_factor = options.zp_factor;
-% currently there's a bit of a loophole. We've got a starting point, and a
-% lower and upper bound, but we're not passing in a fitting function.
-% Currently our fitting function is hard coded into this script (fitfcn
-% below). I'd like to fix that, but need to figure out the best way to do
-% so.
-%fitfcn = @(w,center,w_g,w_l,anh,a1,a2) a1.*voigt(w,center,w_g,w_l) - ... 
-%    a2.*voigt(w,center - anh,w_g,w_l);
 % how the hell do I avoid demanding that the fitfcn calls its center
-% frequency 'center'? Is there a way to dynamically determine this?
+% frequency 'center'? Is there a way to dynamically determine this? Bill
+% suggested putting an underscore (_) after the center frequency, then
+% searching for that.
 
 if isfield(options,'flag_plot')
     flag_plot = options.flag_plot;
@@ -62,7 +60,10 @@ CFoptions.flag_plot = flag_plot;
 % against the data that generated them.
 
 %let's add some interpolation
-data = interp2D(data,zp_factor);
+if isfield(options,'zp_factor')
+    zp_factor = options.zp_factor;
+    data = interp2D(data,zp_factor);
+end
 
 dataobj = cropData(data,range1,range3);
 % We're taking the amount of 'data' that we're going to be working with

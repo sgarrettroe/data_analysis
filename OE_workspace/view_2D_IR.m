@@ -1,8 +1,7 @@
-%% Initial data visualization
+function view_2D_IR(data,range1,range3)
+% Initial data visualization
 % This allows us to check and see if the quality of our spectra is good,
 % and if our calibration is correct.
-range1 = [2320 2360];
-range3 = [2288 2361];
 temp = cropData(data,range1,range3);
 for kk = 1:length(data);
     % display figure
