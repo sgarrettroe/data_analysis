@@ -10,12 +10,19 @@ PFOptions.zp_factor = 2;
 PFOptions.flag_plot = 1;
 % 
 % Correlation Function Options
-CFOptions.startpoint = [0.3 0.3 3 100 0.05];
-CFOptions.lb = [0 0 0 30 0];
-CFOptions.ub = [1 1 50 500 0.3];
-CFOptions.fitfcn = fittype(@(a1,a2,t1,t2,c,x) ...
-    a1.*exp(-x./t1) +  a2*exp(-x./t2)+  c, ...
-    'coeff', {'a1', 'a2', 't1','t2', 'c'}, 'indep', {'x'});
+CFOptions.startpoint = [0.3 0.3 3 100];
+CFOptions.lb = [0 0 0 30];
+CFOptions.ub = [1 1 50 500];
+CFOptions.fitfcn = fittype(@(a1,a2,t1,t2,x) ...
+    a1.*exp(-x./t1) +  a2*exp(-x./t2), ...
+    'coeff', {'a1', 'a2', 't1','t2'}, 'indep', {'x'});
+
+% CFOptions.startpoint = [0.3 0.3 3 100 0.05];
+% CFOptions.lb = [0 0 0 30 0];
+% CFOptions.ub = [1 1 50 500 0.3];
+% CFOptions.fitfcn = fittype(@(a1,a2,t1,t2,c,x) ...
+%     a1.*exp(-x./t1) +  a2*exp(-x./t2)+  c, ...
+%     'coeff', {'a1', 'a2', 't1','t2', 'c'}, 'indep', {'x'});
 
 % CFOptions.startpoint = [0.3 0.3 0.3 3  100 500 ];
 % CFOptions.lb =         [0   0   0   0  30  0];

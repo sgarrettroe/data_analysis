@@ -59,7 +59,8 @@ CFoptions.flag_plot = flag_plot;
 % flag_plot will later determine if we're going to plot our CLS fits
 % against the data that generated them.
 
-%let's add some interpolation
+%let's add some interpolation -- not fully tested. I recommend not using
+%this option for now -- Tom.
 if isfield(options,'zp_factor')
     zp_factor = options.zp_factor;
     data = interp2D(data,zp_factor);
@@ -93,7 +94,16 @@ CLS = fitCLS(dataobj,maxMatrix,flag_plot);
 % Fitting the CLS based values based on the maxima and standard deviations
 % we just calculated.
 
-CFFit = corrFcnFit(t2_array,CLS,CFoptions);
+% extract correlation values and confidence intervals
+c2 = zeros(size(t2_array));
+c2_std = c2;
+for ii = 1:length(t2_array)
+    c2(ii) = CLS(ii).fitresult.m;
+    dummy = confint(CLS(ii).fitresult);
+    c2_std(ii) = (dummy(2,1) - dummy(1,1))/2;
+end
 
-if flag_plot
+CFFit = corrFcnFit(t2_array,c2,c2_std,CFoptions);
+% Fitting the correlation function to our extracted values of c(t).
+
 end
