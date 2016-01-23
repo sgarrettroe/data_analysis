@@ -21,7 +21,7 @@ flag_dim = false;
 dim = 0;
 
 %look for zero-padding, if any
-if nargin==2
+if nargin>=2
   if ~isempty(varargin{1})
     n_zp =varargin{1};
   end

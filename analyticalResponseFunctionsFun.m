@@ -123,6 +123,9 @@ if isfield(options,'order')
 end
 
 flag_rotating_frame = true;
+if isfield(options,'flag_rotating_frame')
+    flag_rotating_frame = options.flag_rotating_frame;
+end
 
 two_level_system = false;
 %two_level_system = true;
