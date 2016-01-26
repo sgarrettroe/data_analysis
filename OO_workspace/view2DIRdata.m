@@ -10,7 +10,7 @@ for kk = 1:length(data);
     y = temp(kk).w3;
     z = temp(kk).R;
 
-    figure(2),clf,
+    figure(495),clf,
     my2dPlot(x,y,z,'pumpprobe',false,'n_contours',20)
     % add 'zlimit' flag to my2dPlot if you need to zoom in
     pause
