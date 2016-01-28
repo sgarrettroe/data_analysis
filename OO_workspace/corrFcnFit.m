@@ -20,6 +20,9 @@ wt = wt./wt_mean;
 output.fitresult = fitresult;
 output.gof = gof;
 output.fitinfo = fitinfo;
+output.t2 = t2_array;
+output.c2 = c2;
+output.c2_std = c2_std;
 
 if flag_plot
     figure(1),clf

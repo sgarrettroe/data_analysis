@@ -1,4 +1,4 @@
-function [ellip,CFFit] = new_ellip_processing(data,options,CFoptions)
+function [ellipticity,CFFit] = new_ellip_processing(data,options,CFoptions)
 
 t2_array = [data.t2]./1000;
 range1 = options.range1;

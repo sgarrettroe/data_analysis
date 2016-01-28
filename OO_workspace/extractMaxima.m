@@ -12,7 +12,7 @@ else
     estimateArea = 0;
 end
 
-out = struct('fit',[],'gof',[],'fitinfo',[]);
+out = struct('fitresult',[],'gof',[],'fitinfo',[]);
 for ii = 1:length(dataobj)
 w1 = dataobj(ii).w1;
 w3 = dataobj(ii).w3;

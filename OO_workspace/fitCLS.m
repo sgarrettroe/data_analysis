@@ -1,7 +1,7 @@
 function [out] = fitCLS(dataobj,maxMatrix,flag_plot)
 FSlope = fittype( @(m, b, x) m.*x + b, 'coeff', {'m', 'b'}, 'indep', {'x'});
 
-out = struct('CLSfit',[]);
+out = struct('fitresult',[],'gof',[],'fitinfo',[]);
 for ii = 1:length(dataobj)
     w1 = dataobj(ii).w1;
     y = maxMatrix(ii,:,1)';

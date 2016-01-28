@@ -16,7 +16,7 @@ else
     'indep', {'x', 'y'}, 'dep', 'z');
 end
 
-out = struct('ellipFit',[]);
+out = struct('fitresult',[],'gof',[],'fitinfo',[]);
 for ii = 1:length(data)
     xx = data(ii).w1;
     yy = data(ii).w3;
@@ -28,7 +28,7 @@ for ii = 1:length(data)
     
     A = [-max(max(xx))];
     B = horzcat(A,startpoint);
-    [fitresult,gof,info] = fit([xxx,yyy],-zzz,fitfcn,... %%%%
+    [fitresult,gof,fitinfo] = fit([xxx,yyy],-zzz,fitfcn,... %%%%
       'StartPoint', B, ...
       'upper',ub ,'lower',lb);
 
@@ -39,5 +39,5 @@ for ii = 1:length(data)
   
     out(ii).fitresult = fitresult;
     out(ii).gof = gof;
-    out(ii).info = info;
+    out(ii).fitinfo = fitinfo;
 end
