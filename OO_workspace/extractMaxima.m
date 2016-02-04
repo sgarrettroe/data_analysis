@@ -35,6 +35,9 @@ R = dataobj(ii).R;
        out(ii,ij).fitresult = fitresult;
        out(ii,ij).gof = gof;
        out(ii,ij).fitinfo = fitinfo;
+       out(ii,ij).w3 = w3;
+       out(ii,ij).R = R(:,ij);
+       out(ii,ij).w1 = w1(ij);
        if flag_plot
            figure(1),clf,plot(w3(:),R(:,ij),'b.',w3a,fitresult(w3a));
 %            pause

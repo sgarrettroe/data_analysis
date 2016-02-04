@@ -28,4 +28,7 @@ for ii = 1:length(dataobj)
     out(ii).fitresult = fitresult;
     out(ii).gof = gof;
     out(ii).fitinfo = fitinfo;
+    out(ii).w1 = w1;
+    out(ii).center = y;
+    out(ii).center_std = y_std;
 end

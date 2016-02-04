@@ -7,7 +7,12 @@ ub = CFoptions.ub;
 lb = CFoptions.lb;
 startpoint = CFoptions.startpoint;
 corrFcn = CFoptions.fitfcn;
-flag_plot = CFoptions.flag_plot;
+
+if isfield(CFoptions,'flag_plot')
+    flag_plot = CFoptions.flag_plot;
+else
+    flag_plot = 0;
+end
 
 wt = 1./(c2_std).^2;
 wt_mean = mean(wt);

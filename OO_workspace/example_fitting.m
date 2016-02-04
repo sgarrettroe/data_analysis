@@ -3,7 +3,7 @@ data = sort2DIRdata(data);
 %%
 view2DIRdata(data,[1950 2120],[1950 2120])
 %%
-PFOptions.range1 = [2040 2070];
+PFOptions.range1 = [2043 2067];
 PFOptions.range3 = [1990 2100];
 PFOptions.fitfcn = fittype('- a1.*voigt(w,center,wg,wl) + a2.*voigt(w,center - anh,wg,wl)', ...
     'coeff',{'center','a1','a2','wg','wl','anh'},'indep',{'w'});
