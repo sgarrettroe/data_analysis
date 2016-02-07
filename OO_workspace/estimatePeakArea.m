@@ -1,4 +1,5 @@
-function [area,max_ind,ymax,FWHM] = estimatePeakArea(x,y)
+function [area,min_ind,ymin,FWHM] = estimatePeakArea(x,y)
+% function [area,max_ind,ymax,FWHM] = estimatePeakArea(x,y)
 % [area,max_ind,ymax,FWHM] = estimatePeakArea(x,y) will generate a peak
 % area that can be used as input to a Voigt profile (or other normalized
 % peak fitting function) to give the the peak fitting code a decent chance
@@ -15,7 +16,8 @@ function [area,max_ind,ymax,FWHM] = estimatePeakArea(x,y)
 % slightly above or below the half maximum.
 %
 
-[ymax,max_ind] = max(y);
+% [ymax,max_ind] = max(y);
+[ymin,min_ind] = min(y);
 
 % we're going to interpolate the data to get some extra resolution for
 % finding the FWHM. Don't worry, we're not going to use this fit -- just
@@ -23,10 +25,13 @@ function [area,max_ind,ymax,FWHM] = estimatePeakArea(x,y)
 xx = min(x):0.25:max(x);
 yy = spline(x,y,xx);
 
-indices = find(yy >= 0.5.*ymax);
+% indices = find(yy >= 0.5.*ymax);
+indices = find(yy <= 0.5.*ymin);
 FWHM = xx(max(indices)) - xx(min(indices));
 
-[~,yy_ind] = max(yy);
+% [~,yy_ind] = max(yy);
+[~,yy_ind] = min(yy);
 PeakAreaindex = yy_ind:1:yy_ind + length(indices);
 
-area = 2.*trapz(xx(PeakAreaindex),yy(PeakAreaindex));
+% area = 2.*trapz(xx(PeakAreaindex),yy(PeakAreaindex));
+area = abs(2.*trapz(xx(PeakAreaindex),yy(PeakAreaindex)));

@@ -71,7 +71,7 @@ dataobj = cropData(data,range1,range3);
 % out, so that later we can pass it to other functions more easily and
 % manipulate it without having to worry as much about indexing.
 
-peakFit = extractMaxima(dataobj,startpoint,lb,ub,fitfcn,flag_plot);
+peakFit = extractMaxima(dataobj,options);
 % This function should generate a structure of fitting results from fitting
 % the maximum of the each slice along w3.
 
