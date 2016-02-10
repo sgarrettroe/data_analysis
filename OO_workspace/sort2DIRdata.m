@@ -13,14 +13,25 @@ function output = sort2DIRdata(input,varargin)
 %      data = sort2DIRdata(data,'sortby','scan_number');
 %
 % will sort the structure by the field 'scan_number'
+%
+% Using the 'mode' variable argument will allow you to sort either
+% ascending or descending.
 
 sort_field = 't2';
+sort_mode = 'ascend';
 while length(varargin)>=2 %using a named pair
   arg = varargin{1};
   val = varargin{2};
   switch lower(arg)
+    case 'mode'
+        if strcmp(val,'ascend')||strcmp(val,'descend')
+        sort_mode = val;
+        else
+            warning(['Unknown sorting method: ',val,'. Sorting by ascending order'])
+            sort_mode = 'ascend';
+        end
     case 'sortby'
-    sort_field = val;
+        sort_field = val;
     if ~isfield(input,val)
         warning(['Unknown field to sort by',arg,'Sorting by t2'])
         sort_field = 't2';
@@ -34,5 +45,5 @@ end
 empty_elems = arrayfun(@(s) all(structfun(@isempty,s)),input);
 temp = input(~empty_elems);
 uh = [temp.(sort_field)];
-[~,ind] = sort(uh);
+[~,ind] = sort(uh,sort_mode);
 output = temp(ind);
