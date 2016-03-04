@@ -1,7 +1,23 @@
 function [output] = corrFcnFit(t2_array,c2,c2_std,CFoptions)
-% I'm assuming the inputs need to be a list of t2 times and a structure
-% that contains the correlation values we've previously been extracting.
-% Maybe also some sort of functional form, and bounds on the fit.
+% CFFitStructure = corrFcnFit(t2_array,c2,c2_std,CFoptions);
+%
+% This function will fit a set of population times (t2 array) to 
+% correlations, weighting the individual points by the inverse of their
+% variance (1/std^2). It is currently set up to do a robust (Bisquare) fit.
+% Your fitting function can be of any form, though in most cases it should
+% be an/(a set of) exponential decay(s).
+%
+% CFoptions should be a structure with the following fields:
+%       # A fitting function ('fitfcn')
+%       # A starting point for the fit ('startpoint')
+%       # A lower bound for the fit ('lb')
+%       # An upper bound for the fit ('ub')
+%       # An optional 'flag_plot' field, which, if set to 1, will plot the
+%         resulting fit against the data points (as errorbars).
+%
+% TODO: Allow a variable-length input argument list to define whether you
+% want a robust fit, and if so, what type.
+
 
 ub = CFoptions.ub;
 lb = CFoptions.lb;

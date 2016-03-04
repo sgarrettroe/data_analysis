@@ -1,4 +1,4 @@
-function [out] = fitCLS(dataobj,maxMatrix,flag_plot)
+function [out,c2,c2_std] = fitCLS(dataobj,maxMatrix,flag_plot)
 FSlope = fittype( @(m, b, x) m.*x + b, 'coeff', {'m', 'b'}, 'indep', {'x'});
 
 out = struct('fitresult',[],'gof',[],'fitinfo',[]);
@@ -31,4 +31,12 @@ for ii = 1:length(dataobj)
     out(ii).w1 = w1;
     out(ii).center = y;
     out(ii).center_std = y_std;
+end
+
+c2 = zeros(size(dataobj));
+c2_std = c2;
+for ii = 1:length(dataobj)
+    c2(ii) = out(ii).fitresult.m;
+    dummy = confint(out(ii).fitresult);
+    c2_std(ii) = (dummy(2,1) - dummy(1,1))/2;
 end
