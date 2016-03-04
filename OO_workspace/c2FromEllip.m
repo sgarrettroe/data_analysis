@@ -14,14 +14,17 @@ ellip = zeros(size(t2_array));
 std_e = zeros(size(t2_array));
 for ii = 1:length(ellipticityStruct)
   dummy = confint(ellipticityStruct(ii).fitresult);
+  
+  % This section dynamically finds the indices of the sD and sA
+  % coefficients in your fit.
   dummy_coeff_names = coeffnames(ellipticityStruct(ii).fitresult);
   DiagonalIndex = ~cellfun('isempty',strfind(dummy_coeff_names, 'sD'));
   AntiDiagonalIndex = ~cellfun('isempty',strfind(dummy_coeff_names, 'sA'));
   
-  err_sD = dummy(:,DiagonalIndex); %was 4
-  err_sA = dummy(:,AntiDiagonalIndex); % was 5
-  std_sD = (err_sD(2) - err_sD(1))/2; %std of sd
-  std_sA = (err_sA(2) - err_sA(1))/2; %std of sa
+  err_sD = dummy(:,DiagonalIndex);
+  err_sA = dummy(:,AntiDiagonalIndex);
+  std_sD = (err_sD(2) - err_sD(1))/2; %std of sD
+  std_sA = (err_sA(2) - err_sA(1))/2; %std of sA
   sD = ellipticityStruct(ii).fitresult.sD;
   sA = ellipticityStruct(ii).fitresult.sA;
   de_sD = (4*sD*sA^2)/(sD^2+sA^2)^2; %derivatives for sD
