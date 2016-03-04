@@ -21,7 +21,7 @@ CFOptions.fitfcn = fittype(@(a1,a2,t1,t2,x) ...
     a1.*exp(-x./t1) +  a2*exp(-x./t2), ...
     'coeff', {'a1', 'a2', 't1','t2'}, 'indep', {'x'});
 
-[peakFit,CLS,CFFit] = new_CLS_processing(data,PFOptions,CFOptions);
+[peakFit,CLS,CFFit1] = new_CLS_processing(data,PFOptions,CFOptions);
 %%
 ellipOptions.range1 = [1950 2120];
 ellipOptions.range3 = [1950 2120];
