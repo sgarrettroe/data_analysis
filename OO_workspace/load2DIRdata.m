@@ -57,12 +57,16 @@ for ii = 1:ndirs
         output(scanoffset + jj) = m.data;
     end
     for jj = scanlist_holder
-        output(scanoffset + jj).scan_number = scanoffset + jj;
-        output(scanoffset + jj).datestring = datestring{scanoffset + jj};
+        output_(scanoffset + jj).scan_number = jj;
+        output_(scanoffset + jj).datestring = datestring{scanoffset + jj};
 %         data(scanoffset + jj).name = name;
 %         data(scanoffset + jj).temperature = temperature;
     end
     scanoffset = length(output); %Now I see it. This allows us to splice together 
     % different days into the same array, without loss of indexing.
+    cd(old_dir);
 end
-cd(old_dir);
+for ii = 1:length(output)
+    output(ii).scan_number = output_(ii).scan_number;
+    output(ii).datestring = output_(ii).datestring;
+end

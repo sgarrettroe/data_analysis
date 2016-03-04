@@ -3,7 +3,7 @@ data = sort2DIRdata(data);
 %%
 view2DIRdata(data,[1950 2120],[1950 2120])
 %%
-PFOptions.range1 = [2040 2070];
+PFOptions.range1 = [2043 2067];
 PFOptions.range3 = [1990 2100];
 PFOptions.fitfcn = fittype('- a1.*voigt(w,center,wg,wl) + a2.*voigt(w,center - anh,wg,wl)', ...
     'coeff',{'center','a1','a2','wg','wl','anh'},'indep',{'w'});
@@ -21,7 +21,7 @@ CFOptions.fitfcn = fittype(@(a1,a2,t1,t2,x) ...
     a1.*exp(-x./t1) +  a2*exp(-x./t2), ...
     'coeff', {'a1', 'a2', 't1','t2'}, 'indep', {'x'});
 
-[peakFit,CLS,CFFit] = new_CLS_processing(data,PFOptions,CFOptions);
+[peakFit,CLS,CFFit1] = new_CLS_processing(data,PFOptions,CFOptions);
 %%
 ellipOptions.range1 = [1950 2120];
 ellipOptions.range3 = [1950 2120];
