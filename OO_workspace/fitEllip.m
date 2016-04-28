@@ -52,7 +52,7 @@ for ii = 1:length(data)
     yyy = YY(:);
     zzz = zz(:);
     
-    A = [-max(max(xx))];
+    A = [-max(max(zz))];
     B = horzcat(A,startpoint);
     [fitresult,gof,fitinfo] = fit([xxx,yyy],-zzz,fitfcn,... %%%%
       'StartPoint', B, ...
