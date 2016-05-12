@@ -34,8 +34,14 @@ for kk = 1:length(data);
     x = temp(kk).w1;
     y = temp(kk).w3;
     z = temp(kk).R;
-
-    figure(495),clf,
-    my2dPlot(x,y,z,'pumpprobe',false,'n_contours',n_contours,'zlimit',zlimit)
+    if isfield(data,'scan_number')
+        f = figure(495);
+        set(f,'Name',sprintf('t2: %i fs; run number: %03i',data(kk).t2,data(kk).scan_number)),
+        my2dPlot(x,y,z,'pumpprobe',false,'n_contours',n_contours,'zlimit',zlimit)
+    else
+        figure(495),clf,
+        my2dPlot(x,y,z,'pumpprobe',false,'n_contours',n_contours,'zlimit',zlimit)
+    end
     pause
+%     close(gcf)
 end

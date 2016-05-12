@@ -23,7 +23,7 @@ for ii = 1:length(dataobj)
         xlabel('\omega_1 (cm-1)','FontSize',16)
         ylabel('\omega_3 (cm-1)','FontSize',16)
         set(gcf,'color','white')
-        pause
+%         pause
     end
     out(ii).fitresult = fitresult;
     out(ii).gof = gof;
