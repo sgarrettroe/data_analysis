@@ -1,7 +1,26 @@
-function [V,E] = analyzeEnergyLevels(lmodes,pmodes)
+function [V,E,ind] = analyzeEnergyLevels(lmodes,pmodes,varargin)
+
+ind = 1:pmodes.NSTATES;
+BW = realmax;
+w_laser = 2000;
+n_exciton_sig_figs = 1;
+
+while length(varargin)>=2
+    switch lower(varargin{1})
+        case {'ind','state_list'}
+            ind = varargin{2};
+        case 'roptions'
+            BW = varargin{2}.BW;
+            w_laser = varargin{2}.w_laser;
+        otherwise
+            warning('unkonwn option %s\n',varargin{1})
+    end
+    
+    varargin = varargin(3:end);
+end
 
 %upack the results
-f=fieldnames(pmodes)
+f=fieldnames(pmodes);
 for ii=1:length(f)
     eval(strcat(f{ii},'=pmodes.',f{ii},';'))
 end
@@ -13,32 +32,53 @@ end
 [original_energies,ordering] = sort(original_energies);
 original_vecs = original_vecs(:,ordering);
 
-
-original_gaps = original_energies - original_energies(1);
-
 [V,E] = eig(H_,'vector');
+[E,ordering] = sort(E);
+V = V(:,ordering); %eigenvectors in input basis
+VV = eye(size(V)); %eigenvectors in eigenstate basis
 new_energies = E;
-new_gaps = new_energies - new_energies(1);
-new_energies(2:end)-new_energies(1:end-1)
 
-for ii = 1:min(6,length(V))
-    fprintf(1,'i = %3d\tE0 = %-8.3f E = %-8.3f gap0 = %-8.3f gap = %-8.3f \n',...
+ind_0ex = 1; %take only the first state as the ground state
+C0 = V'*C*V;
+PSIi = VV(:,ind_0ex); %take first eigenstate for the time being
+
+%find all one and two exciton states
+[ind_1ex, ind_2ex] =  findNExcitonStates(PSIi,C0,n_exciton_sig_figs);
+
+%keep only the ones in the laser bandwidth
+[ind_1ex, ind_2ex] = filterExcitons(w_laser,BW,E,ind_1ex,ind_2ex);
+
+ind = {ind_0ex;ind_1ex;ind_2ex};
+
+% calculate energy differences relative ot the ground state
+original_gaps = original_energies - original_energies(ind_0ex);
+new_gaps = new_energies - new_energies(ind_0ex);
+
+%for ii = 1:min(6,length(V))
+%print energy of all states in gs, 1 ex, and 2
+disp('States by energy');
+iis = unique(vertcat(ind{:})'); %the ' is important to make iis a row vec
+for ii = iis;
+    fprintf(1,'i = %3d\tE0 = %-8.1f E = %-8.1f gap0 = %-8.1f gap = %-8.1f \n',...
         ii,original_energies(ii),new_energies(ii),original_gaps(ii),new_gaps(ii));
 end
 fprintf(1,'\n');
 
 %
-for ii = 1:min(6,length(V))
-    fprintf(1,'i = %3d\tenergy gap = %8.3f\n', ii, new_gaps(ii));
+iis = unique(vertcat(ind{:})');
+for ii = iis;
+    fprintf(1,'i = %3d\tenergy above g.s. = %8.1f\n', ii, new_gaps(ii));
     displayCoeffMatrix(V(:,ii),lmodes);
 end
 
 % transitions starting from ground state
+disp('ZERO TO ONE EXCITON TRANSITIONS');
 fprintf('i\tj\to_gap\tn_gap\tu_orig\tu_mixed\n');
-jjs = 1:min(6,length(V));
+iis = ind_0ex';
+jjs = ind_1ex';
 omu = zeros(1,length(jjs));
 nmu = zeros(1,length(jjs));
-for ii = 1
+for ii = iis
     for jj = jjs
         % original states
         PSIi = original_vecs(:,ii);
@@ -60,9 +100,44 @@ for ii = 1
 
         nmu(jj) = sqrt(temp'*temp);
 
-        fprintf(1,'%-8d%-8d%-8.3f%-8.3f%-8.3f%-8.3f\n',ii,jj,...
+        fprintf(1,'%-8d%-8d%-8.1f%-8.1f%-8.1f%-8.1f\n',ii,jj,...
             original_gaps(jj),new_gaps(jj),omu(jj),nmu(jj));
         
     end
 end
-%fprintf(1,'\ndone\n\n');
+
+disp('')
+disp('ONE TO TWO EXCITON TRANSITIONS');
+fprintf('i\tj\to_gap\tn_gap\tu_orig\tu_mixed\n');
+iis = ind_1ex';
+jjs = ind_2ex';
+omu = zeros(1,length(jjs));
+nmu = zeros(1,length(jjs));
+for ii = iis
+    for jj = jjs
+        % original states
+        PSIi = original_vecs(:,ii);
+        PSIf = original_vecs(:,jj);
+        
+        temp = [PSIf'*MUX*PSIi;...
+            PSIf'*MUY*PSIi;...
+            PSIf'*MUZ*PSIi];
+        
+        omu(jj) = sqrt(temp'*temp);
+        
+        %mixed states
+        PSIi = V(:,ii);
+        PSIf = V(:,jj);
+        
+        temp = [PSIf'*MUX*PSIi;...
+            PSIf'*MUY*PSIi;...
+            PSIf'*MUZ*PSIi];
+
+        nmu(jj) = sqrt(temp'*temp);
+
+        fprintf(1,'%-8d%-8d%-8.1f%-8.1f%-8.1f%-8.1f\n',ii,jj,...
+            original_energies(jj)-original_energies(ii),...
+            new_energies(jj)-new_energies(ii),omu(jj),nmu(jj));
+        
+    end
+end
