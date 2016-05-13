@@ -71,6 +71,41 @@ for ii = iis;
     displayCoeffMatrix(V(:,ii),lmodes);
 end
 
+
+for ii = iis
+    eigenstate_of_interest = ii;
+    vec = V(:,eigenstate_of_interest);
+    vec = conj(vec).*vec;
+    [~,ind] = sort(vec,'descend');
+    vec = vec(ind);
+    ind = ind(vec>=0.1);
+    vec = vec(vec>=0.1);
+    
+    vs = indexToVs(ind,lmodes);
+    
+    %set up some output
+    nmodes = length(lmodes);
+    
+    formatstring = '(';
+    for ii = 1:nmodes
+        formatstring = strcat(formatstring,'%3d,');
+    end
+    formatstring(end) = ')';
+    
+    fprintf(1,'EIGENSTATE %3d\n',eigenstate_of_interest);
+    fprintf(1,'index\tcontribution\tquantum nums\n');
+    for jj = 1:length(ind)
+        fprintf(1,strcat('%d\t%f\t',formatstring,'\n'),ind(jj),vec(jj));
+        for kk = 1:nmodes
+            fprintf(1,'%3d,',vs(jj,kk));
+        end
+        %\b is a backspace... 
+        fprintf(1,'\b)\n');
+    end
+    fprintf(1,'\n');
+end
+fprintf(1,'\n');
+
 % transitions starting from ground state
 disp('ZERO TO ONE EXCITON TRANSITIONS');
 fprintf('i\tj\to_gap\tn_gap\tu_orig\tu_mixed\n');
