@@ -27,10 +27,25 @@ for ii = 1:length(data)
     if isempty(data(ii).R)
         continue
     end
-    ind1 = data(ii).w1>range1(1) & data(ii).w1<range1(2);
-    ind3 = data(ii).w3>range3(1) & data(ii).w3<range3(2);
+    ind1 = data(ii).w1>=range1(1) & data(ii).w1<=range1(2);
+    ind3 = data(ii).w3>=range3(1) & data(ii).w3<=range3(2);
     dataobj(ii).w1 = data(ii).w1(ind1);
     dataobj(ii).w3 = data(ii).w3(ind3);
     dataobj(ii).R = data(ii).R(ind3,ind1);
     dataobj(ii).t2 = data(ii).t2;
+    if isfield(data,'PARAMS')
+        dataobj(ii).PARAMS = data(ii).PARAMS;
+    end
+    if isfield(data,'phase')
+        dataobj(ii).phase = data(ii).phase;
+    end
+    if isfield(data,'scan_number')
+        dataobj(ii).scan_number = data(ii).scan_number;
+    end
+    if isfield(data,'datestring')
+        dataobj(ii).datestring = data(ii).datestring;
+    end
+    if isfield(data,'spec_calib')
+        dataobj(ii).spec_calib = data(ii).spec_calib;
+    end
 end
