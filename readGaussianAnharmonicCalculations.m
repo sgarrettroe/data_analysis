@@ -15,7 +15,7 @@ C = textscan(fid, '%s', 'Delimiter', '\n');
 fclose(fid);
 
 %// Search a specific string and find all rows containing matches
-nModesString = 'Active Modes are:';
+nModesString = '2nd derivatives larger than';
 quadraticString = ':      QUADRATIC FORCE CONSTANTS IN NORMAL MODES       :';
 cubicString = ':        CUBIC FORCE CONSTANTS IN NORMAL MODES         :';
 quarticString = ':       QUARTIC FORCE CONSTANTS IN NORMAL MODES        :';
@@ -33,7 +33,7 @@ hit = strfind(C{1}, nModesString);
 nModesStart = find(~cellfun('isempty', hit));
 thisline = C{1}(nModesStart);
 thisline = thisline{1};
-nmodes = sscanf(thisline,['The %i ' nModesString]);
+nmodes = sscanf(thisline,['%i ' nModesString '.*']);
 
 % initialize derivative matrices
 sod = zeros(1,nmodes);
