@@ -56,8 +56,8 @@ for ii = 1:n_scans,
     colormap(map)
     caxis(ca);
     t2_lab = text(x(1)+0.1*range(x),y(end)+0.1*(range(y)),[num2str(gfstruct.t2_array(ii)),' ps']); %t2 display
-    t2_lab.FontSize = 12;
-    t2_lab.FontWeight = 'bold';
+    t2_lab.FontSize = 10; %12;
+%     t2_lab.FontWeight = 'bold';
     if count > 1
         set(had(count),'YTick',[])
     end

@@ -23,7 +23,7 @@ function [dataobj] = cropData(data,range1,range3)
 
 
 dataobj = struct('w1',[],'w3',[],'R',[]);
-for ii = 1:length(data)
+for ii = 1:numel(data)
     if isempty(data(ii).R)
         continue
     end
@@ -49,3 +49,5 @@ for ii = 1:length(data)
         dataobj(ii).spec_calib = data(ii).spec_calib;
     end
 end
+
+dataobj = reshape(dataobj,size(data));
