@@ -2,6 +2,7 @@ function out = responseFunctions2(pmodes,options)
 global wavenumbersToInvPs
 
 out = [];
+n_sparse_states = min(100,pmodes.NSTATES-2); %random for now
 order = options.order;
 
 %canonical results
@@ -29,6 +30,13 @@ if isfield(options,'w0')
         w0=0;
     else
         w0 = options.w0;
+    end
+end
+if isfield(options,'n_sparse_states')
+    if isempty(options.n_sparse_states)
+        %do nothing
+    else
+        n_sparse_states = options.n_sparse_states;
     end
 end
 if isfield(options,'flag_plot')
@@ -72,11 +80,20 @@ for ii=1:length(f)
     eval(strcat(f{ii},'=pmodes.',f{ii},';'))
 end
 
-% calculate the eigenvectors of the coupled system 
-[V,E]=eig(H_,'vector');
-[E,ordering] = sort(E);
-V = V(:,ordering); %eigenvectors in input basis
-VV = eye(size(V)); %eigenvectors in eigenstate basis
+if issparse(H_)
+    % calculate the eigenvectors of the coupled system
+    [V,E]=eigs(H_,n_sparse_states,'SM');
+    E = diag(E);
+    [E,ordering] = sort(E);
+    V = V(:,ordering); %eigenvectors in input basis
+    VV = speye(length(E),length(E)); %eigenvectors in eigenstate basis
+else
+    % calculate the eigenvectors of the coupled system
+    [V,E]=eig(H_,'vector');
+    [E,ordering] = sort(E);
+    V = V(:,ordering); %eigenvectors in input basis
+    VV = eye(size(V)); %eigenvectors in eigenstate basis
+end
 
 %
 % set up operators
