@@ -2,6 +2,11 @@ function view2DIRdata(data,range1,range3,varargin)
 % Initial data visualization
 % This allows us to check and see if the quality of our spectra is good,
 % and if our calibration is correct.
+%
+% view2DIRdata(data,range1,range3) plots data over ranges of omega1 and
+% omega3.
+%
+% view2DIRdata(data,range1,range3,'name',val)
 % Current options:
 %      'n_contours'
 %      'zlimit'
