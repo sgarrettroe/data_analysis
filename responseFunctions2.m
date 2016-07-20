@@ -2,6 +2,7 @@ function out = responseFunctions2(pmodes,options)
 global wavenumbersToInvPs
 
 out = [];
+n_sparse_states = min(100,pmodes.NSTATES-2); %random for now
 order = options.order;
 
 %canonical results
@@ -19,6 +20,7 @@ Rh.mu2(:,:,2) = [ 0,0,0 ; sqrt(2).*Rh.mu(2,:) ; Rh.mu(1,:)];
 
 % default values
 flag_plot = false;
+flag_print = true;
 w0 = 0;
 n_excitons = 2;
 n_exciton_sig_figs = 1;
@@ -30,8 +32,25 @@ if isfield(options,'w0')
         w0 = options.w0;
     end
 end
+if isfield(options,'n_sparse_states')
+    if isempty(options.n_sparse_states)
+        %do nothing
+    else
+        n_sparse_states = options.n_sparse_states;
+    end
+end
 if isfield(options,'flag_plot')
     flag_plot = options.flag_plot;
+end
+if flag_print
+    fid = 1;
+else
+    if isunix
+        fid = fopen('/dev/null');
+    else
+        warning('this windows "dev/null" is not tested yet');
+        fid = fopen('nul');
+    end        
 end
 
 % simulation parameters
@@ -61,11 +80,20 @@ for ii=1:length(f)
     eval(strcat(f{ii},'=pmodes.',f{ii},';'))
 end
 
-% calculate the eigenvectors of the coupled system 
-[V,E]=eig(H_,'vector');
-[E,ordering] = sort(E);
-V = V(:,ordering); %eigenvectors in input basis
-VV = eye(size(V)); %eigenvectors in eigenstate basis
+if issparse(H_)
+    % calculate the eigenvectors of the coupled system
+    [V,E]=eigs(H_,n_sparse_states,'SM');
+    E = diag(E);
+    [E,ordering] = sort(E);
+    V = V(:,ordering); %eigenvectors in input basis
+    VV = speye(length(E),length(E)); %eigenvectors in eigenstate basis
+else
+    % calculate the eigenvectors of the coupled system
+    [V,E]=eig(H_,'vector');
+    [E,ordering] = sort(E);
+    V = V(:,ordering); %eigenvectors in input basis
+    VV = eye(size(V)); %eigenvectors in eigenstate basis
+end
 
 %
 % set up operators
@@ -103,12 +131,18 @@ rho = PSIi*PSIi'; % could do thermal density here!
 
 % ind_1ex = find(abs(round(C0*PSIi,1))>0);
 % ind_2ex = find(abs(round(C0*C0*PSIi,1))>0);
-n = length(ind_1ex)
-n2 = length(ind_2ex)
+n = length(ind_1ex);
+n2 = length(ind_2ex);
 
 % energies -- subtract zero point energy
 w = E(ind_1ex) - E(1);
 w2 = E(ind_2ex) - E(1);
+
+fprintf(fid,'one exciton state energies\n');
+fprintf(fid,'%d\t%8.1f\n',[ind_1ex,w]');
+fprintf(fid,'two exciton state energies\n');
+fprintf(fid,'%d\t%8.1f\n',[ind_2ex,w2]');
+fprintf(fid,'\n');
 
 % subtract rotating frame frequency and convert to rad/ps
 w = (w - w0)*2*pi*wavenumbersToInvPs;
@@ -142,6 +176,8 @@ end
 J = J.*exp(-g(t));
 
 % first calculate all rephasing diagrams
+fprintf(fid,'Rephasing transitions\n');
+fprintf(fid,'i\tj\tk\tw_1\t(w_2)\tw_3\tu\n');
 for j = 1:n
   for i  = 1:n
     
@@ -152,10 +188,13 @@ for j = 1:n
         aa,bb,aa,bb);
     
     % rephasing diagram R1
+    fprintf(fid,'%-8d%-8d%-8d%-8.1f%-8.1f%-8.1f%-8.3f\n',ind_1ex(j),ind_1ex(i),ind_1ex(j),w(j)./(2*pi*wavenumbersToInvPs)+w0,(w(j)-w(i))./(2*pi*wavenumbersToInvPs),w(i)./(2*pi*wavenumbersToInvPs)+w0,-dipole*angle);
     R_r = R_r - dipole*angle*exp(+ 1i*w(j).*T1 ...
 				 - 1i*w(i).*T3 ...
 				 + 1i*(w(j)-w(i))*t2);
-    % rephasing diagram R2
+
+             % rephasing diagram R2
+    fprintf(fid,'%-8d%-8d%-8d%-8.1f%-8.1f%-8.1f%-8.3f\n',ind_1ex(j),ind_1ex(j),ind_1ex(i),w(j)./(2*pi*wavenumbersToInvPs)+w0,0,w(i)./(2*pi*wavenumbersToInvPs)+w0,-dipole*angle);
     R_r = R_r - dipole*angle*exp(+ 1i*w(j).*T1 ...
 				 - 1i*w(i).*T3);
     
@@ -168,7 +207,8 @@ for j = 1:n
          aa,bb,cc,dd);
 
      %rephasing diagram R3
-      R_r = R_r + dipole*angle*exp(+ 1i*w(j).*T1 ...
+       fprintf(fid,'%-8d%-8d%-8d%-8.1f%-8.1f%-8.1f%-8.3f\n',ind_1ex(j),ind_1ex(i),ind_2ex(k),w(j)./(2*pi*wavenumbersToInvPs)+w0,(w(j)-w(i))./(2*pi*wavenumbersToInvPs),(w2(k)-w(j))./(2*pi*wavenumbersToInvPs)+w0,dipole*angle);
+       R_r = R_r + dipole*angle*exp(+ 1i*w(j).*T1 ...
 				   - 1i*(w2(k)-w(j)).*T3 ...
 				   + 1i*(w(j)-w(i)).*t2);
     end
@@ -176,8 +216,11 @@ for j = 1:n
 end
 % add lineshape (same for all peaks for now)
 R_r = exp(-g(T1)+g(t2)-g(T3)-g(T1+t2)-g(t2+T3)+g(T1+t2+T3)).*R_r;
+fprintf(fid,'\n\n');
 
 % now non-rephasing diagrams
+fprintf(fid,'Non-rephasing transitions\n');
+fprintf(fid,'i\tj\tk\tw_1\t(w_2)\tw_3\tu\n');
 for j = 1:n
   for i  = 1:n      
     [aa,mui] = unit_vector(mu(i,:));
@@ -187,10 +230,12 @@ for j = 1:n
          aa,bb,aa,bb);
     
     % non-rephasing diagram R4
+    fprintf(fid,'%-8d%-8d%-8d%-8.1f%-8.1f%-8.1f%-8.3f\n',ind_1ex(j),ind_1ex(i),ind_1ex(j),w(j)./(2*pi*wavenumbersToInvPs)+w0,(w(j)-w(i))./(2*pi*wavenumbersToInvPs),w(j)./(2*pi*wavenumbersToInvPs)+w0,-dipole*angle);
     R_nr = R_nr - dipole*angle*exp(- 1i*w(j).*T1 ...
 				   - 1i*w(j).*T3 ... %?
 				   - 1i*(w(j)-w(i))*t2);
     % non-rephasing diagram R5
+    fprintf(fid,'%-8d%-8d%-8d%-8.1f%-8.1f%-8.1f%-8.3f\n',ind_1ex(j),ind_1ex(j),ind_1ex(i),w(j)./(2*pi*wavenumbersToInvPs)+w0,0,w(i)./(2*pi*wavenumbersToInvPs)+w0,-dipole*angle);
     R_nr = R_nr - dipole*angle*exp(- 1i*w(j).*T1 ...
 				   - 1i*w(i).*T3);
     
@@ -203,6 +248,7 @@ for j = 1:n
          aa,bb,cc,dd);
      
       %non-rephasing diagram R6
+      fprintf(fid,'%-8d%-8d%-8d%-8.1f%-8.1f%-8.1f%-8.3f\n',ind_1ex(j),ind_1ex(i),ind_2ex(k),w(j)./(2*pi*wavenumbersToInvPs)+w0,(w(j)-w(i))./(2*pi*wavenumbersToInvPs),(w2(k)-w(i))./(2*pi*wavenumbersToInvPs)+w0,dipole*angle);
       R_nr = R_nr + dipole*angle*exp(- 1i*w(j).*T1 ...
 				     - 1i*(w2(k)-w(i)).*T3 ...
 				     - 1i*(w(j)-w(i)).*t2);
@@ -211,6 +257,9 @@ for j = 1:n
 end
 % add lineshape (same for all peaks for now)
 R_nr = exp(-g(T1)-g(t2)-g(T3)+g(T1+t2)+g(t2+T3)-g(T1+t2+T3)).*R_nr;
+
+fprintf(fid,'\n\n');
+
 
 % calculate 1D spectrum (freq domain)
 J = real(fftshift(sgrsifft(J,n_zp)));
