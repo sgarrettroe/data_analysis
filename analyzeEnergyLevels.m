@@ -63,7 +63,7 @@ PSIi = VV(:,ind_0ex); %take first eigenstate for the time being
 [ind_1ex, ind_2ex] =  findNExcitonStates(PSIi,C0,n_exciton_sig_figs);
 
 %keep only the ones in the laser bandwidth
-[ind_1ex, ind_2ex] = filterExcitons(w_laser,BW,E,ind_1ex,ind_2ex);
+[ind_1ex, ind_2ex] = filterExcitons(w_laser,BW,E,1,ind_1ex,ind_2ex);
 
 ind = {ind_0ex;ind_1ex;ind_2ex};
 
