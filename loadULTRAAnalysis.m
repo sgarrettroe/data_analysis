@@ -12,7 +12,7 @@ for ii = 1:length(files)
     d(ii).w1 = fliplr(temp(1,1:end));
     d(ii).R  = fliplr(temp(2:end,:));
     d(ii).w3 = transpose(calib(1:end,2));
-    d(ii).comment = sprintf('file %s calibration %s',files.name,calibration_file_name);
+    d(ii).comment = sprintf('file %s calibration %s',files(ii).name,calibration_file_name);
     
     %try to infer t2 time from the file name
     t2 = sscanf(files(ii).name,'%i');
