@@ -50,14 +50,17 @@ for ii = 1:length(options)
     c = diag(prefactors,-1);
     
     % position operator
-    q = sqrt(hbar/(2*m*w)).*(a + c);
+    %q = sqrt(hbar/(2*m*w)).*(a + c);
+    q = sqrt(1/2).*(a + c);
     
     % momentum operator
-    p = -1i*sqrt(hbar*m*w/2).*(a - c);
+    %p = -1i*sqrt(hbar*m*w/2).*(a - c);
+    p = -1i*sqrt(1/2).*(a - c);
     
     % hamiltonian
     h = hbar*w*(c*a + 1/2*identity);
-    h_ = p*p/(2*m) + m*w^2*q*q/2;
+    %h_ = p*p/(2*m) + m*w^2*q*q/2;
+    h_ = hbar*w*(p*p/2 + q*q/2);
     
     % dipole operator
     mux = dmu_dq(1).*(a + c);
