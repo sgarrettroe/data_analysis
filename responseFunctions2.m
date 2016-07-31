@@ -1,5 +1,8 @@
 function out = responseFunctions2(pmodes,options)
-global wavenumbersToInvPs
+global wavenumbersToInvPs k_B_SI h c_SI
+k_B_cm_K = k_B_SI/h/c_SI/100;%k_B in cm-1/K 
+thermal_cutoff = 0.01;
+T = 0;
 
 out = [];
 n_sparse_states = min(100,pmodes.NSTATES-2); %random for now
@@ -52,6 +55,20 @@ else
         fid = fopen('nul');
     end        
 end
+if isfield(options,'T')
+    if isempty(options.T)
+        %do nothing (see default at top)
+    else
+        T = options.T;
+    end
+end
+if isfield(options,'thermal_cutoff')
+    if isempty(options.thermal_cutoff)
+        %do nothing (see default at top)
+    else
+        thermal_cutoff = options.thermal_cutoff;
+    end
+end
 
 % simulation parameters
 n_t = options.n_t;
@@ -67,12 +84,17 @@ w_laser = options.w_laser;
 BW = options.BW;
 
 % set up time and response functions
-J = zeros(1,n_t);
+J = zeros(1,n_t); 
+J_accum = zeros(1,n_t);
 R_r = zeros(n_t,n_t);
 R_nr = zeros(n_t,n_t);
+R_r_accum = zeros(n_t,n_t);
+R_nr_accum = zeros(n_t,n_t);
 t=0:dt:(n_t-1)*dt;
 [T1,T3] = meshgrid(t,t);
 
+% set up thermal weight
+kT = k_B_cm_K*T;
 
 %upack the results
 f=fieldnames(pmodes);
@@ -85,32 +107,53 @@ if issparse(H_)
     [V,E]=eigs(H_,n_sparse_states,'SM');
     E = diag(E);
     [E,ordering] = sort(E);
+    E = E - E(1); %remove zero point energy
     V = V(:,ordering); %eigenvectors in input basis
     VV = speye(length(E),length(E)); %eigenvectors in eigenstate basis
 else
     % calculate the eigenvectors of the coupled system
     [V,E]=eig(H_,'vector');
     [E,ordering] = sort(E);
+    E = E - E(1); %remove zero point energy
     V = V(:,ordering); %eigenvectors in input basis
     VV = eye(size(V)); %eigenvectors in eigenstate basis
 end
 
 %
 % set up operators
-%
+%  
+A0 = V'*A*V;
+C0 = V'*C*V;
 
-  
-    A0 = V'*A*V;
-    C0 = V'*C*V;
+% rotate dipole operators to the eigenstate basis
+MUX = V'*MUX*V;
+MUY = V'*MUY*V;
+MUZ = V'*MUZ*V;
 
 % could add a loop over possible initial states here. The idea would be to
 % look at the thermal density matrix elements relative to some cutoff. then
 % loop through the response function calculation for each state with the
 % appropriate thermal weight.
 
+flag_finished_thermal_loop = false;
+
+i_thermal = 0;
+while ~flag_finished_thermal_loop
+    i_thermal = i_thermal+1;
+    if T == 0
+        flag_finished_thermal_loop = true;
+        thermal_weight = 1;
+    else
+        thermal_weight = exp(-E(i_thermal)/kT);
+        if thermal_weight < thermal_cutoff
+            flag_finished_thermal_loop = true;
+            continue;
+        end
+    end
+    
 % density matrix
-PSIi = VV(:,1); %take first eigenstate for the time being
-rho = PSIi*PSIi'; % could do thermal density here!
+PSIi = VV(:,i_thermal); %take first eigenstate for the time being
+%rho = PSIi*PSIi'; % could do thermal density here!
 
 %one way to go would be to define mui muj etc from inputs and then add
 %invariants function (see thoughts below)
@@ -127,7 +170,7 @@ rho = PSIi*PSIi'; % could do thermal density here!
 [ind_1ex ind_2ex] =  findNExcitonStates(PSIi,C0,n_exciton_sig_figs);
 
 %keep only the ones in the laser bandwidth
-[ind_1ex ind_2ex] = filterExcitons(w_laser,BW,E,ind_1ex,ind_2ex);
+[ind_1ex ind_2ex] = filterExcitons(w_laser,BW,E,i_thermal,ind_1ex,ind_2ex);
 
 % ind_1ex = find(abs(round(C0*PSIi,1))>0);
 % ind_2ex = find(abs(round(C0*C0*PSIi,1))>0);
@@ -135,8 +178,8 @@ n = length(ind_1ex);
 n2 = length(ind_2ex);
 
 % energies -- subtract zero point energy
-w = E(ind_1ex) - E(1);
-w2 = E(ind_2ex) - E(1);
+w = E(ind_1ex) - E(i_thermal);
+w2 = E(ind_2ex) - E(i_thermal);
 
 fprintf(fid,'one exciton state energies\n');
 fprintf(fid,'%d\t%8.1f\n',[ind_1ex,w]');
@@ -148,10 +191,6 @@ fprintf(fid,'\n');
 w = (w - w0)*2*pi*wavenumbersToInvPs;
 w2 = (w2 - 2*w0)*2*pi*wavenumbersToInvPs;
 
-% rotate dipole operators to the eigenstate basis
-MUX = V'*MUX*V;
-MUY = V'*MUY*V;
-MUZ = V'*MUZ*V;
 
 % calculate dipole matrix elements
 mu = zeros(n,3);
@@ -258,8 +297,16 @@ end
 % add lineshape (same for all peaks for now)
 R_nr = exp(-g(T1)-g(t2)-g(T3)+g(T1+t2)+g(t2+T3)-g(T1+t2+T3)).*R_nr;
 
-fprintf(fid,'\n\n');
+R_r_accum  = R_r_accum  + R_r *thermal_weight;
+R_nr_accum = R_nr_accum + R_nr*thermal_weight;
+J_accum = J_accum + J*thermal_weight;
 
+fprintf(fid,'\n\n');
+end
+
+J = J_accum;
+R_r = R_r_accum;
+R_nr = R_nr_accum;
 
 % calculate 1D spectrum (freq domain)
 J = real(fftshift(sgrsifft(J,n_zp)));
