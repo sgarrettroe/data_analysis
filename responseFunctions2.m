@@ -5,7 +5,8 @@ thermal_cutoff = 0.01;
 T = 0;
 
 out = [];
-n_sparse_states = min(100,pmodes.NSTATES-2); %random for now
+n_sparse_states = estimateNSparseStates(pmodes,options);
+n_sparse_states = min(n_sparse_states,pmodes.NSTATES-2); 
 order = options.order;
 
 %canonical results
@@ -400,4 +401,11 @@ else
     out = 0*in;
 end
 out = out(:); %convert to a column matrix
+end
+
+function n_sparse_states = estimateNSparseStates(pmodes,options)
+original_energies = diag(pmodes.H);
+original_energies = original_energies-original_energies(1);
+max_e = 2*(options.w_laser+options.BW)
+n_sparse_states = sum(original_energies<=max_e);
 end
