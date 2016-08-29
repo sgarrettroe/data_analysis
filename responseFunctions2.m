@@ -3,6 +3,7 @@ global wavenumbersToInvPs k_B_SI h c_SI
 k_B_cm_K = k_B_SI/h/c_SI/100;%k_B in cm-1/K 
 thermal_cutoff = 0.01;
 T = 0;
+verbose = 0;
 
 out = [];
 n_sparse_states = estimateNSparseStates(pmodes,options);
@@ -70,8 +71,16 @@ if isfield(options,'thermal_cutoff')
         thermal_cutoff = options.thermal_cutoff;
     end
 end
+if isfield(options,'verbose')
+    if isempty(options.verbose)
+        verbose=0;
+    else
+        verbose = options.w0;
+    end
+end
 
 % simulation parameters
+if verbose>=1,disp('initialize variables'),end
 n_t = options.n_t;
 n_zp = options.n_zp;
 dt = options.dt; %time step
@@ -97,7 +106,9 @@ t=0:dt:(n_t-1)*dt;
 % set up thermal weight
 kT = k_B_cm_K*T;
 
+
 %upack the results
+if verbose>=1,disp('unpack pmodes'),end
 f=fieldnames(pmodes);
 for ii=1:length(f)
     eval(strcat(f{ii},'=pmodes.',f{ii},';'))
@@ -105,15 +116,19 @@ end
 
 if issparse(H_)
     % calculate the eigenvectors of the coupled system
+    if verbose>=1,disp('calculate sparse eigenvalues'),end
     [V,E]=eigs(H_,n_sparse_states,'SM');
     E = diag(E);
+    if verbose>=1,disp('sort energies and vectors'),end
     [E,ordering] = sort(E);
     E = E - E(1); %remove zero point energy
     V = V(:,ordering); %eigenvectors in input basis
     VV = speye(length(E),length(E)); %eigenvectors in eigenstate basis
 else
     % calculate the eigenvectors of the coupled system
+    if verbose>=1,disp('calculate full eigenvalues'),end
     [V,E]=eig(H_,'vector');
+    if verbose>=1,disp('sort energies and vectors'),end
     [E,ordering] = sort(E);
     E = E - E(1); %remove zero point energy
     V = V(:,ordering); %eigenvectors in input basis
@@ -123,6 +138,7 @@ end
 %
 % set up operators
 %  
+if verbose>=1,disp('set up operators'),end
 A0 = V'*A*V;
 C0 = V'*C*V;
 
@@ -151,7 +167,11 @@ while ~flag_finished_thermal_loop
             continue;
         end
     end
+    if verbose>=1,fprintf(1,'loop over thermal states, i_thermal = %i\n',i_thermal);end
+    if verbose>=1,fprintf(1,'    thermal weight = %f\n',thermal_weight);end
     
+    if verbose>=1,disp('determine active states...'),end
+
 % density matrix
 PSIi = VV(:,i_thermal); %take first eigenstate for the time being
 %rho = PSIi*PSIi'; % could do thermal density here!
@@ -192,6 +212,7 @@ fprintf(fid,'\n');
 w = (w - w0)*2*pi*wavenumbersToInvPs;
 w2 = (w2 - 2*w0)*2*pi*wavenumbersToInvPs;
 
+if verbose>=1,disp('determine matrix elements...'),end
 
 % calculate dipole matrix elements
 mu = zeros(n,3);
@@ -207,6 +228,7 @@ end
 
 g = @(t) options.g(t,options.c2params);
 
+if verbose>=1,disp('start linear spectroscopy...'),end
 %linear spectroscopy
 for j = 1:n
     [~,muj] = unit_vector(mu(j,:));
@@ -215,6 +237,7 @@ end
 %add lineshape (same for all peaks for now)
 J = J.*exp(-g(t));
 
+if verbose>=1,disp('start third order spectroscopy...'),end
 % first calculate all rephasing diagrams
 fprintf(fid,'Rephasing transitions\n');
 fprintf(fid,'i\tj\tk\tw_1\t(w_2)\tw_3\tu\n');
@@ -309,6 +332,8 @@ J = J_accum;
 R_r = R_r_accum;
 R_nr = R_nr_accum;
 
+if verbose>=1,disp('calculate fourier transforms...'),end
+
 % calculate 1D spectrum (freq domain)
 J = real(fftshift(sgrsifft(J,n_zp)));
 
@@ -374,6 +399,8 @@ caxis([cmin cmax]);
 axis equal tight
 end
 
+if verbose>=1,disp('package output...'),end
+
 %package output
 out.w1 = freq;
 out.w3 = freq;
@@ -406,6 +433,6 @@ end
 function n_sparse_states = estimateNSparseStates(pmodes,options)
 original_energies = diag(pmodes.H);
 original_energies = original_energies-original_energies(1);
-max_e = 2*(options.w_laser+options.BW)
+max_e = 2*(options.w_laser+options.BW);
 n_sparse_states = sum(original_energies<=max_e);
 end
