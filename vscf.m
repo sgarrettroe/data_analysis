@@ -68,24 +68,24 @@ while ~flag_done
             F_i = calcNextTerm(i_mode,inds,val,scfmodes_old);
             
             F = F + F_i;
-
-%             n_perms = nperms(inds);
-%             
-%             ind_active = (inds==i_mode);
-%             
-%             OP = cell(1,4);
-%             for jj = 1:length(OP)
-%                 
-%                 if ind_active(jj)
-%                     OP{jj} = lmodes(inds(jj)).q;
-%                 else
-%                     v = scfmodes_old(inds(jj)).U(:,1);
-%                     OP{jj} = v'*lmodes(inds(jj)).q*v;
-%                 end
-%             end
-%             
-%             
-%             F = F + 1/24*n_perms*val*OP{1}*OP{2}*OP{3}*OP{4};
+            
+            %             n_perms = nperms(inds);
+            %
+            %             ind_active = (inds==i_mode);
+            %
+            %             OP = cell(1,4);
+            %             for jj = 1:length(OP)
+            %
+            %                 if ind_active(jj)
+            %                     OP{jj} = lmodes(inds(jj)).q;
+            %                 else
+            %                     v = scfmodes_old(inds(jj)).U(:,1);
+            %                     OP{jj} = v'*lmodes(inds(jj)).q*v;
+            %                 end
+            %             end
+            %
+            %
+            %             F = F + 1/24*n_perms*val*OP{1}*OP{2}*OP{3}*OP{4};
             
         end
         
@@ -142,6 +142,21 @@ while ~flag_done
     
 end %i_scf
 
+%when the calc has converged, rotate all ops to the new basis
+ops = {'a','c','q','p','mux','muy','muz','h','h_'};
+n_ops = length(ops);
+for i_modes = 1:n_modes
+    
+    U = scfmodes(i_modes).U;
+    
+    for i_ops = 1:n_ops
+        
+        O = scfmodes(i_modes).(ops{i_ops});
+        scfmodes(i_modes).(ops{i_ops}) = U'*O*U;
+        
+    end
+    
+end
 end
 
 function n = nperms(n_syms,num_repeats)
