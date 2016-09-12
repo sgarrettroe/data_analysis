@@ -6,6 +6,7 @@ function scfmodes = vscf(lmodes,tod,fod,varargin)
 
 energy_convergence_criterion=0.01; %cm-1
 flag_print = 1;
+flag_pause = 0;
 if flag_print
     fid=1;
 else
@@ -135,7 +136,7 @@ while ~flag_done
     fprintf(fid,'\n');
     
     
-    if ~flag_done,pause,end
+    if ~flag_done&&flag_pause,pause,end
     
     %update the coefficients of the basis vectors for the next pass
     scfmodes_old = scfmodes;
