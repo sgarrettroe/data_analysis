@@ -35,6 +35,6 @@ for i_mode = 1:n_modes
     %renormalize the basis states U
     if isfield(modes,'U')
         norms = sqrt(diag(modes(i_mode).U'*modes(i_mode).U));
-        modes(i_mode).U = modes(i_mode).U/repmat(norms',[length(norms) 1]);
+        modes(i_mode).U = modes(i_mode).U./repmat(norms',[length(norms) 1]);
     end
 end
