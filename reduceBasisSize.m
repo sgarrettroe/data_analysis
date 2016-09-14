@@ -22,7 +22,7 @@ for i_mode = 1:n_modes
         modes(i_mode).E = P'*modes(i_mode).E;
     end
     
-    ops = {'identity','a','c','q','p','mux','muy','muz','h','h_','U'};
+    ops = {'identity','a','c','q','p','mux','muy','muz','h','h_','U','q_pow_1','q_pow_2','q_pow_3','q_pow_4'};
     n_ops = length(ops);
     for ii = 1:n_ops
         

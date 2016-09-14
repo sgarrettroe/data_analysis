@@ -17,7 +17,14 @@ for ii = 1:n_tod
     if ~all(ismember(inds,active_modes))
         continue
     end
-   
+
+    % rewrite mode indicies in terms of the lmodes/scfmodes array index
+    tmp = zeros(1,length(inds));
+    for jj=1:length(inds)
+        tmp(jj) = find(inds(jj)==active_modes);
+    end
+    inds = tmp;
+
     F_i = calcNextTerm(inds,val,pmodes);
     
     F = F + F_i;
@@ -34,6 +41,13 @@ for ii = 1:n_fod
         continue
     end
     
+    % rewrite mode indicies in terms of the lmodes/scfmodes array index
+    tmp = zeros(1,length(inds));
+    for jj=1:length(inds)
+        tmp(jj) = find(inds(jj)==active_modes);
+    end
+    inds = tmp;
+
     F_i = calcNextTerm(inds,val,pmodes);
     
     F = F + F_i;
@@ -91,7 +105,7 @@ OP = speye(pmodes.NSTATES,pmodes.NSTATES);
 
 for i_mode = 1:n_unique
     
-fname = sprintf('Q_POW_%i%i',n(i_mode),unique_syms(i_mode))
+fname = sprintf('Q_POW_%i%i',n(i_mode),unique_syms(i_mode));
 OP = OP*pmodes.(fname);
 
 end
