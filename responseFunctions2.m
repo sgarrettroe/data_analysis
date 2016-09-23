@@ -75,7 +75,7 @@ if isfield(options,'verbose')
     if isempty(options.verbose)
         verbose=0;
     else
-        verbose = options.w0;
+        verbose = 1;
     end
 end
 
