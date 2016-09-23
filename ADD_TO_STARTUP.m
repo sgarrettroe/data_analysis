@@ -8,7 +8,7 @@ global c c_SI c_cm c_cmfs wavenumbersToInvFs wavenumbersToInvPs ...
   wavenumbersToInvSec invSecToWavenumbers invFsToWavenumbers ...
   invPsToWavenumbers fringeToFs fringeToPs...
   q h hbar epsilon_0 mu_0 debyeToCm N_A ...
-  k_B amuToKg fsToMm fsToMm2Pass
+  k_B k_B_SI amuToKg fsToMm fsToMm2Pass
 c_SI = 2.9979e8;
 c = 2.9979e10;
 c_cm = c;
@@ -28,7 +28,8 @@ epsilon_0 = 8.8541878e-12; %F/m
 mu_0 = 1.2566470e-6; %H/m
 debyeToCm = 3.33564e-30; %Cm (coulomb meters)
 N_A = 6.022e23; 
-k_B = 1.38e-12; %J K-1
+k_B = 1.38e-12; %J K-1 (gromacs units?
+k_B_SI = 1.3865e-23; 
 amuToKg= 1.660538e-27; %kg
 fsToMm = c_SI*1e3/1e15;
 fsToMm2Pass = fsToMm/2; %for converting fs to delay stage position
