@@ -1,4 +1,4 @@
-function Delta_H = estimateDeltaH(T2_star,tau_H)
+function [DeltaH,sigmaDeltaH] = estimateDeltaH2(T2star,sigmaT2star,tauH,sigmaTauH)
 % estimateDeltaH instantaneous frequency standard deviation for homogeneous
 % motions
 %
@@ -18,7 +18,7 @@ function Delta_H = estimateDeltaH(T2_star,tau_H)
 c = 2.9979e10;
 wavenumbersToInvPs=c*1e-12;
 invPsToWavenumbers=1/wavenumbersToInvPs;
-Delta_H = sqrt(1/(T2_star*tau_H))*invPsToWavenumbers/(2*pi);
-
-
+DeltaH = sqrt(1/(T2star*tauH))*invPsToWavenumbers/(2*pi);
 % \Delta_H = (T2* \tau_H)^{-1/2}  / (2 pi c)
+sigmaDeltaH = invPsToWavenumbers/(4*pi)*sqrt(sigmaT2star^2/(tauH*T2star^3) ...
+    + sigmaTauH^2/(T2star*tauH^3));
