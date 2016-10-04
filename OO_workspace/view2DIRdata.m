@@ -61,15 +61,19 @@ for kk = 1:N;
         ax1 = f.Children(1); % right projection
         ax2 = f.Children(2); % top projection
         ax3 = f.Children(3);
-        contourf(ax3,x,y,z,n_contours)
-        ax3.Children.LevelList = level_list;
+%         x = ax3.Children.XData;
+%         contourf(ax3,x,y,z,n_contours)
+        ax3.Children(2).LevelList = level_list;
         ax3.XLabel.String = '\omega_1 / 2\pic';
+        ax3.XLabel.FontSize = 12;
         ax3.YLabel.String = '\omega_3 / 2\pic';
+        ax3.YLabel.FontSize = 12;
+%         line([x(1) x(end)],[x(1) x(end)],'Color',[0 0 0],'Parent',ax3);
     else
         ax1.Children.XData = sum(z,2);
         ax2.Children.YData = sum(z,1);
-        ax3.Children.ZData = z;
-        ax3.Children.LevelList = level_list;
+        ax3.Children(2).ZData = z;
+        ax3.Children(2).LevelList = level_list;
     end
         if isfield(data,'scan_number')
             ax2.Title.String = sprintf('t2: %i fs; Run: %03i',data(kk).t2,data(kk).scan_number);
