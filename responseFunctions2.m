@@ -1,4 +1,4 @@
-function out = responseFunctions2(pmodes,options)
+function out = responseFunctions2(pmodes,roptions)
 global wavenumbersToInvPs k_B_SI h c_SI
 k_B_cm_K = k_B_SI/h/c_SI/100;%k_B in cm-1/K 
 thermal_cutoff = 0.01;
@@ -6,9 +6,9 @@ T = 0;
 verbose = 0;
 
 out = [];
-n_sparse_states = estimateNSparseStates(pmodes,options);
+n_sparse_states = estimateNSparseStates(pmodes,roptions);
 n_sparse_states = min(n_sparse_states,pmodes.NSTATES-2); 
-order = options.order;
+order = roptions.order;
 
 %canonical results
 Rh.n = 2;
@@ -27,25 +27,26 @@ Rh.mu2(:,:,2) = [ 0,0,0 ; sqrt(2).*Rh.mu(2,:) ; Rh.mu(1,:)];
 flag_plot = false;
 flag_print = true;
 w0 = 0;
-n_excitons = 2;
-n_exciton_sig_figs = 1;
+%n_excitons = 2;
+%n_exciton_sig_figs = 1;
+n_exciton_tol = 0.0001;
 
-if isfield(options,'w0')
-    if isempty(options.w0)
+if isfield(roptions,'w0')
+    if isempty(roptions.w0)
         w0=0;
     else
-        w0 = options.w0;
+        w0 = roptions.w0;
     end
 end
-if isfield(options,'n_sparse_states')
-    if isempty(options.n_sparse_states)
+if isfield(roptions,'n_sparse_states')
+    if isempty(roptions.n_sparse_states)
         %do nothing
     else
-        n_sparse_states = options.n_sparse_states;
+        n_sparse_states = roptions.n_sparse_states;
     end
 end
-if isfield(options,'flag_plot')
-    flag_plot = options.flag_plot;
+if isfield(roptions,'flag_plot')
+    flag_plot = roptions.flag_plot;
 end
 if flag_print
     fid = 1;
@@ -57,22 +58,22 @@ else
         fid = fopen('nul');
     end        
 end
-if isfield(options,'T')
-    if isempty(options.T)
+if isfield(roptions,'T')
+    if isempty(roptions.T)
         %do nothing (see default at top)
     else
-        T = options.T;
+        T = roptions.T;
     end
 end
-if isfield(options,'thermal_cutoff')
-    if isempty(options.thermal_cutoff)
+if isfield(roptions,'thermal_cutoff')
+    if isempty(roptions.thermal_cutoff)
         %do nothing (see default at top)
     else
-        thermal_cutoff = options.thermal_cutoff;
+        thermal_cutoff = roptions.thermal_cutoff;
     end
 end
-if isfield(options,'verbose')
-    if isempty(options.verbose)
+if isfield(roptions,'verbose')
+    if isempty(roptions.verbose)
         verbose=0;
     else
         verbose = 1;
@@ -81,17 +82,17 @@ end
 
 % simulation parameters
 if verbose>=1,disp('initialize variables'),end
-n_t = options.n_t;
-n_zp = options.n_zp;
-dt = options.dt; %time step
-t2 = options.t2; %population time (ps)
-pol = options.polarizations;
+n_t = roptions.n_t;
+n_zp = roptions.n_zp;
+dt = roptions.dt; %time step
+t2 = roptions.t2; %population time (ps)
+pol = roptions.polarizations;
 e_1 = pol{1};
 e_2 = pol{2};
 e_3 = pol{3};
 e_4 = pol{4};
-w_laser = options.w_laser;
-BW = options.BW;
+w_laser = roptions.w_laser;
+BW = roptions.BW;
 
 % set up time and response functions
 J = zeros(1,n_t); 
@@ -187,11 +188,55 @@ PSIi = VV(:,i_thermal); %take first eigenstate for the time being
 % calculate the one and two exciton manifolds. Might need to be modified if
 % thermal states are allowed. not sure. 
 
-%find all one and two exciton states
-[ind_1ex ind_2ex] =  findNExcitonStates(PSIi,C0,n_exciton_sig_figs);
+% %find all one and two exciton states
+% [ind_1ex ind_2ex] =  findNExcitonStates(PSIi,C0,n_exciton_sig_figs);
+% 
+% %keep only the ones in the laser bandwidth
+% [ind_1ex ind_2ex] = filterExcitons(w_laser,BW,E,i_thermal,ind_1ex,ind_2ex);
 
-%keep only the ones in the laser bandwidth
-[ind_1ex ind_2ex] = filterExcitons(w_laser,BW,E,i_thermal,ind_1ex,ind_2ex);
+
+lower_limit_energy = roptions.w_laser-roptions.BW/2;
+upper_limit_energy = roptions.w_laser+roptions.BW/2;
+
+% calculate dipole matrix elements
+n = length(E);
+mu = zeros(n,3);
+mu2 = zeros(n,3,n);
+for ii = i_thermal+1:n-1
+    PSIf = VV(:,ii);
+    Ef = E(ii)-E(i_thermal);
+    
+    %filter out energies outside our window
+    if (Ef < lower_limit_energy)||(Ef > upper_limit_energy)
+        continue;
+    end
+    
+    mu(ii,:) = [PSIf'*MUX*PSIi PSIf'*MUY*PSIi PSIf'*MUZ*PSIi];
+    for jj =  (ii+1):n
+        PSIf2 = VV(:,jj);
+        
+        Ef2 = E(jj)-Ef-E(i_thermal);
+        
+        %filter out energies outside our window
+        if (Ef2 < lower_limit_energy)||(Ef2 > upper_limit_energy)
+            continue;
+        end
+        
+        mu2(jj,:,ii) = [PSIf2'*MUX*PSIf PSIf2'*MUY*PSIf PSIf2'*MUZ*PSIf];
+    end
+end
+
+
+ind_1ex = find(sum(mu.^2,2)>n_exciton_tol);
+ind_2ex = [];
+for ii = 1:length(ind_1ex)
+    ind_2ex = [ind_2ex; find(sum(mu2(:,:,ind_1ex(ii)).^2,2)>n_exciton_tol)];
+end
+ind_2ex = unique(ind_2ex);
+
+%reduce dipole matrix elements to only the needed size
+mu=mu(ind_1ex,:);
+mu2=mu2(ind_2ex,:,ind_1ex);
 
 % ind_1ex = find(abs(round(C0*PSIi,1))>0);
 % ind_2ex = find(abs(round(C0*C0*PSIi,1))>0);
@@ -214,19 +259,19 @@ w2 = (w2 - 2*w0)*2*pi*wavenumbersToInvPs;
 
 if verbose>=1,disp('determine matrix elements...'),end
 
-% calculate dipole matrix elements
-mu = zeros(n,3);
-mu2 = zeros(n2,3,n);
-for ii = 1:n
-    PSIf = VV(:,ind_1ex(ii));
-    mu(ii,:) = [PSIf'*MUX*PSIi PSIf'*MUY*PSIi PSIf'*MUZ*PSIi];
-    for jj =  1:n2
-        PSIf2 = VV(:,ind_2ex(jj));
-        mu2(jj,:,ii) = [PSIf2'*MUX*PSIf PSIf2'*MUY*PSIf PSIf2'*MUZ*PSIf];
-    end
-end
+% % calculate dipole matrix elements
+% mu = zeros(n,3);
+% mu2 = zeros(n2,3,n);
+% for ii = 1:n
+%     PSIf = VV(:,ind_1ex(ii));
+%     mu(ii,:) = [PSIf'*MUX*PSIi PSIf'*MUY*PSIi PSIf'*MUZ*PSIi];
+%     for jj =  1:n2
+%         PSIf2 = VV(:,ind_2ex(jj));
+%         mu2(jj,:,ii) = [PSIf2'*MUX*PSIf PSIf2'*MUY*PSIf PSIf2'*MUZ*PSIf];
+%     end
+% end
 
-g = @(t) options.g(t,options.c2params);
+g = @(t) roptions.g(t,roptions.c2params);
 
 if verbose>=1,disp('start linear spectroscopy...'),end
 %linear spectroscopy
