@@ -11,13 +11,18 @@ for ii = 1:length(dataobj)
         'Robust','Bisquare');
     
     if flag_plot
+        xx = dataobj(ii).w1;
+        yy = dataobj(ii).w3;
+        zz = dataobj(ii).R;
+        
         figure(802),clf
-        m=15;
         n_contours = 12;   
-        ll=linspace(-m,m,n_contours+1);
+        [ca, level_list]= myCaxis2(zz, n_contours);
         map =myMapRGB(n_contours);
-        contourf(dataobj(ii).w1,dataobj(ii).w3,dataobj(ii).R)
-        colormap(map), hold on,...
+        contourf(xx,yy,zz,level_list)
+        colormap(map);
+        caxis(ca)
+        hold on
         plot(w1, fitresult(w1), 'r','LineWidth',1.5),...
         errorbar(w1,y,y_std,'ro'), hold off;
         xlabel('\omega_1 (cm-1)','FontSize',16)

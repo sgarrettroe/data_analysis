@@ -49,7 +49,8 @@ if flag_plot
     figure,clf
     hold on
     errorbar(t2_array,c2,c2_std,'rx')
-    plot(t2_array,fitresult(t2_array))
+    plot(t2_array,fitresult(t2_array),'k')
+    xlim([-5 max(t2_array)+5])
     hold off
     xlabel('t_2 (ps)')
     ylabel('c_2')
