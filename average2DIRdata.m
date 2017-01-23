@@ -63,10 +63,11 @@ end
 for ii = 1:length(uniquet2s)
     index = ic==ii; % take only the elements that match our current t2
     temp = dataIn(index); % make a smaller version of data for processing
+    zeropad = temp(1).zeropad;
     nscans = zeros(size(temp));
     for jj = 1:length(temp)
-        temp(jj) = absorptive2dPP(temp(jj),'zeropad',n_zp*temp(1).zeropad); % re-run absorptive 2d PP to get correct w1 spacing
-        temp(jj).zeropad = n_zp*temp(jj).zeropad;
+        temp(jj) = absorptive2dPP(temp(jj),'zeropad',n_zp*zeropad); % re-run absorptive 2d PP to get correct w1 spacing
+        temp(jj).zeropad = n_zp*zeropad;
         nscans(jj) = temp(jj).PARAMS.nScans;
     end
     [m,n] = size(temp(1).R); % figure out the new size of R
@@ -82,4 +83,5 @@ for ii = 1:length(uniquet2s)
     dataOut(ii).t0_bin = [];
     dataOut(ii).igram = [];
     dataOut(ii).PARAMS.nScans = sum(nscans);
+    disp(ii);
 end
