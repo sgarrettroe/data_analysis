@@ -683,12 +683,12 @@ if order==3
       out = out(bootstrap_index);
   end
   
- try
-     s.c2 = c2(t);
-     s.g = g(t);
-    s.t = t;
-    extra = s;
- end
+  try
+      s.c2 = c2(t);
+      s.g = g(t);
+      s.t = t;
+      extra = s;
+  end
 end %end if order 3
 
 if order==5
