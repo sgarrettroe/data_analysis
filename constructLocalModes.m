@@ -12,6 +12,10 @@ lmodes = struct('nstates',[],...
     'a',[],...
     'c',[],...
     'q',[],...
+    'q_pow_1',[],...
+    'q_pow_2',[],...
+    'q_pow_3',[],...
+    'q_pow_4',[],...
     'p',[],...
     'mux',[],...
     'muy',[],...
@@ -67,6 +71,8 @@ for ii = 1:length(options)
     muy = dmu_dq(2).*(a + c);
     muz = dmu_dq(3).*(a + c);
     
+    out = matrixElements_q1_q2_q3_q4(nstates);
+    
     lmodes(ii).nstates=nstates;
     lmodes(ii).identity=identity;
     lmodes(ii).u=u;
@@ -75,10 +81,56 @@ for ii = 1:length(options)
     lmodes(ii).c=c;
     lmodes(ii).q=q;
     lmodes(ii).p=p;
+    lmodes(ii).q_pow_1 = out.x1;
+    lmodes(ii).q_pow_2 = out.x2;
+    lmodes(ii).q_pow_3 = out.x3;
+    lmodes(ii).q_pow_4 = out.x4;
     lmodes(ii).mux=mux;
     lmodes(ii).muy=muy;
     lmodes(ii).muz=muz;
     lmodes(ii).h=h;
     lmodes(ii).h_ = h_;
     
+end
+end
+
+function out = matrixElements_q1_q2_q3_q4(n)
+
+x1 = zeros(n,n);
+x2 = zeros(n,n);
+x3 = zeros(n,n);
+x4 = zeros(n,n);
+
+for i=0:n-1
+    for j=0:n-1
+        x1(i+1,j+1) = 1/sqrt(2)*(sqrt(j)*delta(i,j-1) + sqrt(j+1)*delta(i,j+1));
+        x2(i+1,j+1) = (j+1/2) * delta(i,j) + ...
+            1/2*sqrt((j+1)*(j+2)) * delta(i,j+2) ...
+            +1/2*sqrt(j*(j-1)) * delta(i,j-2);
+        x3(i+1,j+1) = 1/(2*sqrt(2))*(...
+            sqrt(j*(j-1)*(j-2)) * delta(i,j-3)...
+            + 3*j*sqrt(j)*delta(i,j-1)...
+            + 3*(j+1)*sqrt(j+1) * delta(i,j+1)...
+            + sqrt((j+1)*(j+2)*(j+3)) * delta(i,j+3));
+        x4(i+1,j+1) = 1/4*(...
+            sqrt(j*(j-1)*(j-2)*(j-3))* delta(i,j-4)...
+            + 2*(2*j-1)*sqrt(j*(j-1)) * delta(i,j-2)...
+            + (6*j^2+6*j+3) * delta(i,j)...
+            + 2*(2*j+3)*sqrt((j+1)*(j+2)) * delta(i,j+2)...
+            + sqrt((j+1)*(j+2)*(j+3)*(j+4))* delta(i,j+4));
+    end
+end
+
+out.x1 = x1;
+out.x2 = x2;
+out.x3 = x3;
+out.x4 = x4;
+end
+
+function out = delta(i,j)
+if i==j
+    out =1;
+else
+    out =0;
+end
 end
