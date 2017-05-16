@@ -1,4 +1,6 @@
 function output = load2DIRdata(directory,scanlist)
+% struct = load2DIRdata(directory,scanlist)
+%
 % This function loads 2D-IR data from one or more directories into MatLab's
 % stack. 'Directory' should be a string. 'Scanlist' should be a vector
 % listing the scans you want to import. If your data is split across

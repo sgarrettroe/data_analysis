@@ -1,4 +1,6 @@
 function [dataMatrix,sdMatrix,weightsMatrix] = prepareGlobalFitData(croppedData)
+% [dataMatrix,sdMatrix,weightsMatrix] = prepareGlobalFitData(croppedData)
+%
 % prepareGlobalFitData takes an input of a cropped data structure and
 % returns a M x N x P matrix that can be used for global fitting of data.
 

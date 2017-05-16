@@ -33,5 +33,9 @@ FWHM = xx(max(indices)) - xx(min(indices));
 [~,yy_ind] = min(yy);
 PeakAreaindex = yy_ind:1:yy_ind + length(indices);
 
+if max(PeakAreaindex) > numel(xx)
+    PeakAreaindex = PeakAreaindex(1):numel(xx);
+end
+
 % area = 2.*trapz(xx(PeakAreaindex),yy(PeakAreaindex));
 area = abs(2.*trapz(xx(PeakAreaindex),yy(PeakAreaindex)));
