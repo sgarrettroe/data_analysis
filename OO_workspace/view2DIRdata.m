@@ -87,8 +87,8 @@ for kk = 1:N;
         ax2.Children.YData = sum(z,1);
         ax3.Children(2).ZData = z;
         ax3.Children(2).LevelList = level_list;
-        caxis(ca)
-    end
+        caxis(ax3,ca)
+     end
         if isfield(data,'scan_number')
             ax2.Title.String = sprintf('t2: %i fs; Run: %03i',data(kk).t2,data(kk).scan_number);
         end
