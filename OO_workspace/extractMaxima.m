@@ -12,6 +12,12 @@ else
     estimateArea = 0;
 end
 
+if isfield(options,'fitPosPeak')
+    fitPosPeak = options.fitPosPeak;
+else
+    fitPosPeak = 0;
+end
+
 out = struct('fitresult',[],'gof',[],'fitinfo',[]);
 for ii = 1:length(dataobj)
     w1 = dataobj(ii).w1;
@@ -24,7 +30,7 @@ for ii = 1:length(dataobj)
         % total area is 1. So if we can get an estimate of the total area
         % under one of our curves by a trapezoid rule, that would be spiffy.
         if estimateArea
-            area = estimatePeakArea(w3(:),R(:,ij));
+            area = estimatePeakArea(w3(:),R(:,ij),'fitPosPeak',fitPosPeak);
             startpoint(2:3) = area;
             lb(2:3) = 0.5*area;
             ub(2:3) = 2*area;
