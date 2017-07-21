@@ -33,6 +33,20 @@ while length(varargin)>=2 %using a named pair
     end
     varargin = varargin(3:end);
 end
+
+% Allow the use of empty ranges to plot the whole spectrum
+if isempty(range1)
+   ind1 = find(~cellfun('isempty',{data.w1}));
+   ind1 = ind1(1);
+   range1 = [data(ind1).w1(1) data(ind1).w1(end)];
+end
+if isempty(range3)
+   ind3 = find(~cellfun('isempty',{data.w3}));
+   ind3 = ind3(1);
+   range3 = [data(ind3).w3(1) data(ind3).w3(end)];
+end
+% 
+
 map=myMapRGB2(n_contours);
 colormap(map)
 temp = cropData(data,range1,range3);
@@ -73,8 +87,8 @@ for kk = 1:N;
         ax2.Children.YData = sum(z,1);
         ax3.Children(2).ZData = z;
         ax3.Children(2).LevelList = level_list;
-        caxis(ca)
-    end
+        caxis(ax3,ca)
+     end
         if isfield(data,'scan_number')
             ax2.Title.String = sprintf('t2: %i fs; Run: %03i',data(kk).t2,data(kk).scan_number);
         end
