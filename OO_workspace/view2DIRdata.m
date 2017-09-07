@@ -46,12 +46,12 @@ if isempty(range3)
    range3 = [data(ind3).w3(1) data(ind3).w3(end)];
 end
 % 
-
+f = figure();
+clf
 map=myMapRGB2(n_contours);
 colormap(map)
 temp = cropData(data,range1,range3);
-f = figure();
-clf
+
 for kk = 1:N;
     if isempty(temp(kk).R)
         continue

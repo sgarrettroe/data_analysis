@@ -35,7 +35,6 @@ while length(varargin)>=2 %using a named pair
     varargin = varargin(3:end);
 end
 
-n_disp = prod(dim);
 m = dim(1);
 n = dim(2);
 
@@ -54,6 +53,7 @@ w = (range(w1)/range(w3))*height;
 map = myMapRGB(n_contours);
 set(fig,'pos',[x_offset1 y_offset n*w+x_offset1+x_offset2 m*height+1.5*y_offset]);
 count = 0;
+had = gobjects(m,n);
 for ii = 1:m
     for jj = 1:n
         count = count+1;
@@ -71,7 +71,7 @@ for ii = 1:m
         line([x(1) x(end)],[x(1) x(end)],'Color',[0 0 0]);
         colormap(map)
         caxis(ca);
-        t2_lab = text(x(1)+0.1*range(x),y(end),[num2str(t2_array(count)),' ps']); %t2 display
+        t2_lab = text(x(1)+0.1*range(x),y(end)-0.05*range(y),[num2str(t2_array(count)),' ps']); %t2 display
         t2_lab.FontSize = 11;
         t2_lab.FontWeight = 'bold';
         
@@ -92,6 +92,8 @@ for ii = 1:m
         end
     end
 end
+
+% ind = zeros(size(had));
 for ii = 1:size(had,1)
     for jj = 1:size(had,2)
         ind(ii,jj) = isa(had(ii,jj),'matlab.graphics.axis.Axes');

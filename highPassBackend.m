@@ -10,10 +10,3 @@ R(:,end-100:end) = 0;
 % inverse FFT and take the real part, because we added small imaginary
 % components by excising the low frequency components as we did above
 timeSignalMatrix = real(sgrsifft(R,[],2));
-
-% A = data.PP(:,data.t0_bin:end);
-% A1 = bsxfun(@minus, A, mean(A,2));
-% a = sgrsfft(A1,[],2); % have to FT along the correct dimension
-% a(:,1:100) = 0;
-% a(:,end-100:end) = 0;
-% aprime = real(sgrsifft(a,[],2));
