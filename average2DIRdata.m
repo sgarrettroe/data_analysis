@@ -25,6 +25,7 @@ function dataOut = average2DIRdata(dataIn,varargin)
 n_zp = 1;
 phase_deg = 0;
 apod = 'none';
+filter = false;
 
 while length(varargin)>=2 %using a named pair
     arg = varargin{1};
@@ -36,6 +37,8 @@ while length(varargin)>=2 %using a named pair
             phase_deg = val;
         case 'apodization'
             apod = val;
+        case 'filter'
+            filter = val;
         otherwise
             warning(['average2DIRdata: unknown option ',arg])
     end
@@ -74,7 +77,7 @@ for ii = 1:length(uniquet2s)
     nscans = zeros(size(temp));
     for jj = 1:length(temp)
         temp(jj) = absorptive2dPP(temp(jj),'zeropad',n_zp*zeropad,...
-            'phase',temp(jj).phase + phase_deg,'apodization',apod); % re-run absorptive 2d PP to get correct w1 spacing
+            'phase',temp(jj).phase + phase_deg,'filter',filter,'apodization',apod); % re-run absorptive 2d PP to get correct w1 spacing
         temp(jj).zeropad = n_zp*zeropad;
         nscans(jj) = temp(jj).PARAMS.nScans;
     end
