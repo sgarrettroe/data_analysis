@@ -192,25 +192,29 @@ if flag_spectrometer
         
         w1_ = fftFreqAxis(time,'time_units',s.time_units,...
         'freq_units',s.freq_units,...
-        'fftshift','off');
+        'fftshift','on','zeropad',2*size(PP,2));
     
         nrows = length(s.w3);
         
         %make a fourier filter (a top hat)
         filter_center = mean(s.freq);
-        filter_ind = (w1_ >= filter_center - freq_domain_filter_fwhm & w1_ <= filter_center + freq_domain_filter_fwhm);
-
+%         filter_ind = (w1_ >= filter_center - freq_domain_filter_fwhm & w1_ <= filter_center + freq_domain_filter_fwhm);
+        filter_ind = (w1_ >= filter_center - freq_domain_filter_fwhm & w1_ <= filter_center + freq_domain_filter_fwhm | ...
+            w1_ <= -filter_center+freq_domain_filter_fwhm & w1_ >= -filter_center - freq_domain_filter_fwhm);
         filter_fxn = zeros(size(w1_));
         filter_fxn(filter_ind) = 1;
         
         WIN = repmat(filter_fxn,nrows,1);
         
         PP_ = bsxfun(@minus, PP, mean(PP,2)); % subtract the mean to avoid a spike in the FT at 0 frequency
-        R = sgrsfft(PP_,[],2); % have to FT along the correct dimension
+%         R = sgrsfft(PP_,[],2); % have to FT along the correct dimension
+        R = fftshift(sgrsfft(PP_,2*size(PP_,2),2),2);
         R = R.*WIN;
 
-        PP = real(sgrsifft(R,[],2));
-        PP(:,end-t0_bin+2:end) = 0;
+%         PP = real(sgrsifft(R,[],2));
+        PP = real(sgrsifft(fftshift(R,2),[],2));
+        PP = PP(:,1:end/2);
+%         PP(:,end-t0_bin+2:end) = 0;
     end
     
     PP_ = PP.*window_fxn;
