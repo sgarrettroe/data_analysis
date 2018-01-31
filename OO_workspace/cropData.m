@@ -13,7 +13,7 @@ function [dataobj] = cropData(data,range1,range3)
 %
 %   --w1_range should be the w1 range in cm-1 [w1(1) w1(end)]
 %   --w3_range should be the w3 range in cm-1 [w3(1) w3(end)]
-%         
+%
 %   This function was designed to allow (1) the ability to omit indices
 %   from the fitting functions we use by cropping data to the desired size
 %   initially (or in the course of the function), and (2) to reduce the
@@ -27,6 +27,15 @@ for ii = 1:numel(data)
     if isempty(data(ii).R)
         continue
     end
+    
+    % Allow the use of empty ranges to not crop along specific dimensions
+    if isempty(range1)
+        range1 = [data(ii).w1(1) data(ii).w1(end)];
+    end
+    if isempty(range3)
+        range3 = [data(ii).w3(1) data(ii).w3(end)];
+    end
+    
     ind1 = data(ii).w1>=range1(1) & data(ii).w1<=range1(2);
     ind3 = data(ii).w3>=range3(1) & data(ii).w3<=range3(2);
     dataobj(ii).w1 = data(ii).w1(ind1);
