@@ -13,6 +13,8 @@ function [fig,had] = matrixPlot2DIR(dataMatrix,w1,w3,t2_array,dim,varargin)
 % varargin:
 %   'displayscans' - scan numbers to display
 %   'height_px' - height of the spectra to be plotted in pixels
+%   'zlimit' - apply a z-limit (between 0 and 1)
+%   'n_contours' - define the number of contours to plot
 
 height = 175;
 n_contours = 14;
