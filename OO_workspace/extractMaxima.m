@@ -34,27 +34,30 @@ function [out] = extractMaxima(dataobj,options)
 %
 %       'estimate_flag_plot' - (default false) similar to flag_plot, but
 %       for estimatePeakArea
-       
+%
+% TODO: Allow more control over relative magnitudes in estimateArea
+
+% default values
 flag_plot = 0;
 estimateArea = 0;
 fitPosPeak = 0;
 estimate_flag_plot = 0;
 
+% checking the fields that the user passed to the function to ensure that
+% they match expected fields
 required_fields = {'range1' 'range3' 'fitfcn' 'flag_plot' 'lb' 'startpoint' 'ub'};
 possible_fields = {'estimateArea' 'estimate_flag_plot' 'fitPosPeak' 'fitfcn' 'flag_plot' 'lb' 'startpoint' 'ub'};
 given_fields = fields(options);
-
 missing_fields = setdiff(sort(required_fields),sort(given_fields));
 unexpected_fields = setdiff(sort(given_fields),sort(possible_fields));
-
 if ~isempty(missing_fields)
     error('Required options fields not found.');
 end
-
 if ~isempty(unexpected_fields)
     warning('Unexpected options fields.')
 end
 
+% unpacking the options structrue into a series of variables 
 for ji=1:length(given_fields)
     eval([given_fields{ji} '=options.' given_fields{ji} ]);
 end
@@ -69,10 +72,13 @@ for ii = 1:length(dataobj)
         % redefining our starting parameters for each spectrum slice.
         if estimateArea
             area = estimatePeakArea(w3(:),R(:,ij),'fitPosPeak',fitPosPeak,'flag_plot',estimate_flag_plot);
+            % got rid of hard coding -- now amplitudes can be located
+            % anywhere in the bounds, and there can be any number of
+            % amplitudes.
             coefficients = coeffnames(fitfcn);
-            aTest = regexp(coefficients,'a\d');
-            ind = ~cellfun(@isempty,aTest);
-            startpoint(ind) = area;
+            aTest = regexp(coefficients,'a\d'); % find the pattern 'a#'
+            ind = ~cellfun(@isempty,aTest); % find where those are living
+            startpoint(ind) = area; % redefine our startpoints
             lb(ind) = 0.5*area;
             ub(ind) = 2*area;
         end
