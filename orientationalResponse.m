@@ -1,7 +1,6 @@
 function [p,q,r] = orientationalResponse(tau_c,order,varargin)
 % orientationalResponse.m Calculate the value of the orientational
-% correlation function for different orders of spectroscopy *for the all
-% parallel case only*!
+% correlation function for different orders of spectroscopy 
 %
 % call as r = orientationalResponse(tau_c,order,[times])
 % so for 1st order
@@ -18,6 +17,7 @@ function [p,q,r] = orientationalResponse(tau_c,order,varargin)
 %
 % order = [1,3,5]
 %
+% p is parallel, q is perpendicular, and r is crossed polarization
 %
 % mostly based on a handout from Jan Helbing, which is largely based on the
 % papers by Tokmakoff JCP 105, 1-12 (1996) and JCP 105, 13 (1996)
