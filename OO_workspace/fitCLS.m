@@ -20,6 +20,7 @@ for ii = 1:length(dataobj)
         [ca, level_list]= myCaxis2(zz, n_contours);
         map =myMapRGB(n_contours);
         contourf(xx,yy,zz,level_list)
+        axis equal
         colormap(map);
         caxis(ca)
         hold on

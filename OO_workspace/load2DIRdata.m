@@ -7,10 +7,10 @@ function output = load2DIRdata(directory,scanlist)
 % multiple directories, you can use cell arrays for 'directory' and
 % 'scanlist'. An example of the syntax is:
 %
-%     data = load2DIRdata('\\Infrared-HP\data\2015-01-01',[10:20]);
+%     data = load2DIRdata('\\Infrared-HP\data\1989-07-25',10:20);
 %         OR
-%     data = load2DIRdata({'\\Infrared-HP\data\2015-01-01', ...
-%                        '\\Infrared-HP-data\2015-01-02',{[10:20],[1:2]}
+%     data = load2DIRdata({'\\Infrared-HP\data\1989-07-25', ...
+%                        '\\Infrared-HP-data\1989-07-26'},{10:20,[1:2 5:8]}
 %
 % The data pulled using this command will be UNSORTED, NON-PHASE CORRECTED,
 % and UNCALIBRATED. You'll probably need to fix this before doing any
