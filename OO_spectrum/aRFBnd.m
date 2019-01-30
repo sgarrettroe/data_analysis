@@ -5,6 +5,8 @@ classdef (Abstract) aRFBnd < aRF
         lb; %lower bounds
         ub; %upper bounds
         useParallel=false;
+        nboot;
+        pboot;
     end
     
     methods
@@ -105,6 +107,42 @@ classdef (Abstract) aRFBnd < aRF
             for ii = 1:length(pfit)
                 fprintf(1,'%20s\t%12f\n',obj.freeParamNames{ii},pfit(ii));
             end
+        end
+        
+        function obj = globalFitBootstrap(obj)%dataMatrix,w1,w3,p_array,gfstruct,lb,ub)
+            
+            % set fit parameters (I believe based on version of matlab)
+            if exist('optimoptions','file'),
+                opt = optimoptions('fmincon','Algorithm','active-set','Display','iter','TolFun',obj.tolfun,'TolX',obj.tolx,'MaxFunEvals',obj.maxfun);
+            elseif exist('optimset','file'),
+                %    opt = optimset('Algorithm','active-set','Display','iter','TolFun',tolfun,'TolX',tolx,'MaxFunEvals',maxfun);
+                opt = optimset('Algorithm','active-set','Display','iter','TolFun',obj.tolfun,'TolX',obj.tolx,'MaxFunEvals',obj.maxfun);
+            else
+                warning('Could not set parameters! Look for the right options functon for your installation.');
+            end
+            
+            opt = optimoptions(opt,'UseParallel',obj.useParallel);
+            
+            obj.pboot = zeros(obj.nboot,length(obj.p0));
+            npoints = numel(obj.dataMatrix);
+            
+            
+            % go!
+            bootStart = tic;
+            for ii = 1:obj.nboot;
+                ind = randi(npoints,1,npoints);
+                %[pboot(ii,:),err] = fmincon(@(p)obj.err_fun(p),obj.p0,[],[],[],[],obj.lb,obj.ub,[],opt);
+                [obj.pboot(ii,:)] = fmincon(@(p,ind)obj.err_fun_boot(p,ind),obj.p0,[],[],[],[],obj.lb,obj.ub,[],opt,ind);
+            end
+            bootEnd = toc(bootStart);
+            
+            fprintf(1,'Elapsed time: %i seconds\n',bootEnd);
+            % the 2 sigma limits should be 95% intervals
+            for ii = 1:size(obj.pboot,2)
+                fprintf(1,'%20s\t%12f\tpm\t%12.3f\n',...
+                    obj.freeParamNames{ii},mean(obj.pboot(:,ii)),2*std(obj.pboot(:,ii)));
+            end
+            
         end
     end
 end

@@ -224,9 +224,15 @@ classdef (Abstract) aRF
         end
         
         function chi2 = err_fun(obj,p)
-            %chi2 = sum(sum(sum())); %see Tom's code (reuseable?)
+            
             obj = obj.calcSpectrum(p);
             chi2 = sum(sum(sum((obj.dataMatrix-obj.simMatrix).^2)));
+            
+        end
+        function chi2 = err_fun_boot(obj,p,ind)
+            
+            obj = obj.calcSpectrum(p);
+            chi2 = sum(sum(sum((obj.dataMatrix(ind)-obj.simMatrix(ind)).^2)));
             
         end
         
