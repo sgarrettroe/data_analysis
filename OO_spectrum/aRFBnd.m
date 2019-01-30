@@ -41,8 +41,10 @@ classdef (Abstract) aRFBnd < aRF
             out = [];
             for ii = 1:length(props)
                 if isa(obj.(props{ii}),'fitParam')
-                    if obj.(props{ii}).isFree
-                        out = [out,obj.(props{ii}).value];
+                    for jj = 1:length(obj.(props{ii}))
+                        if obj.(props{ii})(jj).isFree
+                            out = [out,obj.(props{ii})(jj).value];
+                        end
                     end
                 end
             end
@@ -52,8 +54,10 @@ classdef (Abstract) aRFBnd < aRF
             out = [];
             for ii = 1:length(props)
                 if isa(obj.(props{ii}),'fitParam')
-                    if obj.(props{ii}).isFree
-                        out = [out,obj.(props{ii}).lb];
+                    for jj = 1:length(obj.(props{ii}))
+                        if obj.(props{ii})(jj).isFree
+                            out = [out,obj.(props{ii})(jj).lb];
+                        end
                     end
                 end
             end
@@ -63,8 +67,10 @@ classdef (Abstract) aRFBnd < aRF
             out = [];
             for ii = 1:length(props)
                 if isa(obj.(props{ii}),'fitParam')
-                    if obj.(props{ii}).isFree
-                        out = [out,obj.(props{ii}).ub];
+                    for jj = 1:length(obj.(props{ii}))
+                        if obj.(props{ii})(jj).isFree
+                            out = [out,obj.(props{ii})(jj).ub];
+                        end
                     end
                 end
             end

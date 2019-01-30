@@ -43,11 +43,6 @@ classdef aRFWAOBnd < aRFBnd
         %anharmonicity
         anh_cm;
         
-        %vibrational relaxation
-        T1_rel;
-        
-        %orientational relaxation
-        tau_o;
     end
     
     methods

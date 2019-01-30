@@ -44,7 +44,7 @@ classdef (Abstract) aRF
         tolfun = 1e-6;%1e-17?
         tolx = 1e-6;%1e-10?
         maxfun = 1e3; %maximum number of function evaluations
-
+        
         %container for fit parameters, these are the ones actually used for fitting
         paramStruct; %structure of all parameters (fixed and free)
         freeParamNames; %names of only free params (cell array)
@@ -139,9 +139,13 @@ classdef (Abstract) aRF
             out = {};
             for ii = 1:length(props)
                 if isa(obj.(props{ii}),'fitParam')
-                    if obj.(props{ii}).isFree
-                        n = obj.(props{ii}).name;
-                        out = [out,n]; %square brackets make it so cells don't get nested
+                    for jj = 1:length(obj.(props{ii}))
+                        if obj.(props{ii})(jj).isFree
+                            n = obj.(props{ii})(jj).name;
+                            out = [out,n]; %square brackets make it so cells don't get nested
+                        end
+                        %what about out = [out n(obj.(props{ii}).isFree]; if
+                        %isFree is made to be an array
                     end
                 end
             end
@@ -162,7 +166,7 @@ classdef (Abstract) aRF
             out = {};
             for ii = 1:length(props)
                 if isa(obj.(props{ii}),'fitParam')
-                    n = obj.(props{ii}).name;
+                    n = [obj.(props{ii}).name];
                     out = [out,n]; %the square brackets make it so the cells don't get nested
                 end
             end
@@ -218,13 +222,13 @@ classdef (Abstract) aRF
         function obj = setupSimMatrix(obj)
             obj.simMatrix = zeros(length(obj.w3_in),length(obj.w1_in),length(obj.t2_array)); %array for output
         end
-       
+        
         function chi2 = err_fun(obj,p)
             %chi2 = sum(sum(sum())); %see Tom's code (reuseable?)
             obj = obj.calcSpectrum(p);
             chi2 = sum(sum(sum((obj.dataMatrix-obj.simMatrix).^2)));
             
         end
-
+        
     end
 end
