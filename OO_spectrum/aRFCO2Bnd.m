@@ -12,9 +12,9 @@ classdef aRFCO2Bnd < aRFWAOBnd
         dE_cm; %population difference b/n ground and bend excited state
         temperature; %temperature in K
         dw_sb_cm; %stretch-bend coupling counstant in cm-1
-        k_u;
-        k_hgs1;
-        k_hgs2;
+        %k_u;
+        %k_hgs1;
+        %k_hgs2;
     end
     
     methods

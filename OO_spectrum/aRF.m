@@ -49,6 +49,7 @@ classdef (Abstract) aRF
         paramStruct; %structure of all parameters (fixed and free)
         freeParamNames; %names of only free params (cell array)
         p0; %starting point (vector)
+        weightMatrix; %optional for _w functions
         
         %
         % Things that might be fit parameters
@@ -224,10 +225,52 @@ classdef (Abstract) aRF
         end
         
         function chi2 = err_fun(obj,p)
-            %chi2 = sum(sum(sum())); %see Tom's code (reuseable?)
+            
             obj = obj.calcSpectrum(p);
             chi2 = sum(sum(sum((obj.dataMatrix-obj.simMatrix).^2)));
             
+        end
+        function chi2 = err_fun_boot(obj,p,ind)
+            
+            obj = obj.calcSpectrum(p);
+            chi2 = sum(sum(sum((obj.dataMatrix(ind)-obj.simMatrix(ind)).^2)));
+            
+        end
+       function chi2 = err_fun_w(obj,p)
+            
+            obj = obj.calcSpectrum(p);
+            chi2 = sum(sum(sum(((obj.dataMatrix-obj.simMatrix).^2).*obj.weightMatrix)));
+            
+        end
+        function chi2 = err_fun_boot_w(obj,p,ind)
+            
+            obj = obj.calcSpectrum(p);
+            chi2 = sum(sum(sum(((obj.dataMatrix(ind)-obj.simMatrix(ind)).^2).*obj.weightMatrix)));
+            
+        end
+        function out = residuals(obj,p)
+            if nargin>1
+                 obj = obj.calcSpectrum(p);
+            end
+            out = obj.dataMatrix-obj.simMatrix;
+        end
+        function out = residuals_w(obj,p)
+            if nargin>1
+                obj = obj.calcSpectrum(p);
+            end
+            out = (obj.dataMatrix-obj.simMatrix).*sqrt(obj.weightMatrix);
+        end
+        function out = residualsSq(obj,p)
+            if nargin>1
+                obj = obj.calcSpectrum(p);
+            end
+            out = (obj.dataMatrix-obj.simMatrix).^2;
+        end
+        function out = residualsSq_w(obj,p)
+            if nargin>1
+                obj = obj.calcSpectrum(p);
+            end
+            out = (obj.dataMatrix-obj.simMatrix).^2.*obj.weightMatrix;
         end
         
     end
