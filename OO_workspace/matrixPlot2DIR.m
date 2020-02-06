@@ -15,10 +15,12 @@ function [fig,had] = matrixPlot2DIR(dataMatrix,w1,w3,t2_array,dim,varargin)
 %   'height_px' - height of the spectra to be plotted in pixels
 %   'zlimit' - apply a z-limit (between 0 and 1)
 %   'n_contours' - define the number of contours to plot
+%   'level' - plot contours up to a defined level
 
 height = 175;
 n_contours = 14;
 zlimit = 0; 
+flag_fixed_level = false;
 while length(varargin)>=2 %using a named pair
     arg = varargin{1};
     val = varargin{2};
@@ -32,6 +34,9 @@ while length(varargin)>=2 %using a named pair
         case 'n_contours'
             n_contours = val;
         case 'zlimit'
+            zlimit = val;
+        case 'level'
+            flag_fixed_level = true;
             zlimit = val;
         otherwise
             warning(['unknown option ',arg])
@@ -77,7 +82,7 @@ for ii = 1:m
         if zlimit <= 0
             [ca, level_list]= myCaxis2(z, n_contours);
             %ca
-        elseif zlimit > 0 && zlimit <= 1
+        elseif ~flag_fixed_level %zlimit > 0 && zlimit <= 1
             [ca, level_list] = myCaxis2(z, n_contours);
             ca = ca * zlimit;
             level_list = level_list * zlimit;
