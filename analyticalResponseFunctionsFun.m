@@ -494,7 +494,72 @@ switch damping,
       + Delta3^2/Lambda3^2 ...
       .*(exp(-Lambda3.*t) - 1 + Lambda3*t);
 
-  case '3exp1off'
+    case '5exp'
+    Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
+    Delta2_cm = p(2);%linewidth (sigma) in wavenumbers of the other motion
+    Delta3_cm = p(3);%linewidth (sigma) in wavenumbers of the other motion
+    Delta4_cm = p(4);
+    Delta5_cm = p(5);
+    tau1 = p(6); %first timescale (ps)
+    tau2 = p(7); %second timescale (ps)
+    tau3 = p(8); %second timescale (ps)
+    tau4 = p(9);
+    tau5 = p(10);
+    anh_cm = p(11);
+
+    Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
+    Delta2 = Delta2_cm*wavenumbersToInvPs*2*pi;
+    Delta3 = Delta3_cm*wavenumbersToInvPs*2*pi;
+    Delta4 = Delta4_cm*wavenumbersToInvPs*2*pi;
+    Delta5 = Delta5_cm*wavenumbersToInvPs*2*pi;
+    Lambda1 = 1/tau1;
+    Lambda2 = 1/tau2;
+    Lambda3 = 1/tau3;
+    Lambda4 = 1/tau4;
+    Lambda5 = 1/tau5;
+    anh = anh_cm*wavenumbersToInvPs*2*pi;
+    g = @(t)Delta1^2/Lambda1^2.*(exp(-Lambda1.*t) - 1 + Lambda1*t) ...
+      + Delta2^2/Lambda2^2.*(exp(-Lambda2.*t) - 1 + Lambda2*t) ...
+      + Delta3^2/Lambda3^2.*(exp(-Lambda3.*t) - 1 + Lambda3*t) ...
+      + Delta4^2/Lambda4^2.*(exp(-Lambda4.*t) - 1 + Lambda4*t) ...
+      + Delta5^2/Lambda5^2.*(exp(-Lambda5.*t) - 1 + Lambda5*t);
+  
+  
+    case 'toms_5exp_T1_or_rlx'
+    Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
+    Delta2_cm = p(2);%linewidth (sigma) in wavenumbers of the other motion
+    Delta3_cm = p(3);%linewidth (sigma) in wavenumbers of the other motion
+    Delta4_cm = p(4);
+    Delta5_cm = p(5);
+    tau1 = p(6); %first timescale (ps)
+    tau2 = p(7); %second timescale (ps)
+    tau3 = p(8); %second timescale (ps)
+    tau4 = p(9);
+    tau5 = p(10);
+    T_or = p(11);
+    T1 = p(12);
+    anh_cm = p(13);
+
+    Delta1 = Delta1_cm*wavenumbersToInvPs*2*pi;
+    Delta2 = Delta2_cm*wavenumbersToInvPs*2*pi;
+    Delta3 = Delta3_cm*wavenumbersToInvPs*2*pi;
+    Delta4 = Delta4_cm*wavenumbersToInvPs*2*pi;
+    Delta5 = Delta5_cm*wavenumbersToInvPs*2*pi;
+    Lambda1 = 1/tau1;
+    Lambda2 = 1/tau2;
+    Lambda3 = 1/tau3;
+    Lambda4 = 1/tau4;
+    Lambda5 = 1/tau5;
+    anh = anh_cm*wavenumbersToInvPs*2*pi;
+    g = @(t)Delta1^2/Lambda1^2.*(exp(-Lambda1.*t) - 1 + Lambda1*t) ...
+      + Delta2^2/Lambda2^2.*(exp(-Lambda2.*t) - 1 + Lambda2*t) ...
+      + Delta3^2/Lambda3^2.*(exp(-Lambda3.*t) - 1 + Lambda3*t) ...
+      + Delta4^2/Lambda4^2.*(exp(-Lambda4.*t) - 1 + Lambda4*t) ...
+      + Delta5^2/Lambda5^2.*(exp(-Lambda5.*t) - 1 + Lambda5*t) ...
+      + t./(3*T_or) + t./(2*T1);
+  
+  
+    case '3exp1off'
     Delta1_cm = p(1);%linewidth (sigma) in wavenumbers of one motion
     Delta2_cm = p(2);%linewidth (sigma) in wavenumbers of the other motion
     Delta3_cm = p(3);%linewidth (sigma) in wavenumbers of the other motion
@@ -683,12 +748,12 @@ if order==3
       out = out(bootstrap_index);
   end
   
- try
-     s.c2 = c2(t);
-     s.g = g(t);
-    s.t = t;
-    extra = s;
- end
+  try
+      s.c2 = c2(t);
+      s.g = g(t);
+      s.t = t;
+      extra = s;
+  end
 end %end if order 3
 
 if order==5

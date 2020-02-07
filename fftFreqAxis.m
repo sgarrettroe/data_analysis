@@ -12,7 +12,7 @@ function [w,p] = fftFreqAxis(t,varargin)
 %    exp(iwt) to positive frequencies, so common formulas like exp(-iwt) in
 %    response function calculations would map to negative frequencies.
 %    Using the ifft maps them back to positive frequencies.
-% 'fft_type' = equiivalent to 'direction'
+% 'fft_type' = equivalent to 'direction'
 % p is an optional struct of 
 % p.resolution
 % p.centerfreq
