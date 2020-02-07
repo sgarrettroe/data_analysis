@@ -46,11 +46,12 @@ output.c2 = c2;
 output.c2_std = c2_std;
 
 if flag_plot
-    figure(1),clf
+    figure,clf
     hold on
     errorbar(t2_array,c2,c2_std,'rx')
-    plot(t2_array,fitresult(t2_array))
+    plot(t2_array,fitresult(t2_array),'k')
+    xlim([-5 max(t2_array)+5])
     hold off
     xlabel('t_2 (ps)')
-    ylabel('CLS (c_2)')
+    ylabel('c_2')
 end
