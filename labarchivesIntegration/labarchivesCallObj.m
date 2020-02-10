@@ -627,6 +627,7 @@ classdef labarchivesCallObj
         end
     
         function [obj,entries] = getEntriesForPage(obj,uid,nid,pid)
+            entries = '';
             %get information about all the entries on the given page
             obj.api_class = 'api/tree_tools/';
             obj.api_method_called = 'get_entries_for_page';
@@ -634,7 +635,9 @@ classdef labarchivesCallObj
                 sprintf('uid=%s&page_tree_id=%s&nbid=%s',...
                 uid,pid,nid);
             obj=obj.loadResponse;
-            entries = obj.response.tree_dash_tools.entries.entry;
+            if isfield(obj.response.tree_dash_tools.entries,'entry')
+                entries = obj.response.tree_dash_tools.entries.entry;
+            end
         end
         
         function obj = loadEntriesForPage(obj)
