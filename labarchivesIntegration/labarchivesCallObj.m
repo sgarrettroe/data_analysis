@@ -719,8 +719,8 @@ classdef labarchivesCallObj
                 obj = obj.executeRestCall;
                 
                 %write it to a file
-                fid_ = fopen(attachments{ii},'w');
-                fwrite(fid_,obj.response,'*char');
+                fid_ = fopen(attachments{ii},'wb');
+                fwrite(fid_,obj.response,'uint8');
                 fclose(fid_);
             end
         end
