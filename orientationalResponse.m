@@ -1,4 +1,4 @@
-function [p,q,r] = orientationalResponse(tau_c,order,varargin)
+function [p,q,r,s] = orientationalResponse(tau_c,order,varargin)
 % orientationalResponse.m Calculate the value of the orientational
 % correlation function for different orders of spectroscopy 
 %
@@ -41,7 +41,7 @@ switch order
     p = 1/9.*c1(T1).*(1 + 4/5.*c2(t2)).*c1(T3);%parallel
     q = 1/9.*c1(T1).*(1 - 2/5.*c2(t2)).*c1(T3);%perp
     r = 1/15.*c1(T1).*c2(t2).*c1(T3);%crossed
-
+    s = 1/9.*c1(T1).*c1(T3);%magic
     case 5
     T1 = varargin{1};
     t2 = varargin{2};
