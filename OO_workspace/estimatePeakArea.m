@@ -75,10 +75,10 @@ if flag_plot
         ind = find(a >= PeakAreaindex(1) & a <= PeakAreaindex(end));
         yy = flip(yy);
         yy = -yy;
-        figure();clf
+        figure(145);clf
         plot(x,y,'o'),hold on,plot(xx,yy,'k'),plot(xx(ind),yy(ind),'r')
     else
-        figure();clf,plot(x,y,'o'),hold on,plot(xx,yy,'k'),plot(xx(PeakAreaindex),yy(PeakAreaindex),'r')
+        figure(145);clf,plot(x,y,'o'),hold on,plot(xx,yy,'k'),plot(xx(PeakAreaindex),yy(PeakAreaindex),'r')
     end
     xlabel('x')
     ylabel('y')

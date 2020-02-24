@@ -23,12 +23,22 @@ function dataOut = average2DIRdata(dataIn,varargin)
 % TODO: Check for w3 values.
 
 n_zp = 1;
+phase_deg = 0;
+apod = 'none';
+filter = false;
+
 while length(varargin)>=2 %using a named pair
     arg = varargin{1};
     val = varargin{2};
     switch lower(arg)
         case 'n_zp'
-            n_zp = val;;
+            n_zp = val;
+        case 'delta_phase'
+            phase_deg = val;
+        case 'apodization'
+            apod = val;
+        case 'filter'
+            filter = val;
         otherwise
             warning(['average2DIRdata: unknown option ',arg])
     end
@@ -66,7 +76,8 @@ for ii = 1:length(uniquet2s)
     zeropad = temp(1).zeropad;
     nscans = zeros(size(temp));
     for jj = 1:length(temp)
-        temp(jj) = absorptive2dPP(temp(jj),'zeropad',n_zp*zeropad); % re-run absorptive 2d PP to get correct w1 spacing
+        temp(jj) = absorptive2dPP(temp(jj),'zeropad',n_zp*zeropad,...
+            'phase',temp(jj).phase + phase_deg,'filter',filter,'apodization',apod); % re-run absorptive 2d PP to get correct w1 spacing
         temp(jj).zeropad = n_zp*zeropad;
         nscans(jj) = temp(jj).PARAMS.nScans;
     end

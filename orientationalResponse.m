@@ -1,3 +1,4 @@
+
 function [p,q,r,s] = orientationalResponse(tau_c,order,varargin)
 % orientationalResponse.m Calculate the value of the orientational
 % correlation function for different orders of spectroscopy 
