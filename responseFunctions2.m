@@ -26,6 +26,7 @@ Rh.mu2(:,:,2) = [ 0,0,0 ; sqrt(2).*Rh.mu(2,:) ; Rh.mu(1,:)];
 % default values
 flag_plot = false;
 flag_print = true;
+flag_orientational_response = false;
 w0 = 0;
 %n_excitons = 2;
 %n_exciton_sig_figs = 1;
@@ -79,6 +80,14 @@ if isfield(roptions,'verbose')
         verbose = 1;
     end
 end
+if isfield(roptions,'flag_orientational_response')
+    if isempty(roptions.flag_orientational_response)
+        %do nothing see default at top
+    else
+        flag_orientational_response = roptions.flag_orientational_response;
+        tau_orient = roptions.tau_orient;
+    end
+end
 
 % simulation parameters
 if verbose>=1,disp('initialize variables'),end
@@ -91,6 +100,17 @@ e_1 = pol{1};
 e_2 = pol{2};
 e_3 = pol{3};
 e_4 = pol{4};
+if all(e_1==e_2) && all(e_1==e_3) && all(e_1==e_4)
+    polarization_experiment_name = 'parallel';
+elseif all(e_1==e_2) && e_1'*e_3==0 && all(e_3==e_4)
+    polarization_experiment_name = 'perpendicular';
+elseif (all(e_1==e_3) && e_1'*e_2==0 && all(e_2==e_4) )|...
+        (all(e_1==e_4) && e_1'*e_2==0 && all(e_2==e_3))
+    polarization_experiment_name = 'perpendicular';
+else
+    warning('unknown polarization scheme, orientational response turned OFF')
+    flag_orientational_response=false;
+end
 w_laser = roptions.w_laser;
 BW = roptions.BW;
 
@@ -324,6 +344,18 @@ for j = 1:n
 end
 % add lineshape (same for all peaks for now)
 R_r = exp(-g(T1)+g(t2)-g(T3)-g(T1+t2)-g(t2+T3)+g(T1+t2+T3)).*R_r;
+
+% add orientational relaxation (same for all peaks now)
+if flag_orientational_response
+    [p,q,r] = orientationalResponse(tau_orient,3,T1,t2,T3);
+    if strcmpi(polarization_experiment_name,'parallel')
+        R_r = R_r.*p;
+    elseif strcmpi(polarization_experiment_name,'perpendicular')
+        R_r = R_r.*q;
+    elseif strcmpi(polarization_experiment_name,'crossed')
+        R_r = R_r.*r;
+    end
+end
 fprintf(fid,'\n\n');
 
 % now non-rephasing diagrams
@@ -365,6 +397,19 @@ for j = 1:n
 end
 % add lineshape (same for all peaks for now)
 R_nr = exp(-g(T1)-g(t2)-g(T3)+g(T1+t2)+g(t2+T3)-g(T1+t2+T3)).*R_nr;
+
+% add orientational relaxation (same for all peaks now)
+if flag_orientational_response
+    [p,q,r] = orientationalResponse(tau_orient,3,T1,t2,T3);
+    if strcmpi(polarization_experiment_name,'parallel')
+        R_nr = R_nr.*p;
+    elseif strcmpi(polarization_experiment_name,'perpendicular')
+        R_nr = R_nr.*q;
+    elseif strcmpi(polarization_experiment_name,'crossed')
+        R_nr = R_nr.*r;
+    end
+end
+fprintf(fid,'\n\n');
 
 R_r_accum  = R_r_accum  + R_r *thermal_weight;
 R_nr_accum = R_nr_accum + R_nr*thermal_weight;
@@ -480,4 +525,3 @@ original_energies = diag(pmodes.H);
 original_energies = original_energies-original_energies(1);
 max_e = 2*(options.w_laser+options.BW);
 n_sparse_states = sum(original_energies<=max_e);
-end
