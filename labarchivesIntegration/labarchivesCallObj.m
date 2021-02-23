@@ -336,7 +336,7 @@ classdef labarchivesCallObj
 
             callObj = callObj.loadResponse;
             s = callObj.response.users.max_dash_file_dash_size.Text;
-            fprintf(1,'max file size = %s\n',s);
+%             fprintf(1,'max file size = %s\n',s);
             s = str2double(s);
         end
         
@@ -566,6 +566,75 @@ classdef labarchivesCallObj
             obj.response = webwrite(obj.rest_call_string,file_contents,opt);
 
             obj = obj.responseXml2Struct;
+
+        end
+        
+        function obj = updateAttachment(obj,filename)
+            % update a file on the current page
+            %
+            % obj = obj.updateAttachment('fname.mat')
+            %
+            % updates file fname.mat on the current page.
+            
+            %filename = 'test_file_to_add.m';
+            opt = weboptions('MediaType','application/octet-stream');
+            
+            %load file contents
+            ffid = fopen(filename);
+            file_contents = fread(ffid,'*char');
+            fclose(ffid);
+            
+            % load the current page entries
+            obj = obj.loadEntriesForPage();
+            
+            % initialize an empty array for entry id
+            eid = [];
+            
+            % search for the entry with the same name as the input filename
+            % and return the entry id of that file.
+            if length(obj.entries) == 1
+                if strcmp(obj.entries.attach_dash_file_dash_name.Text, filename)
+                    eid = obj.entries.eid.Text;
+                end
+            else
+                for ii = 1:length(obj.entries)
+                    if strcmp(obj.entries{ii}.attach_dash_file_dash_name.Text, filename)
+                        eid = obj.entries{ii}.eid.Text;
+                    end
+                end
+            end
+            
+            % if the entry id is not empty follow this procedure to update
+            % the file uploaded to the entry
+            if ~isempty(eid)
+                % these should be updated for each call
+                obj.api_class = 'api/entries/';
+                obj.api_method_called = 'update_attachment';
+                obj.api_method_specific = ...
+                    sprintf('uid=%s&eid=%s&filename=%s',...
+                    obj.uid,eid,filename);
+
+                obj = obj.buildCallString;
+                obj = obj.buildAuthenticationString;
+                obj = obj.buildRestCallString;
+
+                tmp = dir(filename);
+                maxfs = obj.getMaxFileSize;
+                if tmp.bytes > maxfs
+                    warning('Skip: File %s size %f > %f (max file size)',filename,tmp.bytes,maxfs);
+                    obj.response = [];
+                    return
+                end
+
+                obj.response = webwrite(obj.rest_call_string,file_contents,opt);
+
+                obj = obj.responseXml2Struct;
+            else
+                % if the entry id (eid) is empty then none of the entries were
+                % found to have the same filename as the input filename and
+                % the function will just upload the file as a new entry.
+                obj.addAttachment(filename);
+            end
 
         end
         
