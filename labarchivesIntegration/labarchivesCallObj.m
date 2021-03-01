@@ -830,7 +830,7 @@ classdef labarchivesCallObj
                     obj.access_password = m.access_password;
                 end
             else
-                fprintf(1,'failed to find labarchives secret key file %s on matlab path.',obj.secret_file);
+                fprintf(1,'failed to find labarchives secret key file %s on matlab path.\n',obj.secret_file);
             end
         end
         
