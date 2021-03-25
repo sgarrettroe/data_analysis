@@ -429,6 +429,9 @@ classdef labarchivesCallObj
                     obj.notebook_name,obj.folder_name,obj.page_name);
                 obj = obj.insertNode(obj.uid,obj.nid,obj.fid,obj.page_name,false);
                 obj.pid = obj.response.tree_dash_tools.node.tree_dash_id.Text;
+                
+                %% insert entry template when page is created
+                obj.insertEntryTemplate;
             end        
             
             
