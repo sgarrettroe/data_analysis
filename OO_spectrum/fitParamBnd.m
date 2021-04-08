@@ -17,6 +17,7 @@ classdef fitParamBnd < fitParam
                 obj.lb = lb;
                 obj.ub = ub;
                 obj = obj.parseStr(freeOrFixed);
+                obj = obj.validate;
             end
         end
         function out = get.lb(obj)
@@ -31,7 +32,15 @@ classdef fitParamBnd < fitParam
         function obj = set.ub(obj,val)
             obj = obj.set_ub_fxn(val);
         end
-        
+        function obj = validate(obj)
+            %ensure values of fit parameter are consistent otherwise warn
+            if obj.value > obj.ub || obj.value < obj.lb || obj.lb > obj.ub
+                warning('SGRLAB:data_analysis:invalid_parameter',...
+                    ['fitParamBnd: %s=%f out of bounds (lb = %f, ub = %f) '...
+                    'or bounds inconsistent'],...
+                    obj.name,obj.value,obj.lb,obj.ub);
+            end
+        end
     end
     methods (Access = protected) %these can be customized
         function out = get_lb_fxn(obj)

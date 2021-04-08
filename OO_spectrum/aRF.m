@@ -173,6 +173,12 @@ classdef (Abstract) aRF
             end
         end
         
+        function prettyPrintFreeParamValues(obj,p)
+            %print the parameter vector with associated names
+            for ii = 1:length(p)
+                fprintf(1,'%20s\t%12f\n',obj.freeParamNames{ii},p(ii));
+            end
+        end
         function obj = calcDiagramsTime(obj)
             for jj=1:obj.n_diagrams
                 obj.diagrams(jj) = obj.diagrams(jj).calcResponseTime(obj.T1,obj.t2,obj.T3);
