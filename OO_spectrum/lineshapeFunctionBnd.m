@@ -14,10 +14,10 @@ classdef lineshapeFunctionBnd < lineshapeFunction & fitParamBnd
                 obj = obj.setParams2(params);
                 obj = obj.parseStr(str);
                 
-                if ~any( structfun(@isempty, obj.params(1)) )
-                    obj.g = makeG(obj);
-                    obj.c2 = makeC2(obj);
-                end
+%                 if ~any( structfun(@isempty, obj.params(1)) )
+%                     obj.g = makeG(obj);
+%                     obj.c2 = makeC2(obj);
+%                 end
             end
         end
         function obj = setParams(obj,params)
