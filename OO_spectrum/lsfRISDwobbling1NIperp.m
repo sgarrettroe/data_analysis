@@ -6,6 +6,8 @@ classdef lsfRISDwobbling1NIperp < lineshapeFunction
         c2;
         order;
         tpoints;
+        L_l;
+        R;
     end
     
     methods
@@ -21,59 +23,45 @@ classdef lsfRISDwobbling1NIperp < lineshapeFunction
         end
         
         function out = makeG(obj)
+            
+            tr1 = obj.params(1).tau_o1;
+            theta_deg1 = obj.params(1).theta_deg1;
+            
+            %param struct for R must have these fields tr theta_deg
+            p(1).tr = tr1;
+            p(1).theta_deg = theta_deg1;
 
-                    tr1 = obj.params(1).tau_o1;
-                    theta_deg1 = obj.params(1).theta_deg1;
-
-                            %param struct for R must have these fields tr theta_deg 
-                            p(1).tr = tr1;
-                            p(1).theta_deg = theta_deg1;
-
-                                C = wobblingCtest;
-                                Ctot = cell(1,4);
-
-                                for l = 1:4
-                                    %Ctot{l} = 1;
-                                    %for ii = 1:ncones
-                                        Ctot{l}=@(p,tau)C{l}(p(1),tau);
-                                    %end
-                                end
-
-                                R = wobblingR(Ctot,obj.order);
-
-                            
-         
-
-%             F_para =@(t, tau) (t-tau).*R.para(p,tau); %this is the FFCF
-            F_perp = @(t, tau) (t-tau).*R.perp(p,tau); %this is the FFCF
-           
+                        
+            %             F_para =@(t, tau) (t-tau).*R.para(p,tau); %this is the FFCF
+            F_perp = @(t, tau) (t-tau).*obj.R.perp(p,tau); %this is the FFCF
+            
             g_prime = arrayfun(@(t) integral(@(tau) F_perp(t, tau),0,t),obj.tpoints); %do the numerical integration as a function of t
             out = @(t) interp1(obj.tpoints,g_prime,t);
         end
         
         function out = makeC2(obj)
-
+            
             tr1 = 1/obj.params(1).tau_o1;
             theta_deg1 = obj.params(1).theta_deg1;
             
-                         p(1).tr = tr1;
-                         p(1).theta_deg = theta_deg1;
-
-                         C = wobblingC;
-                    Ctot = cell(1,4);
-
-
-                    for l = 1:4
-                        %Ctot{l} = 1;
-                        %for ii = 1:ncones
-                            Ctot{l}=@(p,t)C{l}(p(1),t);
-                        %end
-                    end
-                
+            p(1).tr = tr1;
+            p(1).theta_deg = theta_deg1;
+            
+            C = wobblingC;
+            Ctot = cell(1,4);
+            
+            
+            for l = 1:4
+                %Ctot{l} = 1;
+                %for ii = 1:ncones
+                Ctot{l}=@(p,t)C{l}(p(1),t);
+                %end
+            end
+            
             out = @(t) 0.4.*(Ctot{2}(p,t2));
             
         end
-    
+        
         function obj = maketpoints(obj,aRFoptions)
             t1 = 0:aRFoptions.dt:(aRFoptions.n_t-1)*aRFoptions.dt;
             t3 = t1;
@@ -86,6 +74,7 @@ classdef lsfRISDwobbling1NIperp < lineshapeFunction
             obj.tpoints = unique([tmp,tmp2]);
             
         end
+
     end
 end
 

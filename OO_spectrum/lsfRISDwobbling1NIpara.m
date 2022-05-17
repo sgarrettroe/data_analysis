@@ -6,11 +6,13 @@ classdef lsfRISDwobbling1NIpara < lineshapeFunction
         c2;
         order;
         tpoints;
+        L_l;
+        R;
     end
     
     methods
         
-        function obj = lsfRISDwobbling1NIpara(params,str,aRFoptions)
+        function obj = lsfRISDwobbling1NIpara(params,str,aRFoptions) %constructor function
             if nargin == 0;
                 super_args = {};
             else
@@ -21,7 +23,6 @@ classdef lsfRISDwobbling1NIpara < lineshapeFunction
         end
         
         function out = makeG(obj)
-            
             tr1 = obj.params(1).tau_o1;
             theta_deg1 = obj.params(1).theta_deg1;
             
@@ -29,20 +30,7 @@ classdef lsfRISDwobbling1NIpara < lineshapeFunction
             p(1).tr = tr1;
             p(1).theta_deg = theta_deg1;
             
-            C = wobblingCtest;
-            Ctot = cell(1,4);
-            
-            for l = 1:4
-                %Ctot{l} = 1;
-                %for ii = 1:ncones
-                Ctot{l}=@(p,tau)C{l}(p(1),tau);
-                %end
-            end
-            
-            R = wobblingR(Ctot,obj.order);
-            
-            
-            F_para =@(t, tau) (t-tau).*R.para(p,tau); %this is the FFCF time (t-tau) to turn a double integral into a single one
+            F_para =@(t, tau) (t-tau).*obj.R.para(p,tau); %this is the FFCF time (t-tau) to turn a double integral into a single one
             %F_perp =@(t) (3/25).*(7.*exp(-2.*D_m.*t) - 2.*exp(-12.*D_m.*t)) ./ (1 - 0.4.*exp(-6.*D_m.*t)); %this is the FFCF
             
             g_prime = arrayfun(@(t) integral(@(tau) F_para(t, tau),0,t),obj.tpoints); %do the numerical integration as a function of t
