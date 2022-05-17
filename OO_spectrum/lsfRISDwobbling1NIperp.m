@@ -1,7 +1,7 @@
 classdef lsfRISDwobbling1NIperp < lineshapeFunction
     
     properties
-        params = struct('tau_o1',[],'theta_deg1',[]);
+        params = struct('tr',[],'theta_deg',[]);
         g;
         c2;
         order;
@@ -24,12 +24,12 @@ classdef lsfRISDwobbling1NIperp < lineshapeFunction
         
         function out = makeG(obj)
             
-            tr1 = obj.params(1).tau_o1;
-            theta_deg1 = obj.params(1).theta_deg1;
+            tr = obj.params(1).tr;
+            theta_deg = obj.params(1).theta_deg;
             
             %param struct for R must have these fields tr theta_deg
-            p(1).tr = tr1;
-            p(1).theta_deg = theta_deg1;
+            p(1).tr = tr;
+            p(1).theta_deg = theta_deg;
 
                         
             %             F_para =@(t, tau) (t-tau).*R.para(p,tau); %this is the FFCF
@@ -41,11 +41,11 @@ classdef lsfRISDwobbling1NIperp < lineshapeFunction
         
         function out = makeC2(obj)
             
-            tr1 = 1/obj.params(1).tau_o1;
-            theta_deg1 = obj.params(1).theta_deg1;
+            tr = 1/obj.params(1).tr;
+            theta_deg = obj.params(1).theta_deg;
             
-            p(1).tr = tr1;
-            p(1).theta_deg = theta_deg1;
+            p(1).tr = tr;
+            p(1).theta_deg = theta_deg;
             
             C = wobblingC;
             Ctot = cell(1,4);

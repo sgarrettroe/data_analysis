@@ -1,7 +1,7 @@
 classdef lsfRISDwobbling1NIpara < lineshapeFunction
     
     properties
-        params = struct('tau_o1',[],'theta_deg1',[]);
+        params = struct('tr',[],'theta_deg',[]);
         g;
         c2;
         order;
@@ -23,12 +23,12 @@ classdef lsfRISDwobbling1NIpara < lineshapeFunction
         end
         
         function out = makeG(obj)
-            tr1 = obj.params(1).tau_o1;
-            theta_deg1 = obj.params(1).theta_deg1;
+            tr = obj.params(1).tr;
+            theta_deg = obj.params(1).theta_deg;
             
             %param struct for R must have these fields tr theta_deg
-            p(1).tr = tr1;
-            p(1).theta_deg = theta_deg1;
+            p(1).tr = tr;
+            p(1).theta_deg = theta_deg;
             
             F_para =@(t, tau) (t-tau).*obj.R.para(p,tau); %this is the FFCF time (t-tau) to turn a double integral into a single one
             %F_perp =@(t) (3/25).*(7.*exp(-2.*D_m.*t) - 2.*exp(-12.*D_m.*t)) ./ (1 - 0.4.*exp(-6.*D_m.*t)); %this is the FFCF
@@ -39,11 +39,11 @@ classdef lsfRISDwobbling1NIpara < lineshapeFunction
         
         function out = makeC2(obj)
             
-            tr1 = 1/obj.params(1).tau_o1;
-            theta_deg1 = obj.params(1).theta_deg1;
+            tr = 1/obj.params(1).tr;
+            theta_deg = obj.params(1).theta_deg;
             
-            p(1).tr = tr1;
-            p(1).theta_deg = theta_deg1;
+            p(1).tr = tr;
+            p(1).theta_deg = theta_deg;
             
             C = wobblingC;
             Ctot = cell(1,4);
