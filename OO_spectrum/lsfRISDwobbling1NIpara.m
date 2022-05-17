@@ -23,8 +23,8 @@ classdef lsfRISDwobbling1NIpara < lineshapeFunction
         end
         
         function out = makeG(obj)
-            tr = obj.params(1).tr;
-            theta_deg = obj.params(1).theta_deg;
+            tr = obj.params.tr;
+            theta_deg = obj.params.theta_deg;
             
             %param struct for R must have these fields tr theta_deg
             p(1).tr = tr;
