@@ -1,19 +1,20 @@
 classdef lsfRISDwobbling1NIpara < lineshapeFunction
     
     properties
-        params = struct('tr',[],'theta_deg',[]);
+        params = struct('Delta1_cm',[],'tr',[],'theta_deg',[]);
         g;
         c2;
         order;
         tpoints;
         L_l;
         R;
+        pol='para'; %para or perp
     end
     
     methods
         
-        function obj = lsfRISDwobbling1NIpara(params,str,aRFoptions) %constructor function
-            if nargin == 0;
+        function obj = lsfRISDwobbling1NIpara(params,str,~) %constructor function
+            if nargin == 0
                 super_args = {};
             else
                 super_args{1} = params;
@@ -25,15 +26,21 @@ classdef lsfRISDwobbling1NIpara < lineshapeFunction
         function out = makeG(obj)
             tr = obj.params.tr;
             theta_deg = obj.params.theta_deg;
+            Delta = obj.Delta;
             
             %param struct for R must have these fields tr theta_deg
             p(1).tr = tr;
             p(1).theta_deg = theta_deg;
             
-            F_para =@(t, tau) (t-tau).*obj.R.para(p,tau); %this is the FFCF time (t-tau) to turn a double integral into a single one
-            %F_perp =@(t) (3/25).*(7.*exp(-2.*D_m.*t) - 2.*exp(-12.*D_m.*t)) ./ (1 - 0.4.*exp(-6.*D_m.*t)); %this is the FFCF
-            
-            g_prime = arrayfun(@(t) integral(@(tau) F_para(t, tau),0,t),obj.tpoints); %do the numerical integration as a function of t
+            if strcmpi(obj.pol,'para')
+                F =@(t, tau) (t-tau).*Delta^2.*obj.R.para(p,tau); %this is the FFCF time (t-tau) to turn a double integral into a single one
+                %F_perp =@(t) (3/25).*(7.*exp(-2.*D_m.*t) - 2.*exp(-12.*D_m.*t)) ./ (1 - 0.4.*exp(-6.*D_m.*t)); %this is the FFCF
+            elseif strcmpi(obj.pol,'perp')
+                F =@(t, tau) (t-tau).*Delta^2.*obj.R.perp(p,tau); %this is the FFCF time (t-tau) to turn a double integral into a single one
+            else
+                error('unknown polarization pol = %s, should be either ''para'' or ''perp''\n',obj.pol);
+            end
+            g_prime = arrayfun(@(t) integral(@(tau) F(t, tau),0,t),obj.tpoints); %do the numerical integration as a function of t
             out = @(t) interp1(obj.tpoints,g_prime,t);
         end
         

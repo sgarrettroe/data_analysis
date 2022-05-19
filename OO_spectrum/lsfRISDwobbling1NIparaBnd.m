@@ -5,7 +5,7 @@ classdef lsfRISDwobbling1NIparaBnd < lsfRISDwobbling1NIpara & lineshapeFunctionB
     
     methods
         function obj = lsfRISDwobbling1NIparaBnd(params,str,aRFoptions)
-            if nargin == 0;
+            if nargin == 0
                 super_args = {};
             else
                 super_args{1} = params;
