@@ -8,12 +8,12 @@ classdef lsfRISDwobbling1NIpara < lineshapeFunction
         tpoints;
         L_l;
         R;
-        pol='para'; %para or perp
+        pol; %'para' or 'perp'
     end
     
     methods
         
-        function obj = lsfRISDwobbling1NIpara(params,str,~) %constructor function
+        function obj = lsfRISDwobbling1NIpara(params,str,lsfOptions) %constructor function
             if nargin == 0
                 super_args = {};
             else
@@ -21,6 +21,13 @@ classdef lsfRISDwobbling1NIpara < lineshapeFunction
                 super_args{2} = str;
             end
             obj@lineshapeFunction(super_args);
+            if nargin~=0
+                %if we have some input arguments
+                obj.pol = lsfOptions.pol;
+                obj.order = lsfOptions.order;
+                obj = obj.maketpoints(aRFoptions);
+                obj = obj.makeL_l;   
+            end
         end
         
         function out = makeG(obj)
