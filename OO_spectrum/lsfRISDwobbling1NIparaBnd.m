@@ -12,26 +12,7 @@ classdef lsfRISDwobbling1NIparaBnd < lsfRISDwobbling1NIpara & lineshapeFunctionB
                 super_args{2} = str;
                 super_args{3} = aRFoptions;
             end
-            obj@lineshapeFunctionBnd(super_args);
-            %obj = obj.maketpoints(aRFoptions);
-            %obj.order = aRFoptions.order;
-            %obj = obj.makeL_l;
+            obj@lsfRISDwobbling1NIpara(super_args);
         end
-        
-%         function obj = makeL_l(obj)
-%             C = wobblingCtest;
-%             Ctot = cell(1,4);
-%             
-%             for l = 1:4
-%                 %Ctot{l} = 1;
-%                 %for ii = 1:ncones
-%                 Ctot{l}=@(p,tau)C{l}(p(1),tau);
-%                 %end
-%             end
-%             
-%             obj.R = wobblingR(Ctot,obj.order);
-%             obj.L_l = Ctot;
-%         end
     end
-    
 end

@@ -23,13 +23,21 @@ classdef (Abstract) lineshapeFunction < fitParam
                 params = args{1};
                 str = args{2};
                 
-                obj = obj.setParams(params);
                 obj = obj.parseStr(str);
+%                 if isa(params,'fitParam')
+%                     obj = obj.setParams2(params);                    
+%                     if ~any(isempty(obj.params))
+%                         obj.g = makeG(obj);
+%                         obj.c2 = makeC2(obj);
+%                     end
+%                 else
+%                     obj = obj.setParams(params);
+%                     if ~any( structfun(@isempty, obj.params) )
+%                         obj.g = makeG(obj);
+%                         obj.c2 = makeC2(obj);
+%                     end
+%                 end
                 
-                if ~any( structfun(@isempty, obj.params) )
-                    obj.g = makeG(obj);
-                    obj.c2 = makeC2(obj);
-                end
             end
         end
         
@@ -39,7 +47,21 @@ classdef (Abstract) lineshapeFunction < fitParam
                 obj.params.(fnames{ii}) = params.(fnames{ii});
             end
         end
-        
+        function obj = setParams2(obj,p)
+            fnames = fieldnames(obj.params);
+            pnames = {p.name};
+            for ii = 1:length(fnames)
+                %which elements match by name
+                ind = strcmpi(fnames{ii},pnames);
+                %set values
+                obj.params(1).(fnames{ii}) = p(ind).value;
+                %set lb as second element of array
+                obj.params(2).(fnames{ii}) = p(ind).lb;                
+                %set ub as third element of array
+                obj.params(3).(fnames{ii}) = p(ind).ub;
+            end
+       end
+
         function out = paramNames(obj)
             %f = @(nameCell) horzcat('damping.',nameCell);
             out = fieldnames(obj.params)';

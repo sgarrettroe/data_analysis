@@ -7,7 +7,7 @@ classdef lineshapeFunctionBnd < lineshapeFunction & fitParamBnd
     methods
         function obj = lineshapeFunctionBnd(args)
             obj@lineshapeFunction({});
-            if ~isempty(args)
+            if nargin>0 && ~isempty(args)
                 params = args{1};
                 str = args{2};
                 
@@ -32,20 +32,6 @@ classdef lineshapeFunctionBnd < lineshapeFunction & fitParamBnd
 
             end
         end
-        function obj = setParams2(obj,p)
-            fnames = fieldnames(obj.params);
-            pnames = {p.name};
-            for ii = 1:length(fnames)
-                %which elements match by name
-                ind = strcmpi(fnames{ii},pnames);
-                %set values
-                obj.params(1).(fnames{ii}) = p(ind).value;
-                %set lb as second element of array
-                obj.params(2).(fnames{ii}) = p(ind).lb;                
-                %set ub as third element of array
-                obj.params(3).(fnames{ii}) = p(ind).ub;
-            end
-       end
         
     end
         methods (Access = protected)

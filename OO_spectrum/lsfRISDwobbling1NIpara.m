@@ -1,7 +1,7 @@
 classdef lsfRISDwobbling1NIpara < lineshapeFunction
     
     properties
-        params = struct('Delta1_cm',[],'tr',[],'theta_deg',[]);
+        params = struct('Delta1_cm',[],'tr1',[],'theta_deg1',[]);
         g;
         c2;
         order;
@@ -13,27 +13,41 @@ classdef lsfRISDwobbling1NIpara < lineshapeFunction
     
     methods
         
-        function obj = lsfRISDwobbling1NIpara(params,str,lsfOptions) %constructor function
+        function obj = lsfRISDwobbling1NIpara(params,str,aRFoptions) %constructor function
             if nargin == 0
                 super_args = {};
-            else
+            elseif nargin == 1 
+                super_args = params; %if we were passed cell array
+                params = super_args{1};
+                str = super_args{2};
+                aRFoptions = super_args{3};
+            elseif nargin == 2
                 super_args{1} = params;
                 super_args{2} = str;
+                aRFoptions = struct([]);
+            elseif naragin == 3
+                super_args{1} = params;
+                super_args{2} = str;
+                super_args{3} = aRFoptions;
+            else
+                error('confusing number of input args in lsfRISDwobbling1NIpara: %i\n',nargin)
             end
             obj@lineshapeFunction(super_args);
             if nargin~=0
                 %if we have some input arguments
-                obj.pol = lsfOptions.pol;
-                obj.order = lsfOptions.order;
+                obj.pol = aRFoptions.pol;
+                obj.order = aRFoptions.order;
                 obj = obj.maketpoints(aRFoptions);
                 obj = obj.makeL_l;   
             end
         end
         
         function out = makeG(obj)
-            tr = obj.params.tr;
-            theta_deg = obj.params.theta_deg;
-            Delta = obj.Delta;
+            global wavenumbersToInvPs;
+
+            tr = obj.params(1).tr;
+            theta_deg = obj.params(1).theta_deg;
+            Delta = obj.params(1).Delta1_cm*wavenumbersToInvPs*2*pi;
             
             %param struct for R must have these fields tr theta_deg
             p(1).tr = tr;
@@ -85,6 +99,21 @@ classdef lsfRISDwobbling1NIpara < lineshapeFunction
             obj.tpoints = unique([tmp,tmp2]);
             
         end
+        function obj = makeL_l(obj)
+%            C = wobblingCtest;
+            C = wobblingCv2;
+            Ctot = cell(1,4);            
+            for l = 1:4
+                %Ctot{l} = 1;
+                %for ii = 1:ncones
+                Ctot{l}=@(tau,p)C{l}(tau,p.tr1,p.theta_deg1);
+                %end
+            end
+            
+            obj.R = wobblingR(Ctot,obj.order);
+            obj.L_l = Ctot;
+        end
+
     end
 end
 
