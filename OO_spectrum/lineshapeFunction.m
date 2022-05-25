@@ -24,19 +24,19 @@ classdef (Abstract) lineshapeFunction < fitParam
                 str = args{2};
                 
                 obj = obj.parseStr(str);
-%                 if isa(params,'fitParam')
-%                     obj = obj.setParams2(params);                    
+                if isa(params,'fitParam')
+                    obj = obj.setParams2(params);                    
 %                     if ~any(isempty(obj.params))
 %                         obj.g = makeG(obj);
 %                         obj.c2 = makeC2(obj);
 %                     end
-%                 else
-%                     obj = obj.setParams(params);
+                else
+                    obj = obj.setParams(params);
 %                     if ~any( structfun(@isempty, obj.params) )
 %                         obj.g = makeG(obj);
 %                         obj.c2 = makeC2(obj);
 %                     end
-%                 end
+                end
                 
             end
         end
