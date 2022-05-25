@@ -4,7 +4,7 @@ classdef lsfRISDwobbling1NIBnd < lsfRISDwobbling1NI & lineshapeFunctionBnd
     end
     
     methods
-        function obj = lsfRISDwobbling1NIparaBnd(params,str,aRFoptions)
+        function obj = lsfRISDwobbling1NIBnd(params,str,aRFoptions)
             if nargin == 0
                 super_args = {};
             else
@@ -12,7 +12,7 @@ classdef lsfRISDwobbling1NIBnd < lsfRISDwobbling1NI & lineshapeFunctionBnd
                 super_args{2} = str;
                 super_args{3} = aRFoptions;
             end
-            obj@lsfRISDwobbling1NIpara(super_args);
+            obj@lsfRISDwobbling1NI(super_args);
         end
     end
 end

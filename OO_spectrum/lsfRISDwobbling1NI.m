@@ -13,7 +13,7 @@ classdef lsfRISDwobbling1NI < lineshapeFunction
     
     methods
         
-        function obj = lsfRISDwobbling1NIpara(params,str,aRFoptions) %constructor function
+        function obj = lsfRISDwobbling1NI(params,str,aRFoptions) %constructor function
             if nargin == 0
                 super_args = {};
             elseif nargin == 1 
