@@ -1,7 +1,7 @@
-classdef lsfRISDwobbling1NI < lineshapeFunction
+classdef lsfRISDwobbling2cone1diffNI < lineshapeFunction
     
     properties
-        params = struct('Delta_cm',[],'tr1',[],'theta1_deg',[]);
+        params = struct('Delta_cm',[],'tr1',[],'theta1_deg',[],'tr2',[],'theta2_deg',[],'tr3',[]);
         g;
         c2;
         order;
@@ -13,7 +13,7 @@ classdef lsfRISDwobbling1NI < lineshapeFunction
     
     methods
         
-        function obj = lsfRISDwobbling1NI(params,str,aRFoptions) %constructor function
+        function obj = lsfRISDwobbling2cone1diffNI(params,str,aRFoptions) %constructor function
             if nargin == 0
                 super_args = {};
             elseif nargin == 1 
@@ -45,13 +45,12 @@ classdef lsfRISDwobbling1NI < lineshapeFunction
         function out = makeG(obj)
             global wavenumbersToInvPs;
 
-            tr1 = obj.params(1).tr1;
-            theta1_deg = obj.params(1).theta1_deg;
+            % Delta is the total linewidth, not used directly in the RISD
+            % response functions, it is in F (scales the whole thing)
             Delta = obj.params(1).Delta_cm*wavenumbersToInvPs*2*pi;
             
             %param struct for R must have these fields tr theta_deg
-            p(1).tr1 = tr1;
-            p(1).theta1_deg = theta1_deg;
+            p = obj.copyParamValuesToParamStruct; 
             
             if strcmpi(obj.pol,'para')
                 F =@(t, tau) (t-tau).*Delta^2.*obj.R.para(tau,p); %this is the FFCF time (t-tau) to turn a double integral into a single one
@@ -66,7 +65,7 @@ classdef lsfRISDwobbling1NI < lineshapeFunction
         end
         
         function out = makeC2(obj)
-            
+            warning('makeC2 is totally bogus right now and not to be used.')
             tr = 1/obj.params(1).tr;
             theta_deg = obj.params(1).theta_deg;
             
@@ -105,7 +104,9 @@ classdef lsfRISDwobbling1NI < lineshapeFunction
             for l = 1:4
                 %Ctot{l} = 1;
                 %for ii = 1:ncones
-                Ctot{l}=@(tau,p)C{l}(tau,p.tr1,p.theta1_deg);
+                Ctot{l}=@(t,p)C{l}(t,p.tr1,p.theta1_deg)...
+                    .*C{l}(t,p.tr2,p.theta2_deg)...
+                    .*exp(-(l*(l+1)/(6*p.tr3)).*t);
                 %end
             end
             
