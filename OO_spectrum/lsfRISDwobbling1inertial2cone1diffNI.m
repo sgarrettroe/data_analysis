@@ -1,7 +1,7 @@
-classdef lsfRISDwobbling2cone1diffNI < lineshapeFunction
+classdef lsfRISDwobbling1inertial2cone1diffNI < lineshapeFunction
     
     properties
-        params = struct('Delta_cm',[],'tr1',[],'theta1_deg',[],'tr2',[],'theta2_deg',[],'tr3',[]);
+        params = struct('Delta_cm',[],'theta0_deg',[],'tr1',[],'theta1_deg',[],'tr2',[],'theta2_deg',[],'tr3',[]);
         g;
         c2;
         order;
@@ -13,7 +13,7 @@ classdef lsfRISDwobbling2cone1diffNI < lineshapeFunction
     
     methods
         
-        function obj = lsfRISDwobbling2cone1diffNI(params,str,aRFoptions) %constructor function
+        function obj = lsfRISDwobbling1inertial2cone1diffNI(params,str,aRFoptions) %constructor function
             if nargin == 0
                 super_args = {};
             elseif nargin == 1 
@@ -99,14 +99,15 @@ classdef lsfRISDwobbling2cone1diffNI < lineshapeFunction
             
         end
         function obj = makeL_l(obj)
-            C = wobblingCv2;
+            [C,S] = wobblingCv2;
             Ctot = cell(1,4);            
             for l = 1:4
                 %Ctot{l} = 1;
                 %for ii = 1:ncones
-                Ctot{l}=@(t,p)C{l}(t,p.tr1,p.theta1_deg)...
-                    .*C{l}(t,p.tr2,p.theta2_deg)...
-                    .*exp(-(l*(l+1)/(6*p.tr3)).*t);
+                Ctot{l}=@(t,p)S{l}(p.theta0_deg)^2 ... %inertial cone is just S^2
+                    .*C{l}(t,p.tr1,p.theta1_deg)... %cone 1
+                    .*C{l}(t,p.tr2,p.theta2_deg)... %cone 2
+                    .*exp(-(l*(l+1)/(6*p.tr3)).*t); %diffusive cone exponential form
                 %end
             end
             
@@ -116,4 +117,3 @@ classdef lsfRISDwobbling2cone1diffNI < lineshapeFunction
 
     end
 end
-
