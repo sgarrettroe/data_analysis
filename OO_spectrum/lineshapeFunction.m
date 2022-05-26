@@ -83,6 +83,9 @@ classdef (Abstract) lineshapeFunction < fitParam
             obj = obj.setParams(p);
             obj.g = obj.makeG;
         end
+        function out = copyParamValuesToParamStruct(obj)
+            out = cell2struct(num2cell(obj.paramValues),obj.paramNames,2); 
+        end
     end
     methods (Access = protected)
         function out = get_name_fxn(obj)
