@@ -1,7 +1,7 @@
 classdef lsfRISDwobbling1NI < lineshapeFunction
     
     properties
-        params = struct('Delta1_cm',[],'tr1',[],'theta1_deg',[]);
+        params = struct('Delta_cm',[],'tr1',[],'theta1_deg',[]);
         g;
         c2;
         order;
@@ -47,17 +47,17 @@ classdef lsfRISDwobbling1NI < lineshapeFunction
 
             tr1 = obj.params(1).tr1;
             theta1_deg = obj.params(1).theta1_deg;
-            Delta1 = obj.params(1).Delta1_cm*wavenumbersToInvPs*2*pi;
+            Delta = obj.params(1).Delta_cm*wavenumbersToInvPs*2*pi;
             
             %param struct for R must have these fields tr theta_deg
             p(1).tr1 = tr1;
             p(1).theta1_deg = theta1_deg;
             
             if strcmpi(obj.pol,'para')
-                F =@(t, tau) (t-tau).*Delta1^2.*obj.R.para(tau,p); %this is the FFCF time (t-tau) to turn a double integral into a single one
+                F =@(t, tau) (t-tau).*Delta^2.*obj.R.para(tau,p); %this is the FFCF time (t-tau) to turn a double integral into a single one
                 %F_perp =@(t) (3/25).*(7.*exp(-2.*D_m.*t) - 2.*exp(-12.*D_m.*t)) ./ (1 - 0.4.*exp(-6.*D_m.*t)); %this is the FFCF
             elseif strcmpi(obj.pol,'perp')
-                F =@(t, tau) (t-tau).*Delta1^2.*obj.R.perp(tau,p); %this is the FFCF time (t-tau) to turn a double integral into a single one
+                F =@(t, tau) (t-tau).*Delta^2.*obj.R.perp(tau,p); %this is the FFCF time (t-tau) to turn a double integral into a single one
             else
                 error('unknown polarization pol = %s, should be either ''para'' or ''perp''\n',obj.pol);
             end
@@ -79,11 +79,11 @@ classdef lsfRISDwobbling1NI < lineshapeFunction
             for l = 1:4
                 %Ctot{l} = 1;
                 %for ii = 1:ncones
-                Ctot{l}=@(p,t)C{l}(p(1),t);
+                Ctot{l}=@(p,t)C{l}(t,p(1));
                 %end
             end
             
-            out = @(t) 0.4.*(Ctot{2}(p,t2));
+            out = @(t) 0.4.*(Ctot{2}(t,p));
             
         end
         
@@ -100,7 +100,6 @@ classdef lsfRISDwobbling1NI < lineshapeFunction
             
         end
         function obj = makeL_l(obj)
-%            C = wobblingCtest;
             C = wobblingCv2;
             Ctot = cell(1,4);            
             for l = 1:4
