@@ -3,12 +3,12 @@ function [R] = wobblingRv2(C,stark_effect_order)
 
 switch stark_effect_order
     case 1 % from Kramer2015a
-R.para = @(x,p)(3/25)*((11.*C{1}(x,p) + 4*C{3}(x,p))./(1 + 0.8*C{2}(x,p)));
-R.perp = @(x,p)(3/25)*(( 7.*C{1}(x,p) - 2*C{3}(x,p))./(1 - 0.4*C{2}(x,p)));
+R.para = @(x,p)(3/25).*((11.*C{1}(x,p) + 4.*C{3}(x,p))./(1 + 0.8.*C{2}(x,p)));
+R.perp = @(x,p)(3/25).*(( 7.*C{1}(x,p) - 2.*C{3}(x,p))./(1 - 0.4.*C{2}(x,p)));
 R.iso = @(x,p)C{1}(x,p);
     case 2 % from 
-R.para = @(x,p)(1/175)*((28 + 215.*C{2}(x,p) + 72*C{4}(x,p))./(1 + 0.8*C{2}(x,p)));
-R.perp = @(x,p)(1/175)*((-14 + 155.*C{2}(x,p) - 36*C{4}(x,p))./(1 - 0.4*C{2}(x,p)));
+R.para = @(x,p)(1/175).*(( 28 + 215.*C{2}(x,p) + 72.*C{4}(x,p))./(1 + 0.8.*C{2}(x,p)));
+R.perp = @(x,p)(1/175).*((-14 + 155.*C{2}(x,p) - 36.*C{4}(x,p))./(1 - 0.4.*C{2}(x,p)));
 R.iso = @(x,p)C{2}(x,p);
     otherwise
         error('only order 1 and 2 coded');
