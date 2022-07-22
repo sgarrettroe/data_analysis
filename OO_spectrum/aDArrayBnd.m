@@ -11,8 +11,10 @@ classdef aDArrayBnd < additionalDynamics & fitParamBnd
                 obj.n = length(fun_array);
                 obj.fun_array = fun_array;
                 obj.ind_array = ind_array;
-                obj = obj.makeParamStruct(p_array);
-                obj = obj.parseStr(str);
+                if ~isempty(p_array)
+                    obj = obj.makeParamStruct(p_array);
+                    obj = obj.parseStr(str);
+                end
             end
         end
         function obj = makeParamStruct(obj,p_array)
@@ -89,10 +91,10 @@ classdef aDArrayBnd < additionalDynamics & fitParamBnd
             out = obj.paramNames;
         end
         function out = get_value_fxn(obj)
-                out = obj.paramValues;
+            out = obj.paramValues;
         end
         function out = get_lb_fxn(obj)
-                out = obj.paramLb;
+            out = obj.paramLb;
         end
         function out = get_ub_fxn(obj)
             out = obj.paramUb;

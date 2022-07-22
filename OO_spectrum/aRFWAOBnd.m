@@ -29,6 +29,7 @@ classdef aRFWAOBnd < aRFBnd
         negative_diagrams;
         
         dyn = additionalDynamics; %structure/class) for additional dynamics
+        dynOther = additionalDynamics; %for dynamics shared paramters
         
         %
         % Additional things that might be fit parameters not in the
@@ -203,6 +204,16 @@ classdef aRFWAOBnd < aRFBnd
                 for jj = 1:length(obj.dyn(ii).fun_array)
                     f = obj.dyn(ii).fun_array{jj};
                     ind = obj.dyn(ii).ind_array{jj};
+                   for kk = 1:length(ind)
+                       obj.diagrams(ind(kk)).R = f(obj.T1,obj.t2,obj.T3,p).*obj.diagrams(ind(kk)).R;
+                   end
+                end
+            end
+            
+           	for ii = 1:length(obj.dynOther)
+                for jj = 1:length(obj.dynOther(ii).fun_array)
+                    f = obj.dynOther(ii).fun_array{jj};
+                    ind = obj.dynOther(ii).ind_array{jj};
                    for kk = 1:length(ind)
                        obj.diagrams(ind(kk)).R = f(obj.T1,obj.t2,obj.T3,p).*obj.diagrams(ind(kk)).R;
                    end

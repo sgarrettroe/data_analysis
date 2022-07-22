@@ -32,6 +32,15 @@ classdef multiMeasurement
             obj.freeParamNames = s_in(1).freeParamNames;
         end
         
+        function obj = calcSpectrum(obj,p)
+            %calculate each of the spectra in the multiMeasurement
+           for ii = 1:length(obj.s)
+               obj.s(ii) = obj.s(ii).calcSpectrum(p);
+           end
+        end
+        function prettyPrintFreeParameterValues(obj,p)
+            obj.s(1).prettyPrintFreeParamValues(p)
+        end
         function obj = globalFit(obj)%dataMatrix,w1,w3,p_array,gfstruct,lb,ub)
             
             % set fit parameters (I believe based on version of matlab)
