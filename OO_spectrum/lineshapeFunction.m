@@ -25,7 +25,11 @@ classdef (Abstract) lineshapeFunction < fitParam
                 
                 obj = obj.parseStr(str);
                 if isa(params,'fitParam')
-                    obj = obj.setParams2(params);                    
+                    if isa(params,'fitParamBnd')
+                        obj = obj.setParams2(params);
+                    else
+                        obj = obj.setParams3(params);
+                    end
 %                     if ~any(isempty(obj.params))
 %                         obj.g = makeG(obj);
 %                         obj.c2 = makeC2(obj);
@@ -42,12 +46,14 @@ classdef (Abstract) lineshapeFunction < fitParam
         end
         
         function obj = setParams(obj,params)
+            % set params from a structure
             fnames = fieldnames(obj.params);
             for ii = 1:length(fnames)
                 obj.params.(fnames{ii}) = params.(fnames{ii});
             end
         end
         function obj = setParams2(obj,p)
+            % set params for fitParamBnd inputs
             fnames = fieldnames(obj.params);
             pnames = {p.name};
             for ii = 1:length(fnames)
@@ -59,6 +65,17 @@ classdef (Abstract) lineshapeFunction < fitParam
                 obj.params(2).(fnames{ii}) = p(ind).lb;                
                 %set ub as third element of array
                 obj.params(3).(fnames{ii}) = p(ind).ub;
+            end
+       end
+        function obj = setParams3(obj,p)
+            % set params for fitParam (unbounded) inputs
+            fnames = fieldnames(obj.params);
+            pnames = {p.name};
+            for ii = 1:length(fnames)
+                %which elements match by name
+                ind = strcmpi(fnames{ii},pnames);
+                %set values
+                obj.params(1).(fnames{ii}) = p(ind).value;
             end
        end
 
