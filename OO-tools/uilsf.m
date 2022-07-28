@@ -9,7 +9,7 @@ classdef uilsf < handle
         LoadProfileButton
         SaveProfileButton
         DoneButton
-        lsfProfile Profile %deprecated
+        %lsfProfile Profile %deprecated
         lsf
         s = struct('vals',[],'lb',[],'ub',[],'isFree',[]);
     end
