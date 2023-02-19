@@ -25,7 +25,7 @@ classdef (Abstract) aRF
         W3;
         dw;
         flag_rotating_frame = true; %make hidden?
-        
+        flag_real_spectrum = true; %T real, F complex (for phase info)
         
         % experimental
         w1_in;
@@ -186,8 +186,14 @@ classdef (Abstract) aRF
         end
         
         function obj = calcDiagramsFreq(obj,p)
-            for jj=1:obj.n_diagrams
-                obj.diagrams(jj) = obj.diagrams(jj).timeToFreq(p);
+            if obj.flag_real_spectrum
+                for jj=1:obj.n_diagrams
+                    obj.diagrams(jj) = obj.diagrams(jj).timeToFreq(p);
+                end
+            else
+                for jj=1:obj.n_diagrams
+                    obj.diagrams(jj) = obj.diagrams(jj).timeToFreqComplex(p);
+                end
             end
         end
         
