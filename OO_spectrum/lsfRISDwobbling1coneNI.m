@@ -1,7 +1,7 @@
-classdef lsfRISDwobbling1inertial1cone1diffNI < lineshapeFunction
+classdef lsfRISDwobbling1coneNI < lineshapeFunction
     
     properties
-        params = struct('Delta_cm',[],'theta0_deg',[],'tr1',[],'theta1_deg',[],'tr2',[]);
+        params = struct('Delta_cm',[],'tr1',[],'theta1_deg',[]);
         g;
         c2;
         order;
@@ -13,7 +13,7 @@ classdef lsfRISDwobbling1inertial1cone1diffNI < lineshapeFunction
     
     methods
         
-        function obj = lsfRISDwobbling1inertial1cone1diffNI(params,str,aRFoptions) %constructor function
+        function obj = lsfRISDwobbling1coneNI(params,str,aRFoptions) %constructor function
             if nargin == 0
                 super_args = {};
             elseif nargin == 1 
@@ -104,9 +104,7 @@ classdef lsfRISDwobbling1inertial1cone1diffNI < lineshapeFunction
             for l = 1:4
                 %Ctot{l} = 1;
                 %for ii = 1:ncones
-                Ctot{l}=@(t,p)((S{l}(p.theta0_deg)).^2) ... %inertial cone is just S^2
-                    .*C{l}(t,p.tr1,p.theta1_deg)...
-                    .*exp(-(l*(l+1)./(6.*p.tr2)).*t);
+                Ctot{l}= @(t,p) C{l}(t,p.tr1,p.theta1_deg); %cone 1
                 %end
             end
             

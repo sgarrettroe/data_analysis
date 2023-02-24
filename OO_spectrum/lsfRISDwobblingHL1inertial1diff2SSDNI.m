@@ -1,7 +1,7 @@
-classdef lsfRISDwobbling1inertial1cone1diffNI < lineshapeFunction
+classdef lsfRISDwobblingHL1inertial1diff2SSDNI < lineshapeFunction
     
     properties
-        params = struct('Delta_cm',[],'theta0_deg',[],'tr1',[],'theta1_deg',[],'tr2',[]);
+        params = struct('Delta_cm',[],'theta0_deg',[],'tr1',[],'T2',[],'ampSSD1',[],'tauSSD1',[],'ampSSD2',[],'tauSSD2',[]);
         g;
         c2;
         order;
@@ -13,7 +13,7 @@ classdef lsfRISDwobbling1inertial1cone1diffNI < lineshapeFunction
     
     methods
         
-        function obj = lsfRISDwobbling1inertial1cone1diffNI(params,str,aRFoptions) %constructor function
+        function obj = lsfRISDwobblingHL1inertial1diff2SSDNI(params,str,aRFoptions) %constructor function
             if nargin == 0
                 super_args = {};
             elseif nargin == 1 
@@ -48,20 +48,24 @@ classdef lsfRISDwobbling1inertial1cone1diffNI < lineshapeFunction
             % Delta is the total linewidth, not used directly in the RISD
             % response functions, it is in F (scales the whole thing)
             Delta = obj.params(1).Delta_cm*wavenumbersToInvPs*2*pi;
-            
+            T2 = obj.params(1).T2;
+            a1 = obj.params(1).ampSSD1;
+            tauSSD1 = obj.params(1).tauSSD1;   
+            a2 = obj.params(1).ampSSD2;
+            tauSSD2 = obj.params(1).tauSSD2;   
             %param struct for R must have these fields tr theta_deg
             p = obj.copyParamValuesToParamStruct; 
             
             if strcmpi(obj.pol,'para')
-                F =@(t, tau) (t-tau).*Delta.^2.*obj.R.para(tau,p); %this is the FFCF time (t-tau) to turn a double integral into a single one
+                F =@(t, tau) (t-tau).*(a1.*exp(-tau./tauSSD1)+a2.*exp(-tau./tauSSD2)).*Delta.^2.*obj.R.para(tau,p); %this is the FFCF time (t-tau) to turn a double integral into a single one
                 %F_perp =@(t) (3/25).*(7.*exp(-2.*D_m.*t) - 2.*exp(-12.*D_m.*t)) ./ (1 - 0.4.*exp(-6.*D_m.*t)); %this is the FFCF
             elseif strcmpi(obj.pol,'perp')
-                F =@(t, tau) (t-tau).*Delta.^2.*obj.R.perp(tau,p); %this is the FFCF time (t-tau) to turn a double integral into a single one
+                F =@(t, tau) (t-tau).*(a1.*exp(-tau./tauSSD1)+a2.*exp(-tau./tauSSD2)).*Delta.^2.*obj.R.perp(tau,p); %this is the FFCF time (t-tau) to turn a double integral into a single one
             else
                 error('unknown polarization pol = %s, should be either ''para'' or ''perp''\n',obj.pol);
             end
             g_prime = arrayfun(@(t) integral(@(tau) F(t, tau),0,t),obj.tpoints); %do the numerical integration as a function of t
-            out = @(t) interp1(obj.tpoints,g_prime,t);
+            out = @(t) interp1(obj.tpoints,g_prime,t) + t/T2;
         end
         
         function out = makeC2(obj)
@@ -105,8 +109,7 @@ classdef lsfRISDwobbling1inertial1cone1diffNI < lineshapeFunction
                 %Ctot{l} = 1;
                 %for ii = 1:ncones
                 Ctot{l}=@(t,p)((S{l}(p.theta0_deg)).^2) ... %inertial cone is just S^2
-                    .*C{l}(t,p.tr1,p.theta1_deg)...
-                    .*exp(-(l*(l+1)./(6.*p.tr2)).*t);
+                    .*exp(-(l*(l+1)./(6.*p.tr1)).*t);%diffusive cone
                 %end
             end
             
