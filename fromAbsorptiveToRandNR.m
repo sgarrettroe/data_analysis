@@ -5,7 +5,7 @@ function out = fromAbsorptiveToRandNR(w1,w3,absorptive,options)
 opt.n_w = 256; %number of freq points
 opt.phase = 0;
 opt.flag_plot = false;
-opt.range1 = [w3(1) w3(end)];
+opt.range1 = [w1(1) w1(end)];
 opt.range3 = [w3(1) w3(end)];
 
 % assign properties from the input options struct
@@ -89,8 +89,8 @@ if opt.flag_plot
     title('Absorptive spectrum Re[R_{r} + R_{nr}]')
 end
 
-out.w1 = w;
-out.w3 = w;
+out.w1 = W1(1,:);
+out.w3 = W3(:,2);
 out.S = S;
 out.R = S1;
 out.NR = S2;

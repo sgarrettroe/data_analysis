@@ -8,7 +8,7 @@ function phase = intrinsicPhasing(w1,w3,S,options)
 opt.peak_pos = [];
 opt.flag_plot = false;
 opt.flag_two_level_system = false;
-opt.range1 = [w3(1) w3(end)];
+opt.range1 = [w1(1) w1(end)];
 opt.range3 = [w3(1) w3(end)];
 
 % assign properties from the input options struct
@@ -41,9 +41,9 @@ midpoint = sum(y0s)/2;
 [~,i_mid] = min((y-midpoint).^2);
 
 if opt.flag_plot
-    figure,clf
-    plot(y,unwrap(angle(uh(:,i_cut))))
+    figure(100),clf
     hold on
+    plot(y,unwrap(angle(uh(:,i_cut))))
     plot([y(1),y(end)],-3*pi/2*[1,1])
     plot([y(1),y(end)],-pi/2*[1,1])
     plot([y(1),y(end)],pi/2*[1,1])
@@ -53,8 +53,8 @@ if opt.flag_plot
         plot([midpoint,midpoint],[-2*pi,2*pi])
         plot(y,pi*real(uh(:,i_cut))./max(real(uh(:,i_cut))))
     end
-    hold off
     set(gca,'ylim',[-2*pi,pi])
+    hold off
 end
 
 phase = angle(uh(i_mid,i_cut)) + pi/2;
