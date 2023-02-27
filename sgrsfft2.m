@@ -13,11 +13,12 @@ function x2 = sgrsfft2(x,varargin)
 % additionally zero pads both dimensions to n_zp in length
 
 %check the size of the input 
-n_zp= size(x,1);
-
+n_zp1 = size(x,2);
+n_zp3 = size(x,1);
 % look for any zero-padding
 if nargin>=2
-  n_zp = varargin{1};
+  n_zp1 = varargin{1};
+  n_zp3 = n_zp1; 
 end
 
 %initialize the intermediate
@@ -30,10 +31,10 @@ x2 = x;
 x2(1,:) = (x(1,:)+x(end,:))./2;
 
 %now fft that dimension with zero padding if any
-x2 = fft(x2,n_zp);
+x2 = fft(x2,n_zp3);
 
 %now average the second dimension (in frequency space)
 x2(:,1) = (x2(:,1)+x2(:,end))./2;
 
 %the second dimension fft
-x2 = fft(x2.',n_zp).';
+x2 = fft(x2.',n_zp1).';

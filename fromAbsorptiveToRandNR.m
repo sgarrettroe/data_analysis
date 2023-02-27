@@ -23,13 +23,14 @@ ind3 = find(w3>=opt.range3(1) & w3<=opt.range3(2));
 % is this needed???
 ind_mid = floor((ind1(end)+ind1(1))/2);
 ind1_ = (1:opt.n_w) - opt.n_w/2 + ind_mid;
-w1_ = w1(ind1_);
+w1_ = w1; %this needs to be calculated via dw1 
+w3_ = w3; %this needs to be calculated via dw1 
 
 %
-[W1,W3] = meshgrid(w1_,w1_);
-x = w1(ind1_);
+[W1,W3] = meshgrid(w1_,w3_);
+x = w1(ind1);
 y = w3(ind3);
-z = real(absorptive(ind3,ind1_)*exp(-1i*opt.phase));
+z = real(absorptive(ind3,ind1)*exp(-1i*opt.phase));
 big_spec = interp2(x,y,z,W1,W3,'makima',0);
 
 
@@ -42,23 +43,27 @@ end
 %
 spec = ifftshift(big_spec);
 
-n_t = opt.n_w/2;
-t = 0:(2*n_t-1);
-w = x;
+n_t1 = ceil(size(W1,2)/2);
+n_t3 = ceil(size(W3,1)/2);
+
+t1 = 0:(size(W1,2)-1);
+t3 = 0:(size(W3,1)-1);
+
+w = x; %cropped w1 axis
 
 S1 = sgrsifft2(spec);
 S1 = fliplr(circshift(S1,[0 -1]));
 S2 = sgrsifft2(spec);
 
-S1(n_t+1:end,:) = 0;
-S1(:,n_t+1:end) = 0;
+S1(n_t3+1:end,:) = 0;
+S1(:,n_t1+1:end) = 0;
 
-S2(:,n_t+1:end) = 0;
-S2(n_t+1:end,:) = 0;
+S2(:,n_t1+1:end) = 0;
+S2(n_t3+1:end,:) = 0;
 
 if opt.flag_plot
-    figure,clf,my2dPlot(t,t,real(S1),'pumpprobe',false)
-    figure,clf,my2dPlot(t,t,real(S2),'pumpprobe',false)
+    figure,clf,my2dPlot(t1,t3,real(S1),'pumpprobe',false)
+    figure,clf,my2dPlot(t1,t3,real(S2),'pumpprobe',false)
 end
 
 S1 = sgrsfft2(S1);
@@ -69,10 +74,10 @@ S2 = sgrsfft2(S2);
 S2 = fftshift(S2);
 
 if opt.flag_plot
-    figure,clf,my2dPlot(w,w,real(S1),'pumpprobe',false)
+    figure,clf,my2dPlot(W1,W3,real(S1),'pumpprobe',false)
     title('Extracted Re[R_r]')
     
-    figure,clf,my2dPlot(w,w,real(S2),'pumpprobe',false)
+    figure,clf,my2dPlot(W1,W3,real(S2),'pumpprobe',false)
     title('Extracted Re[R_{nr}]')
 end
 
@@ -80,7 +85,7 @@ end
 S = S1 + S2;
 
 if opt.flag_plot
-    figure,clf,my2dPlot(w,w,real(S),'pumpprobe',false)
+    figure,clf,my2dPlot(W1,W3,real(S),'pumpprobe',false)
     title('Absorptive spectrum Re[R_{r} + R_{nr}]')
 end
 
