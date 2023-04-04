@@ -54,7 +54,7 @@ C = cell(1,4);
 
 for l = 1:4
     
-    C{l} = @(t,tr,theta_deg) S{l}(theta_deg)^2 + (1-S{l}(theta_deg)^2)*exp(-t./tau_eff{l}(tr,theta_deg));
+    C{l} = @(t,tr,theta_deg) S{l}(theta_deg).^2 + (1-S{l}(theta_deg).^2).*exp(-t./tau_eff{l}(tr,theta_deg));
     
 end
 

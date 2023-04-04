@@ -6,7 +6,7 @@ function [C,S,tau_eff,sm] = wobblingC
 %tau_eff = in.tau;
 %theta_deg = in.theta_deg;
 
-x0 = @(p) cos(p.theta_deg/180*pi);
+x0 = @(p) cos((p.theta_deg)/180*pi);
 
 S{1} = @(p) (1+x0(p))/2;
 S{2} = @(p)  x0(p)*(1+x0(p))/2;
@@ -54,7 +54,7 @@ C = cell(1,4);
 
 for l = 1:4
     
-    C{l} = @(p,t) S{l}(p)^2 + (1-S{l}(p)^2)*exp(-t./tau_eff{l}(p));
+    C{l} = @(p,t) S{l}(p)^2 + (1-S{l}(p)^2).*exp(-t./tau_eff{l}(p));
     
 end
 

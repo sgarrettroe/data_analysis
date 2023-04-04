@@ -1,7 +1,7 @@
-classdef lsfRISDwobbling2cone1diffNI < lineshapeFunction
+classdef lsfRISDwobbling3coneNI < lineshapeFunction
     
     properties
-        params = struct('Delta_cm',[],'tr1',[],'theta1_deg',[],'tr2',[],'theta2_deg',[],'tr3',[],'T2',[]);
+        params = struct('Delta_cm',[],'tr1',[],'theta1_deg',[],'tr2',[],'theta2_deg',[],'tr3',[],'theta3_deg',[]);
         g;
         c2;
         order;
@@ -13,7 +13,7 @@ classdef lsfRISDwobbling2cone1diffNI < lineshapeFunction
     
     methods
         
-        function obj = lsfRISDwobbling2cone1diffNI(params,str,aRFoptions) %constructor function
+        function obj = lsfRISDwobbling3coneNI(params,str,aRFoptions) %constructor function
             if nargin == 0
                 super_args = {};
             elseif nargin == 1 
@@ -48,7 +48,7 @@ classdef lsfRISDwobbling2cone1diffNI < lineshapeFunction
             % Delta is the total linewidth, not used directly in the RISD
             % response functions, it is in F (scales the whole thing)
             Delta = obj.params(1).Delta_cm*wavenumbersToInvPs*2*pi;
-            T2 = obj.params(1).T2;
+            
             %param struct for R must have these fields tr theta_deg
             p = obj.copyParamValuesToParamStruct; 
             
@@ -60,7 +60,7 @@ classdef lsfRISDwobbling2cone1diffNI < lineshapeFunction
             else
                 error('unknown polarization pol = %s, should be either ''para'' or ''perp''\n',obj.pol);
             end
-            g_prime = arrayfun(@(t) t./T2 + integral(@(tau) F(t, tau),0,t),obj.tpoints); %do the numerical integration as a function of t
+            g_prime = arrayfun(@(t) integral(@(tau) F(t, tau),0,t),obj.tpoints); %do the numerical integration as a function of t
             out = @(t) interp1(obj.tpoints,g_prime,t);
         end
         
@@ -106,7 +106,7 @@ classdef lsfRISDwobbling2cone1diffNI < lineshapeFunction
                 %for ii = 1:ncones
                 Ctot{l}=@(t,p)C{l}(t,p.tr1,p.theta1_deg)...
                     .*C{l}(t,p.tr2,p.theta2_deg)...
-                    .*exp(-(l*(l+1)./(6.*p.tr3)).*t);
+                    .*C{l}(t,p.tr3,p.theta3_deg);
                 %end
             end
             

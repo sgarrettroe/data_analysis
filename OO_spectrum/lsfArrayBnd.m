@@ -20,7 +20,7 @@ classdef lsfArrayBnd < lineshapeFunctionBnd
         function obj = makeG(obj)
             for ii=1:obj.n
                 obj.lsf_array{ii} =  obj.lsf_array{ii}.makeG;
-            end
+            end 
         end
         function obj = makeC2(obj)
             for ii=1:obj.n
