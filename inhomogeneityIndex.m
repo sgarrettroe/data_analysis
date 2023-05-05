@@ -74,7 +74,7 @@ for i_loop = 1:n_spectra
         [ind_x,ind_y] = meshgrid(ind_x,ind_y);
     end
     
-    val = sum(val2d(ind_y,ind_x),'all');
+    val = mean(val2d(ind_y,ind_x),'all');
     
     if flag_struct_out
         out(i_loop).val = val;
