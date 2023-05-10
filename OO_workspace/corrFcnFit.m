@@ -30,6 +30,10 @@ else
     flag_plot = 0;
 end
 
+if any(isnan(c2_std))
+    warning('SGRLAB:corrFcnFit','At least one weight c2_std is NaN. Resetting all weights to 1.') 
+    c2_std = ones(size(c2_std));
+end
 wt = 1./(c2_std).^2;
 wt_mean = mean(wt);
 wt = wt./wt_mean;
