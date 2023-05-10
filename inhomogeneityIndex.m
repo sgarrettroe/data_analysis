@@ -33,7 +33,7 @@ else
 end
 
 if flag_struct_out
-    out(n_spectra) = struct('val',[],'w1',[],'w3',[],'val2d',[],'ffcf',[],'ffcf2d',[]);
+    out(n_spectra) = struct('val',[],'w1',[],'w3',[],'val2d',[],'c2',[],'c2_std',[],'c2_2d',[]);
 else
     % if array out
     val_out = zeros(1,n_spectra);
@@ -71,16 +71,25 @@ for i_loop = 1:n_spectra
         y1 = peak_pos(4);
         ind_x = x >= x0 & x<=x1;
         ind_y = y >= y0 & y<=y1;
-        [ind_x,ind_y] = meshgrid(ind_x,ind_y);
+        [ind_x,ind_y] = find(ind_y'*ind_x);
     end
     
     val = mean(val2d(ind_y,ind_x),'all');
+    c2 = sin(pi/2*val);
+    if flag_use_case==USE_PEAK
+        c2_std = nan;
+    end
+    if flag_use_case==USE_ROI
+        c2_std = std(val2d(ind_y,ind_x),1,'all');
+    end
+    
     
     if flag_struct_out
         out(i_loop).val = val;
-        out(i_loop).ffcf = sin(pi/2*val);
+        out(i_loop).c2 = c2;
+        out(i_loop).c2_std = c2_std;
         out(i_loop).val2d = val2d;
-        out(i_loop).ffcf2d = sin(pi/2*val2d);
+        out(i_loop).c2_2d = sin(pi/2*val2d);
         out(i_loop).w1 = w1;
         out(i_loop).w3 = w3;
     else
