@@ -88,6 +88,7 @@ for ii = 1:n_models
     % package results
     result(ii).tau_c = tau_c;
     result(ii).stde_tau_c = stde_tau_c;
-    
+    result(ii).t_initial = t_initial;
+    result(ii).t_final = t_final;
 end
 end

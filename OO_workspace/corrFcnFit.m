@@ -18,6 +18,9 @@ function [output] = corrFcnFit(t2_array,c2,c2_std,CFoptions)
 % TODO: Allow a variable-length input argument list to define whether you
 % want a robust fit, and if so, what type.
 
+% save input vals
+output.c2 = c2;
+output.c2_std = c2_std;
 
 ub = CFoptions.ub;
 lb = CFoptions.lb;
@@ -46,8 +49,6 @@ output.fitresult = fitresult;
 output.gof = gof;
 output.fitinfo = fitinfo;
 output.t2 = t2_array;
-output.c2 = c2;
-output.c2_std = c2_std;
 
 if flag_plot
     figure,clf
