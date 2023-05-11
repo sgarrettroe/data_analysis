@@ -18,6 +18,9 @@ function [output] = corrFcnFit(t2_array,c2,c2_std,CFoptions)
 % TODO: Allow a variable-length input argument list to define whether you
 % want a robust fit, and if so, what type.
 
+% save input vals
+output.c2 = c2;
+output.c2_std = c2_std;
 
 ub = CFoptions.ub;
 lb = CFoptions.lb;
@@ -30,6 +33,10 @@ else
     flag_plot = 0;
 end
 
+if any(isnan(c2_std))
+    warning('SGRLAB:corrFcnFit','At least one weight c2_std is NaN. Resetting all weights to 1.') 
+    c2_std = ones(size(c2_std));
+end
 wt = 1./(c2_std).^2;
 wt_mean = mean(wt);
 wt = wt./wt_mean;
@@ -42,8 +49,6 @@ output.fitresult = fitresult;
 output.gof = gof;
 output.fitinfo = fitinfo;
 output.t2 = t2_array;
-output.c2 = c2;
-output.c2_std = c2_std;
 
 if flag_plot
     figure,clf

@@ -14,6 +14,9 @@ function varargout=my2dPlot(x,y,z,varargin)
 n_contours = 12;
 flag_pumpprobe = true;
 zlimit = 0;
+mask = ones(size(z));
+mask_level = [];
+mask_from = [];
 while length(varargin)>=2
   arg = varargin{1};
   val = varargin{2};
@@ -27,11 +30,24 @@ while length(varargin)>=2
       end
     case {'pumpprobe_style','pumpprobe'}
       flag_pumpprobe = val;
+    case 'mask'
+      mask = val;
+    case 'mask_level'
+          mask_level = val;
+    case 'mask_from'
+          mask_from = val;
+          if size(mask_from)~=size(z),error('mask_from size must match input size');end
     otherwise
       error(['my2dPlot: unknown option ',arg])
   end
   varargin = varargin(3:end);
 end
+
+if ~isempty(mask_level) & ~isempty(mask_from)
+    mask = ones(size(mask_from));
+    mask(abs(mask_from) < abs(mask_level*min(mask_from(:)))) = nan;
+end
+z = z.*mask;
 
 pos = get(gcf,'Position');
 if get(gcf,'WindowStyle')~='docked',
@@ -97,6 +113,8 @@ set(a(2),'XTickLabel',[],'YTickLabel',[],'Xlim',xlim);
 a(3)=axes('Position',[cont_left+cont_w, cont_bot, proj_h, cont_h]);
 line(sum(z,2)',y,'Color',[0 0 0]);
 set(a(3),'XTickLabel',[],'YTickLabel',[],'YLim',ylim);
+
+axes(a(2))
 
 %linkaxes([a(2) a(1)],'x')
 %linkaxes([a(3) a(1)],'y')

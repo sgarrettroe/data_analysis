@@ -6,7 +6,7 @@ function varargout = myCaxis2(Z,n_contours)
   %take the larger of the max an min values of Z
   %MAX = max( [max(max(Z)) abs( min(min(Z)) )]);
   %MAX = max([max(Z(:)) abs(min(Z(:)))]);
-  MAX = max(abs(Z(:)));
+  MAX = max(abs(Z(:)),[],'omitnan');
 
   level_list = linspace(-MAX,MAX,n_contours+2);
   dl = level_list(2)-level_list(1); % I don't really understand why I have to do this shift
