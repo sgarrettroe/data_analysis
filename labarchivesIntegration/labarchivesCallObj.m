@@ -440,6 +440,21 @@ classdef labarchivesCallObj
             
         end
         
+        function obj = changeToFolder(obj,folder_name)
+            
+            obj.folder_name = folder_name;
+            obj = obj.loadFolder;
+            
+        end
+        
+        function obj = changeToPage(obj,page_name)
+            
+            obj.page_name = page_name;
+            obj.page_use_template = false;
+            obj = obj.loadPage;
+            obj = obj.loadEntriesForPage;
+        end
+        
         function callObj = insertNode(callObj,uid,nid,fid,name,isFolderBoolean)
             %insert (create) a page or folder
             %
@@ -535,60 +550,59 @@ classdef labarchivesCallObj
 
         end
         
-        function obj = addAttachment(obj,filename)
+        function obj = addAttachment(obj,filename,varargin)
             % attach a file to the current page
             %
             % obj = obj.addAttachment('fname.mat')
             %
             % attaches file fname.mat to the current page.
+
+            default_caption = '';
+            p = inputParser;
+            addRequired(p,'filename');
+            addParameter(p,'caption',default_caption);
+            parse(p,filename,varargin{:});
             
-            %filename = 'test_file_to_add.m';
-            opt = weboptions('MediaType','application/octet-stream');
-            
-            %load file contents
-            ffid = fopen(filename);
-            file_contents = fread(ffid,'*char');
-            fclose(ffid);
-            
+            caption = p.Results.caption;
+                        
             % these should be updated for each call
             obj.api_class = 'api/entries/';
             obj.api_method_called = 'add_attachment';
             obj.api_method_specific = ...
-                sprintf('uid=%s&nbid=%s&pid=%s&filename=%s',...
-                obj.uid,obj.nid,obj.pid,filename);
+                sprintf('uid=%s&nbid=%s&pid=%s&filename=%s&caption=%s',...
+                obj.uid,obj.nid,obj.pid,filename,caption);
             
             obj = obj.buildCallString;
             obj = obj.buildAuthenticationString;
             obj = obj.buildRestCallString;
 
-            tmp = dir(filename);
-            maxfs = obj.getMaxFileSize;
-            if tmp.bytes > maxfs
-                warning('Skip: File %s size %f > %f (max file size)',filename,tmp.bytes,maxfs);
-                obj.response = [];
-                return
-            end
+            %load file contents
+            file_contents = myReadFileContents(filename);
             
+            opt = weboptions('MediaType','application/octet-stream',...
+                'CharacterEncoding','ISO-8859-1');
+
             obj.response = webwrite(obj.rest_call_string,file_contents,opt);
 
             obj = obj.responseXml2Struct;
 
         end
         
-        function obj = updateAttachment(obj,filename)
+        function obj = updateAttachment(obj,filename,varargin)
             % update a file on the current page
             %
             % obj = obj.updateAttachment('fname.mat')
             %
             % updates file fname.mat on the current page.
             
-            %filename = 'test_file_to_add.m';
-            opt = weboptions('MediaType','application/octet-stream');
+            default_caption = '';
+            p = inputParser;
+            addRequired(p,'filename');
+            addParameter(p,'caption',default_caption);
+            parse(p,filename,varargin{:});
             
-            %load file contents
-            ffid = fopen(filename);
-            file_contents = fread(ffid,'*char');
-            fclose(ffid);
+            caption = p.Results.caption;
+            
             
             % load the current page entries
             obj = obj.loadEntriesForPage();
@@ -613,24 +627,22 @@ classdef labarchivesCallObj
             % if the entry id is not empty follow this procedure to update
             % the file uploaded to the entry
             if ~isempty(eid)
+                %load file contents
+                file_contents = myReadFileContents(filename);
+            
                 % these should be updated for each call
                 obj.api_class = 'api/entries/';
                 obj.api_method_called = 'update_attachment';
                 obj.api_method_specific = ...
-                    sprintf('uid=%s&eid=%s&filename=%s',...
-                    obj.uid,eid,filename);
+                    sprintf('uid=%s&eid=%s&filename=%s&caption=%s',...
+                    obj.uid,eid,filename,urlencode(caption));
 
                 obj = obj.buildCallString;
                 obj = obj.buildAuthenticationString;
                 obj = obj.buildRestCallString;
 
-                tmp = dir(filename);
-                maxfs = obj.getMaxFileSize;
-                if tmp.bytes > maxfs
-                    warning('Skip: File %s size %f > %f (max file size)',filename,tmp.bytes,maxfs);
-                    obj.response = [];
-                    return
-                end
+                opt = weboptions('MediaType','application/octet-stream',...
+                    'CharacterEncoding','ISO-8859-1');
 
                 obj.response = webwrite(obj.rest_call_string,file_contents,opt);
 
@@ -639,9 +651,52 @@ classdef labarchivesCallObj
                 % if the entry id (eid) is empty then none of the entries were
                 % found to have the same filename as the input filename and
                 % the function will just upload the file as a new entry.
-                obj.addAttachment(filename);
+                obj.addAttachment(filename,varargin{:});
             end
+            
+            % update the current page entries 
+            obj = obj.loadEntriesForPage;
 
+        end
+
+        
+        function file_contents = myReadFileContents(obj,filename)
+            % read from file
+            ffid = fopen(filename,'r');
+            file_contents = fread(ffid,'*char');
+            %file_contents = char(fread(ffid)');
+            fclose(ffid);
+            
+            tmp = dir(filename);
+            maxfs = obj.getMaxFileSize;
+            if tmp.bytes > maxfs
+                obj.response = [];
+                error('File %s size %f > %f (max file size)',filename,tmp.bytes,maxfs);
+            end
+        end
+
+        function obj = updateFigureAttachment(obj,varargin)
+            default_caption = '';
+            fh = gcf;
+            default_file_name = sprintf('fig-%i.png',fh.Number);
+            default_figure_number = fh.Number;
+            
+            p = inputParser;
+            addParameter(p,'figure_number',default_figure_number);
+            addParameter(p,'file_name',default_file_name);
+            addParameter(p,'caption',default_caption);
+            parse(p,varargin{:});
+            
+            figure_number = p.Results.figure_number;
+            file_name = p.Results.file_name;
+            caption = p.Results.caption;
+            
+            [~,~,ext] = fileparts(file_name);
+            driver = sprintf('-d%s', strip(ext,'left','.'));
+            
+            print(figure_number,driver,file_name);
+            
+            obj = obj.updateAttachment(file_name,'caption',caption);
         end
         
         function obj = insertEntryTemplate(obj)
@@ -707,7 +762,7 @@ classdef labarchivesCallObj
             obj.api_class = 'api/tree_tools/';
             obj.api_method_called = 'get_entries_for_page';
             obj.api_method_specific = ...
-                sprintf('uid=%s&page_tree_id=%s&nbid=%s',...
+                sprintf('uid=%s&page_tree_id=%s&nbid=%s&entry_data=true',...
                 uid,pid,nid);
             obj=obj.loadResponse;
             if isfield(obj.response.tree_dash_tools.entries,'entry')
@@ -718,6 +773,50 @@ classdef labarchivesCallObj
         function obj = loadEntriesForPage(obj)
             %get the entries for the current page
             [obj,obj.entries] = getEntriesForPage(obj,obj.uid,obj.nid,obj.pid);
+        end
+        
+        function out = dispEntry(obj,entry)
+            %display something useful about a LA entry return string
+            
+            out= [];
+            part_type = entry.part_dash_type.Text;
+            switch part_type
+                case {'text entry', 'plain text entry'}
+                    s = entry.entry_dash_data.Text;
+                    pat = '<[^>]*>';
+                    out = regexprep(s,pat,'');
+                    
+                case 'heading'
+                    out = entry.entry_dash_data.Text;
+                    
+                case 'Attachment'
+                    name = entry.attach_dash_file_dash_name.Text;
+                    size = entry.attach_dash_file_dash_size.Text;
+                    type = entry.attach_dash_content_dash_type.Text;
+                    
+                    size = convertSize(size);
+                    template = '%s (%s; %s)\n';
+                    out = sprintf(template,...
+                        name,...
+                        size,...
+                        type);
+                    if isfield(entry,'caption')
+                        caption = entry.caption.Text;
+                        if ~isempty(caption)
+                            out = [out,sprintf('[[ Caption: %s ]]\n',caption)];
+                        end
+                    end
+            end
+            
+            fprintf(1,'\nEntry (%s)\n---\n%s\n\n',part_type,out);
+        end
+        
+        function obj = dispEntriesForPage(obj)
+            fprintf(1,'\nFolder: %s\nPage: %s\n',...
+                obj.folder_name,obj.page_name)
+            for this_entry = obj.entries
+                obj.dispEntry(this_entry{:});
+            end
         end
         
         function [obj,eids] = getAttachmentsByName(obj,entries,attachments)
@@ -870,4 +969,22 @@ classdef labarchivesCallObj
         t = round(etime(clock,datevec(datenum(1970,1,1,0,0,0))))*1000;
       end
     end
+end
+
+function out_str = convertSize(bytes)
+%convert bytes to human readable B, kB, MB, GB
+bytes = str2num(bytes);
+unit_list = {'B', 'kB', 'MB', 'GB', 'TB'};
+count = 1;
+for ii = 1:length(unit_list)
+    if bytes > 1024
+        bytes = bytes / 1024;
+        count = count + 1;
+    end
+    if bytes <= 1024
+        break
+    end
+end
+    
+out_str = sprintf('%.1f %s',bytes,unit_list{count});
 end
