@@ -76,8 +76,8 @@ for kk = 1:N;
 
     if kk == 1
         my2dPlot(x,y,z,'pumpprobe',false,'n_contours',n_contours','zlimit',zlimit);
-        ax1 = f.Children(1); % right projection
-        ax2 = f.Children(2); % top projection
+        ax1 = f.Children(2); % right projection
+        ax2 = f.Children(1); % top projection
         ax3 = f.Children(3);
         ax3.Children(2).LevelList = level_list;
         ax3.XLabel.FontSize = 12;
