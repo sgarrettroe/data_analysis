@@ -42,11 +42,12 @@ flag_plot = 0;
 estimateArea = 0;
 fitPosPeak = 0;
 estimate_flag_plot = 0;
+peakAreaScale = 2;
 
 % checking the fields that the user passed to the function to ensure that
 % they match expected fields
 required_fields = {'range1' 'range3' 'fitfcn' 'flag_plot' 'lb' 'startpoint' 'ub'};
-possible_fields = {'estimateArea' 'estimate_flag_plot' 'fitPosPeak' 'fitfcn' 'flag_plot' 'lb' 'startpoint' 'ub'};
+possible_fields = {'estimateArea' 'estimate_flag_plot' 'fitPosPeak' 'fitfcn' 'flag_plot' 'lb' 'startpoint' 'ub','peakAreaScale'};
 given_fields = fields(options);
 missing_fields = setdiff(sort(required_fields),sort(given_fields));
 unexpected_fields = setdiff(sort(given_fields),sort(possible_fields));
@@ -79,8 +80,8 @@ for ii = 1:length(dataobj)
             aTest = regexp(coefficients,'a\d'); % find the pattern 'a#'
             ind = ~cellfun(@isempty,aTest); % find where those are living
             startpoint(ind) = area; % redefine our startpoints
-            lb(ind) = 0.5*area;
-            ub(ind) = 2*area;
+            lb(ind) = area/peakAreaScale;
+            ub(ind) = peakAreaScale*area;
         end
         % the fitting part
         [fitresult,gof,fitinfo] = fit(w3(:),R(:,ij),fitfcn, 'StartPoint',startpoint,...
