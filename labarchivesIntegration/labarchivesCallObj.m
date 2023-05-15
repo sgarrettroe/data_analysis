@@ -580,7 +580,7 @@ classdef labarchivesCallObj
             obj = obj.buildRestCallString;
 
             %load file contents
-            file_contents = myReadFileContents(filename);
+            file_contents = myReadFileContents(obj,filename);
             
             opt = weboptions('MediaType','application/octet-stream',...
                 'CharacterEncoding','ISO-8859-1');
@@ -631,7 +631,7 @@ classdef labarchivesCallObj
             % the file uploaded to the entry
             if ~isempty(eid)
                 %load file contents
-                file_contents = myReadFileContents(filename);
+                file_contents = myReadFileContents(obj,filename);
             
                 % these should be updated for each call
                 obj.api_class = 'api/entries/';
