@@ -128,8 +128,8 @@ classdef labarchivesCallObj
             %obj.page_name = sprintf('%s',datetime('today','Format','yyyy-MM-dd'));
 
             %vars for if we are setting up the uid
-            LAuser = '';
-            LApassword = '';
+            defaultLAuser = '';
+            defaultLApassword = '';
             
             % parse input args
             p = inputParser;
@@ -142,6 +142,8 @@ classdef labarchivesCallObj
             addParameter(p,'uid',obj.uid,validChar);
             addParameter(p,'akid',obj.akid,validChar);
             addParameter(p,'access_password',obj.access_password,validChar);
+            addParameter(p,'user',defaultLAuser,validChar);
+            addParameter(p,'password',defaultLApassword,validChar);
             parse(p,varargin{:});
             
             obj.notebook_name  = p.Results.notebook;
@@ -151,7 +153,8 @@ classdef labarchivesCallObj
             obj.uid = p.Results.uid;
             obj.akid = p.Results.akid;
             obj.access_password = p.Results.access_password;
-
+            LAuser = p.Results.user;
+            LApassword = p.Results.password;
             
             % if we have both akid and access_password (not empty) get the
             % epoch time set up properly
