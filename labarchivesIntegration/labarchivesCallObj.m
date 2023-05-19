@@ -582,8 +582,14 @@ classdef labarchivesCallObj
             %load file contents
             file_contents = myReadFileContents(obj,filename);
             
-            opt = weboptions('MediaType','application/octet-stream',...
-                'CharacterEncoding','ISO-8859-1');
+            if ispc
+                opt = weboptions('MediaType','application/octet-stream');
+            elseif ismac
+                opt = weboptions('MediaType','application/octet-stream',...
+                    'CharacterEncoding','ISO-8859-1');
+            else
+                opt = weboptions('MediaType','application/octet-stream');
+            end
 
             obj.response = webwrite(obj.rest_call_string,file_contents,opt);
 
@@ -644,9 +650,15 @@ classdef labarchivesCallObj
                 obj = obj.buildAuthenticationString;
                 obj = obj.buildRestCallString;
 
-                opt = weboptions('MediaType','application/octet-stream',...
-                    'CharacterEncoding','ISO-8859-1');
-
+                if ispc
+                    opt = weboptions('MediaType','application/octet-stream');
+                elseif ismac
+                    opt = weboptions('MediaType','application/octet-stream',...
+                        'CharacterEncoding','ISO-8859-1');
+                else
+                    opt = weboptions('MediaType','application/octet-stream');
+                end
+                
                 obj.response = webwrite(obj.rest_call_string,file_contents,opt);
 
                 obj = obj.responseXml2Struct;
