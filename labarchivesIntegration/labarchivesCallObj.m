@@ -300,6 +300,7 @@ classdef labarchivesCallObj
             for ii = 1:n
                 if strcmp(name,callObj.notebooks(ii).name.Text)
                     nid  = callObj.notebooks(ii).id.Text;
+                    break; % we found it
                 end
             end
         end
