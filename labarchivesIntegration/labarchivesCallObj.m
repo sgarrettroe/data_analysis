@@ -243,13 +243,20 @@ classdef labarchivesCallObj
 
         end
         
-        function obj = executeRestCall(obj)
+        function obj = executeRestCall(obj,varargin)
             % send the REST call using webread. 
             %
             % The result of the webread (usually xml) is stored
             % in obj.response, which probably needs further processing with
             % responseXml2Struct.
-            obj.response = webread(obj.rest_call_string);
+            default_options = weboptions;
+            p = inputParser;
+            addParameter(p,'options',default_options);
+            parse(p,varargin{:});
+            
+            options = p.Results.options;
+ 
+            obj.response = webread(obj.rest_call_string,options);
         end
                  
         function obj = responseXml2Struct(obj)
@@ -603,7 +610,8 @@ classdef labarchivesCallObj
             %
             % obj = obj.updateAttachment('fname.mat')
             %
-            % updates file fname.mat on the current page.
+            % updates file fname.mat on the current page. Create the
+            % attachment if it doesn't yet exist.
             
             default_caption = '';
             p = inputParser;
@@ -692,6 +700,20 @@ classdef labarchivesCallObj
         end
 
         function obj = updateFigureAttachment(obj,varargin)
+            % update an attached figure using the figure number
+            %           
+            % make a figure
+            % >> figure(1),plot(1:10,sin(1:10),'-o')
+            %
+            % attach the current figure (creating a file in the local
+            % directory nameed "fig-<num>.png"
+            % >> LA = LA.updateFigureAttachment
+            % 
+            % additional options
+            % >> LA = updateFigureAttachment('figure_number',n,...
+            % 'file_name',fname,'caption',capt);
+            % where n is the number of the figure, fname is the name of the
+            % associated file, and caption is the caption to display in LA.
             default_caption = '';
             fh = gcf;
             default_file_name = sprintf('fig-%i.png',fh.Number);
@@ -738,6 +760,7 @@ classdef labarchivesCallObj
                 '`[X]` Pump-Probe 2D-IR\n'...
                 '`[X]` XXXX Polarization\n'...
                 '`[ ]` XXYY Polarization\n'...
+                '`[ ]` Magic Angle\n'...
                 '`[ ]` Temperature dependent study\n'...
                 '`[ ]` Pump-probe anisotropy measurement\n'...
                 '## Modifications to experimental setup: \n\n'...
@@ -773,6 +796,10 @@ classdef labarchivesCallObj
         end
     
         function [obj,entries] = getEntriesForPage(obj,uid,nid,pid)
+            % low level function to load the list of entries for the given
+            % user, notebook, and page
+            % >> [obj,entries] = getEntriesForPage(obj,uid,nid,pid)
+            
             entries = '';
             %get information about all the entries on the given page
             obj.api_class = 'api/tree_tools/';
@@ -787,12 +814,12 @@ classdef labarchivesCallObj
         end
         
         function obj = loadEntriesForPage(obj)
-            %get the entries for the current page
+            % high level function to get the entries for the current page
             [obj,obj.entries] = getEntriesForPage(obj,obj.uid,obj.nid,obj.pid);
         end
         
         function out = dispEntry(obj,entry)
-            %display something useful about a LA entry return string
+            % display simple summary of a LA entry return string
             
             out= [];
             part_type = entry.part_dash_type.Text;
@@ -828,15 +855,19 @@ classdef labarchivesCallObj
         end
         
         function obj = dispEntriesForPage(obj)
+            % display all entries in the current page
             fprintf(1,'\nFolder: %s\nPage: %s\n',...
                 obj.folder_name,obj.page_name)
-            for this_entry = obj.entries
-                obj.dispEntry(this_entry{:});
+            if ~iscell(obj.entries),obj.entries={obj.entries};end
+            for ii = 1:length(obj.entries)
+                this_entry = obj.entries{ii};
+                obj.dispEntry(this_entry);
             end
         end
         
         function [obj,eids] = getAttachmentsByName(obj,entries,attachments)
-            %search through entries for attachments by file name
+            % search through entries for attachments by file name and get
+            % the entry ids for them
             
             eids = cell(size(attachments));
             for jj=1:length(attachments)
@@ -875,7 +906,10 @@ classdef labarchivesCallObj
         end
         
         function obj = downloadAttachments(obj,attachments)
-            %download the named attachments for the *current* page
+            % download the named attachments for the *current* page. 
+            % >> obj = downloadAttachments(obj,attachments)
+            % where attachments can be a single file name or a cell array
+            % of file names. Skip files that are not found.
             
             %make sure the 
             if ~iscell(attachments),attachments ={attachments};end
@@ -905,7 +939,7 @@ classdef labarchivesCallObj
                 obj = obj.buildAuthenticationString;
                 obj = obj.buildRestCallString;
                 
-                %get data                
+                %get data
                 obj = obj.executeRestCall;
                 
                 %write it to a file
