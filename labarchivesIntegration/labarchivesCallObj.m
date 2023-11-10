@@ -110,6 +110,9 @@ classdef labarchivesCallObj
     end
     properties (Hidden)
         secret_file='LABARCHIVES_SECRET_KEYS.mat';%location of secret keys
+        config_file = 'labarchives_configuration.yaml';
+        default_notebook;
+        default_use_template = true;
     end
     
     methods
@@ -118,12 +121,13 @@ classdef labarchivesCallObj
             
             %load akid, access_password, and uid from secret file if it exists
             obj = loadSecretKeys(obj);
+            obj = loadConfiguration(obj);
                 
             %set default page and folder names based on year and date
-            obj.notebook_name = '2D-IR Data';
+            obj.notebook_name = obj.default_notebook;
             obj.folder_name = sprintf('%s',datestr(now,'yyyy'));
             obj.page_name = sprintf('%s',datestr(now,'yyyy-mm-dd'));
-            obj.page_use_template = true;
+            obj.page_use_template = obj.default_use_template;
             %obj.folder_name = sprintf('%s',datetime('today','Format','yyyy'));
             %obj.page_name = sprintf('%s',datetime('today','Format','yyyy-MM-dd'));
 
@@ -1012,6 +1016,25 @@ classdef labarchivesCallObj
             %don't ask why I have to do it like this... I don't get it.
             s=struct('uid',obj.uid,'akid',obj.akid,'access_password',obj.access_password);
             save(full_file_name,'-struct','s','uid','akid','access_password');
+        end
+        
+        function obj = loadConfiguration(obj)
+           % load the yaml config file for LA, which should be somewhere on
+           % the path.
+           if exist(obj.config_file)
+               s = yaml.loadFile(obj.config_file);
+           else
+               warning('SGRLab:labarchivesCallObj','LabArchives Config File %s not found on path.',obj.config_file);
+           end
+           for ii = 1:length(s)
+               this_s = s{ii};
+               fn = fieldnames(this_s);
+               for jj = 1:length(fn)
+                   if isprop(obj,fn{jj})
+                       obj.(fn{jj}) = this_s.(fn{jj});
+                   end
+               end
+           end
         end
     end
     methods(Static)
