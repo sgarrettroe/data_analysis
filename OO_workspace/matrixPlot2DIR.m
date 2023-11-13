@@ -93,6 +93,7 @@ for ii = 1:m
         contourf(had(ii,jj),x,y,z,level_list);
         axis equal
         line([x(1) x(end)],[x(1) x(end)],'Color',[0 0 0]);
+        axis([x(1) x(end) y(1) y(end)])
         colormap(map)
         caxis(ca);
         t2_lab = text(x(1)+0.1*range(x),y(end)-0.05*range(y),[num2str(t2_array(count)),' ps']); %t2 display
