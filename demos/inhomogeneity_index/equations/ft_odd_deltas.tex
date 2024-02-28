@@ -1,0 +1,11 @@
+\documentclass[10pt]{article}
+\usepackage[usenames]{color} %used for font color
+\usepackage{amssymb} %maths
+\usepackage{amsmath} %maths
+\usepackage[utf8]{inputenc} %useful to type directly diacritic characters
+\begin{document}
+\begin{align*}\int_{-\infty}^{\infty}\exp(-i\omega t)&(\delta(t-t_0)-\delta(t+t_0))\,\mathrm{d}t \\
+&= \exp(-i\omega t_0)-\exp(i\omega t_0) \\
+&= \cos(-i\omega t_0)-i\sin(-i\omega t_0)-[\cos(i\omega t_0)-i\sin(i\omega t_0)] \\
+&= -i\sin(\omega t_0)\end{align*}
+\end{document}
