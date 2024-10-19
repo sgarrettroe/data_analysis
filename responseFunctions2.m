@@ -525,3 +525,4 @@ original_energies = diag(pmodes.H);
 original_energies = original_energies-original_energies(1);
 max_e = 2*(options.w_laser+options.BW);
 n_sparse_states = sum(original_energies<=max_e);
+end

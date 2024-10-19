@@ -1,9 +1,11 @@
-function [sod, tod, fod] = readGaussianAnharmonicCalculations(logname)
+function [sod, tod, fod, m , dmu_dq] = readGaussianAnharmonicCalculations(logname)
 % read second, third, and fourth order derivatives from a Gaussian
 % anharmonic vibrational analysis log file.
 sod = [];
 tod = [];
 fod = [];
+m = [];
+dmu_dq = [];
 
 if exist(logname,'file')
     fid = fopen(logname,'r');
@@ -39,6 +41,10 @@ nModesStart = find(~cellfun('isempty', hit));
 thisline = C{1}(nModesStart);
 thisline = thisline{1};
 nmodes = sscanf(thisline,['%i ' nModesString '.*']);
+if isempty(nmodes)
+    tokens = regexp(thisline,'Num. of 2nd derivatives larger than .*:\s*(\d+) over.*','tokens');
+    nmodes = str2num(tokens{1}{1});
+end
 
 % initialize second derivative vector
 sod = zeros(1,nmodes);
@@ -127,3 +133,53 @@ while ~modesDone
     fod(count,1:5) = [stuff(1:4)' stuff(indexOfFourthOrderDerivatives)];
 end
 
+% search for the masses
+
+mask = ~cellfun(@isempty, regexp(C{1}, 'Red. masses --'));
+some_lines = C{1}(mask);
+float_pat = '[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)';
+matches = regexp(some_lines,float_pat,'match');
+count = 0; 
+areWeDone = 0;
+m = zeros(1,nmodes);
+for ii = 1:length(matches)
+    if ~areWeDone
+        for jj = 1:length(matches{ii})
+            count = count+1;
+            if count<=nmodes
+                m(count) = str2double(matches{ii}{jj});
+            else
+                areWeDone = 1;
+            end
+        end
+    end
+end
+m = fliplr(m);  % modes seem to be in the opposite order!
+
+% search for the dipoles
+%start_string = '## AFTER VARIATIONAL CORRECTION ##';
+start_string = '## DEPERTURBED TRANSITIONS MOMENTS ##';
+%stopString = 'Electric dipole : Overtones';
+mask = ~cellfun(@isempty, regexp(C{1}, start_string));
+ind = find(mask);
+extra_lines = 6;
+some_lines = C{1}(ind:ind+extra_lines+nmodes);
+exponential_pat = '[-+]?[0-9]*\.?[0-9]+([eEdD][-+]?[0-9]+)';
+mask = ~cellfun(@isempty,regexp(some_lines,exponential_pat,'match'));
+some_lines = some_lines(mask);
+matches = regexp(some_lines,exponential_pat,'match');
+count = 0; 
+areWeDone = 0;
+dmu_dq = zeros(nmodes,3);
+for ii = 1:length(matches)
+    if ~areWeDone
+        count = count+1;
+        if count<=nmodes
+            dmu_dq(count,1:3) = [str2double(replace(matches{ii}{1},'D','e')),...
+                str2double(replace(matches{ii}{2},'D','e')),...
+                str2double(replace(matches{ii}{3},'D','e'))];
+        else
+            areWeDone = 1;
+        end
+    end
+end
