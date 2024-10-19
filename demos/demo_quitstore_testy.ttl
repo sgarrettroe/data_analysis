@@ -1,0 +1,11 @@
+@PREFIX omds: <http://www.semanticweb.org/sgr/ontologies/2024/1/omds/> .
+@PREFIX laser1: <smb://share.files.pitt.edu/CHEM-sgr/sgr-laser1.chem.pitt.edu/> .
+@PREFIX sgrlab: <http://www.semanticweb.org/sgr/> .
+@PREFIX vocab: <http://www.semanticweb.org/sgr/vocab/2024/1/sgrlab/> .
+INSERT DATA {
+GRAPH sgrlab:data {
+   laser1:2024-03-10/001 a vocab:spectrumSlice ;
+   vocab:t2_label "200 fs" ; 
+   vocab:pol_label "XXXX" .
+   }
+}
