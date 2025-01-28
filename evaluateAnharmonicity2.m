@@ -1,6 +1,17 @@
 function pmodes = evaluateAnharmonicity2(pmodes,tod,fod,varargin)
 
-active_modes = 1:length(pmodes);
+% count modes
+flag_done = false;
+count = 0;
+while ~flag_done
+    count = count + 1;
+    if ~isfield(pmodes,sprintf('H%i', count))
+        n_modes = count - 1;
+        flag_done = true;
+    end
+end
+active_modes = 1:n_modes;
+%active_modes = 1:length(pmodes);
 if nargin == 4
     active_modes = varargin{1};
 end
@@ -57,6 +68,8 @@ end
 % add single mode (harmonic) hamiltonian and anh hamiltonian F
 pmodes.H_ = pmodes.H + F;
 
+% just the perturbation
+pmodes.H__ = F;
 
 end
 

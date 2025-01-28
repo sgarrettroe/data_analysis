@@ -41,7 +41,7 @@ lmodes(1).h
 lmodes(1).h_
 
 %% Demo: Kronecker product is a way to represent a tensor product
-v1 = [1; 2; 3]
+v1 = [1; 2; 3; 4]
 v2 = [5; 6; 7]
 
 v1v2 = kron(v1,v2)
@@ -213,6 +213,8 @@ clear f
 
 pmodes.H_ = H_;
 
+%[V,E] = analyzeEnergyLevels(lmodes,pmodes,'ind',1:6);
+%
 %
 target = sort([0 1889.184 1947.621 3767.517 3883.911 3813.698]');
 

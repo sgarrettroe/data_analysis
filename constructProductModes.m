@@ -11,7 +11,7 @@ pmodes.IDENTITY = eye(pmodes.NSTATES);
 n_lmodes = length(lmodes);
 
 %build product modes out of ops defined for each local mode
-ops = {'a','c','q','mux','muy','muz','h'};
+ops = {'a','c','q','mux','muy','muz','h','q_pow_1','q_pow_2','q_pow_3','q_pow_4'};
 %ops = fieldnames(lmodes);
 for ii = 1:length(ops)
     % set up big cell array to hold all the operators that we will be
@@ -38,7 +38,7 @@ for ii = 1:length(ops)
 end
 
 %make total operators out of the modes
-ops = {'MUX','MUY','MUZ','H','A','C'};
+ops = {'MUX','MUY','MUZ','H','A','C','Q_POW_1','Q_POW_2','Q_POW_3','Q_POW_4'};
 for ii = 1:length(ops)
     temp = zeros(size(pmodes.IDENTITY));
     for jj = 1:n_lmodes
