@@ -218,9 +218,6 @@ pmodes.H_ = H_;
 %
 target = sort([0 1889.184 1947.621 3767.517 3883.911 3813.698]');
 
-fprintf(1,'\n\n')
-fprintf(1,'%f \t%f \t%f\n',[target E(1:6)-E(1) (-target + E(1:6)-E(1))]')
-
 %
 % setup response
 roptions.order = 3;
@@ -243,6 +240,8 @@ lineshape = chooseLineshapeFunction(roptions.c2form,roptions.c2params);
 roptions.g = lineshape.g;
 
 [V,E]=analyzeEnergyLevels(lmodes,pmodes,'roptions',roptions);
+fprintf(1,'\n\n')
+fprintf(1,'%f \t%f \t%f\n',[target E(1:6)-E(1) (-target + E(1:6)-E(1))]')
 
 %
 % calculate response
