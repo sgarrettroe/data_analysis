@@ -1,23 +1,37 @@
-function [V,E,ind] = analyzeEnergyLevels(lmodes,pmodes,varargin)
+function [V,E,ind] = analyzeEnergyLevels(lmodes,pmodes,options)
+arguments
+    lmodes (1,:) struct
+    pmodes (1,1) struct
+    options.roptions (1,1) struct = struct()
+    options.BW (1,1) double = realmax;
+    options.ind (1,:) double = 1:pmodes.NSTATES;  % candidate for deletion
+    options.n_exciton_sig_figs (1,1) double = 1;
+    options.n_sparse_states (1,1) double = min(pmodes.NSTATES-2,200);
+    options.w_laser (1,1) double = 2000;
+end
 
-ind = 1:pmodes.NSTATES;
-BW = realmax;
-w_laser = 2000;
-n_exciton_sig_figs = 1;
-n_sparse_states = min(pmodes.NSTATES-2,200);
+% named/keyval pairs first
+BW = options.BW;
+ind = options.ind;  % candidate for deletion
+n_exciton_sig_figs = options.n_exciton_sig_figs;
+n_sparse_states = options.n_sparse_states;
+w_laser = options.w_laser;
 
-while length(varargin)>=2
-    switch lower(varargin{1})
-        case {'ind','state_list'}
-            ind = varargin{2};
-        case 'roptions'
-            BW = varargin{2}.BW;
-            w_laser = varargin{2}.w_laser;
-        otherwise
-            warning('unkonwn option %s\n',varargin{1})
-    end
-    
-    varargin = varargin(3:end);
+% overwrite with roptions if provided
+if isfield(options.roptions, 'ind')  % candidate for deletion
+    ind = options.roptions.ind;  
+end
+if isfield(options.roptions, 'BW')
+    BW = options.roptions.BW;
+end
+if isfield(options.roptions, 'n_exciton_sig_figs')
+    n_exciton_sig_figs = options.roptions.n_exciton_sig_figs;
+end
+if isfield(options.roptions, 'n_sparse_states')
+    n_sparse_states = options.roptions.n_sparse_states;
+end
+if isfield(options.roptions, 'w_laser')
+    w_laser = options.roptions.w_laser;
 end
 
 %upack the results
@@ -25,10 +39,6 @@ f=fieldnames(pmodes);
 for ii=1:length(f)
     eval(strcat(f{ii},'=pmodes.',f{ii},';'))
 end
-
-% [original_energies,ordering] = sort(diag(H));
-% original_gaps = original_energies - original_energies(1);
-% original_vecs = IDENTITY(:,ordering);
 
 if issparse(H_)
     [original_vecs,original_energies] = eigs(H,n_sparse_states,'SM');
