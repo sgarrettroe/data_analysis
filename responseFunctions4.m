@@ -1,56 +1,86 @@
-function out = responseFunctions4(V, E, pmodes, roptions)
+function out = responseFunctions4(V, E, pmodes, varargin)
 %responseFunctions4 Calculate 2D spectra from VCI and VPT2
 
 global wavenumbersToInvPs k_B_SI h c_SI
 k_B_cm_K = k_B_SI/h/c_SI/100;%k_B in cm-1/K
-thermal_cutoff = 0.01;
-T = 0;
-verbose = 0;
-
-out = [];
-n_sparse_states = estimateNSparseStates(pmodes,roptions);
-n_sparse_states = min(n_sparse_states,pmodes.NSTATES-2);
-order = roptions.order;
-
-%canonical results
-Rh.n = 2;
-Rh.w = [1889.184 1947.621];
-Rh.mu = [sqrt(0.908) 0 0 ; 0 sqrt(0.671) 0];
-Rh.w_off = 1915;
-Rh.w = Rh.w - Rh.w_off;
-Rh.n2 = 3;
-Rh.w2 = [3767.517 3883.911 3813.698];
-Rh.w2 = Rh.w2 - 2*Rh.w_off;
-Rh.mu2 = zeros(Rh.n2,3,Rh.n);
-Rh.mu2(:,:,1) = [sqrt(2).*Rh.mu(1,:) ; 0,0,0 ; Rh.mu(2,:)];
-Rh.mu2(:,:,2) = [ 0,0,0 ; sqrt(2).*Rh.mu(2,:) ; Rh.mu(1,:)];
 
 % default values
-flag_plot = false;
-flag_print = true;
-flag_orientational_response = false;
-w0 = 0;
-%n_excitons = 2;
-%n_exciton_sig_figs = 1;
-n_exciton_tol = 0.0001;
+default_BW = 500;
+default_c2form = '1fast';
+default_c2params = struct('T2', 3);
+default_dt = 0.025;  % time step
+default_flag_plot = false;
+default_flag_print = true;
+default_flag_orientational_response = false;
+default_n_exciton_tol = 0.0001;
+default_n_t = 128;
+default_n_zp = 256;  % 2 * nt
+default_T = 0;
+default_t2 = 0;  % population time (ps)
+default_tau_orient = inf;
+default_thermal_cutoff = 0.01;
+default_verbose = 0;
+default_w0 = 0;
+default_w_laser = 2000;
+default_polarizations = {[1; 0; 0], [1; 0; 0], [1; 0; 0], [1; 0; 0] };
 
-if isfield(roptions,'w0')
-    if isempty(roptions.w0)
-        w0=0;
-    else
-        w0 = roptions.w0;
-    end
-end
-if isfield(roptions,'n_sparse_states')
-    if isempty(roptions.n_sparse_states)
-        %do nothing
-    else
-        n_sparse_states = roptions.n_sparse_states;
-    end
-end
-if isfield(roptions,'flag_plot')
-    flag_plot = roptions.flag_plot;
-end
+out = [];
+
+p = inputParser;
+addRequired(p, 'V')
+addRequired(p, 'E')
+addRequired(p, 'pmodes')
+addParameter(p, 'BW', default_BW, @(x) isnumeric(x) & isscalar(x));
+addParameter(p, 'c2form', default_c2form, @(x) ischar(x));
+addParameter(p, 'c2params', default_c2params, @(x) isstruct(x));
+addParameter(p, 'dt', default_dt, @(x) isnumeric(x) & isscalar(x));
+addParameter(p, 'flag_orientational_response', ...
+    default_flag_orientational_response, ...
+    @(x) islogical(x) & isscalar(x));
+addParameter(p, 'flag_plot', default_flag_plot, @(x) islogical(x));
+addParameter(p, 'flag_print', default_flag_print, @(x) islogical(x));
+addParameter(p, 'n_exciton_tol', default_n_exciton_tol, ...
+    @(x) isnumeric(x) & isscalar(x));
+addParameter(p, 'n_t', default_n_t, @(x) isnumeric(x) & isscalar(x));
+addParameter(p, 'n_zp', default_n_zp, @(x) isnumeric(x) & isscalar(x));
+addParameter(p, 'order', @(x) x==3);
+addParameter(p, 'T', default_T, ...
+    @(x) isnumeric(x) & isscalar(x));
+addParameter(p, 'polarizations', default_polarizations, @(x) iscell(x) & numel(x)==4);
+addParameter(p, 't2', default_t2, @(x) isnumeric(x) & isscalar(x));
+addParameter(p, 'tau_orient', default_tau_orient, ...
+    @(x) isnumeric(x) & isscalar(x));
+addParameter(p, 'thermal_cutoff', default_thermal_cutoff, ...
+    @(x) isnumeric(x) & isscalar(x));
+addParameter(p, 'verbose', default_verbose, ...
+        @(x) isnumeric(x) & isscalar(x));
+addParameter(p, 'w0', default_w0, ...
+    @(x) isnumeric(x) & isscalar(x));
+addParameter(p, 'w_laser', default_w_laser, ...
+    @(x) isnumeric(x) & isscalar(x));
+
+parse(p, V, E, pmodes, varargin{:});
+
+BW = p.Results.BW;
+c2form = p.Results.c2form;
+c2params = p.Results.c2params;
+dt = p.Results.dt;
+flag_plot = p.Results.flag_plot;
+flag_print = p.Results.flag_print;
+flag_orientational_response = p.Results.flag_orientational_response;
+n_exciton_tol = p.Results.n_exciton_tol;
+n_t = p.Results.n_t;
+n_zp = p.Results.n_zp;
+T  = p.Results.T;
+t2  = p.Results.t2;
+tau_orient = p.Results.tau_orient;
+thermal_cutoff  = p.Results.thermal_cutoff;
+verbose  = p.Results.verbose;
+w0 = p.Results.w0;
+w_laser = p.Results.w_laser;
+polarizations = p.Results.polarizations;
+pol = polarizations;
+
 if flag_print
     fid = 1;
 else
@@ -61,43 +91,15 @@ else
         fid = fopen('nul');
     end
 end
-if isfield(roptions,'T')
-    if isempty(roptions.T)
-        %do nothing (see default at top)
-    else
-        T = roptions.T;
-    end
-end
-if isfield(roptions,'thermal_cutoff')
-    if isempty(roptions.thermal_cutoff)
-        %do nothing (see default at top)
-    else
-        thermal_cutoff = roptions.thermal_cutoff;
-    end
-end
-if isfield(roptions,'verbose')
-    if isempty(roptions.verbose)
-        verbose=0;
-    else
-        verbose = 1;
-    end
-end
-if isfield(roptions,'flag_orientational_response')
-    if isempty(roptions.flag_orientational_response)
-        %do nothing see default at top
-    else
-        flag_orientational_response = roptions.flag_orientational_response;
-        tau_orient = roptions.tau_orient;
-    end
-end
 
 % simulation parameters
 if verbose>=1,disp('initialize variables'),end
-n_t = roptions.n_t;
-n_zp = roptions.n_zp;
-dt = roptions.dt; %time step
-t2 = roptions.t2; %population time (ps)
-pol = roptions.polarizations;
+
+% set up lineshape function
+lineshape = chooseLineshapeFunction(c2form, c2params);
+g = @(t) lineshape.g(t, c2params);
+
+% set up polarization
 e_1 = pol{1};
 e_2 = pol{2};
 e_3 = pol{3};
@@ -111,10 +113,8 @@ elseif (all(e_1==e_3) && e_1'*e_2==0 && all(e_2==e_4) )|...
     polarization_experiment_name = 'perpendicular';
 else
     warning('unknown polarization scheme, orientational response turned OFF')
-    flag_orientational_response=false;
+    flag_orientational_response = false;
 end
-w_laser = roptions.w_laser;
-BW = roptions.BW;
 
 % set up time and response functions
 J = zeros(1,n_t);
@@ -129,13 +129,15 @@ t=0:dt:(n_t-1)*dt;
 % set up thermal weight
 kT = k_B_cm_K*T;
 
-
 %upack the results
 if verbose>=1,disp('unpack pmodes'),end
 f=fieldnames(pmodes);
 for ii=1:length(f)
     eval(strcat(f{ii},'=pmodes.',f{ii},';'))
 end
+MUX = pmodes.MUX;
+MUY = pmodes.MUY;
+MUZ = pmodes.MUZ;
 
 %
 % Energies and eigenvectors are now inputs
@@ -152,21 +154,13 @@ end
 % set up operators
 %
 if verbose>=1,disp('set up operators'),end
-A0 = V'*A*V;
-C0 = V'*C*V;
 
 % rotate dipole operators to the eigenstate basis
 MUX = V'*MUX*V;
 MUY = V'*MUY*V;
 MUZ = V'*MUZ*V;
 
-% could add a loop over possible initial states here. The idea would be to
-% look at the thermal density matrix elements relative to some cutoff. then
-% loop through the response function calculation for each state with the
-% appropriate thermal weight.
-
 flag_finished_thermal_loop = false;
-
 i_thermal = 0;
 while ~flag_finished_thermal_loop
     i_thermal = i_thermal + 1;
@@ -189,28 +183,9 @@ while ~flag_finished_thermal_loop
 
     % density matrix
     PSIi = VV(:,i_thermal); %take first eigenstate for the time being
-    %rho = PSIi*PSIi'; % could do thermal density here!
 
-    %one way to go would be to define mui muj etc from inputs and then add
-    %invariants function (see thoughts below)
-    %tests:
-    %reproduce Rhcomplex
-    %make sure in strong mixing dipoles are orthogonal
-    % check amplitudes of parallel and perp polarizations
-
-    % calc mus and omegas from inputs (ultimately want to refactor this)
-    % calculate the one and two exciton manifolds. Might need to be modified if
-    % thermal states are allowed. not sure.
-
-    % %find all one and two exciton states
-    % [ind_1ex ind_2ex] =  findNExcitonStates(PSIi,C0,n_exciton_sig_figs);
-    %
-    % %keep only the ones in the laser bandwidth
-    % [ind_1ex ind_2ex] = filterExcitons(w_laser,BW,E,i_thermal,ind_1ex,ind_2ex);
-
-
-    lower_limit_energy = roptions.w_laser-roptions.BW/2;
-    upper_limit_energy = roptions.w_laser+roptions.BW/2;
+    lower_limit_energy = w_laser - BW/2;
+    upper_limit_energy = w_laser + BW/2;
 
     % calculate dipole matrix elements
     n = length(E);
@@ -225,7 +200,7 @@ while ~flag_finished_thermal_loop
             continue;
         end
 
-        mu(ii,:) = [PSIf'*MUX*PSIi PSIf'*MUY*PSIi PSIf'*MUZ*PSIi];
+        mu(ii,:) = [PSIf'*MUX*PSIi, PSIf'*MUY*PSIi, PSIf'*MUZ*PSIi];
         for jj =  (ii+1):n
             PSIf2 = VV(:,jj);
 
@@ -236,24 +211,23 @@ while ~flag_finished_thermal_loop
                 continue;
             end
 
-            mu2(jj,:,ii) = [PSIf2'*MUX*PSIf PSIf2'*MUY*PSIf PSIf2'*MUZ*PSIf];
+            mu2(jj,:,ii) = [PSIf2'*MUX*PSIf, PSIf2'*MUY*PSIf, PSIf2'*MUZ*PSIf];
         end
     end
 
 
-    ind_1ex = find(sum(mu.^2,2)>n_exciton_tol);
+    ind_1ex = find(sum(mu.^2,2) > n_exciton_tol);
     ind_2ex = [];
     for ii = 1:length(ind_1ex)
-        ind_2ex = [ind_2ex; find(sum(mu2(:,:,ind_1ex(ii)).^2,2)>n_exciton_tol)];
+        ind_2ex = [ind_2ex; ...
+            find(sum(mu2(:,:,ind_1ex(ii)).^2,2) > n_exciton_tol)];
     end
     ind_2ex = unique(ind_2ex);
 
     %reduce dipole matrix elements to only the needed size
-    mu=mu(ind_1ex,:);
-    mu2=mu2(ind_2ex,:,ind_1ex);
+    mu = mu(ind_1ex,:);
+    mu2 = mu2(ind_2ex,:,ind_1ex);
 
-    % ind_1ex = find(abs(round(C0*PSIi,1))>0);
-    % ind_2ex = find(abs(round(C0*C0*PSIi,1))>0);
     n = length(ind_1ex);
     n2 = length(ind_2ex);
 
@@ -261,141 +235,139 @@ while ~flag_finished_thermal_loop
     w = E(ind_1ex) - E(i_thermal);
     w2 = E(ind_2ex) - E(i_thermal);
 
-    fprintf(fid,'one exciton state energies\n');
-    fprintf(fid,'%d\t%8.1f\n',[ind_1ex,w]');
-    fprintf(fid,'two exciton state energies\n');
-    fprintf(fid,'%d\t%8.1f\n',[ind_2ex,w2]');
-    fprintf(fid,'\n');
+    fprintf(fid, 'one exciton state energies\n');
+    fprintf(fid, '%d\t%8.1f\n', [ind_1ex,w]');
+    fprintf(fid, 'two exciton state energies\n');
+    fprintf(fid, '%d\t%8.1f\n', [ind_2ex,w2]');
+    fprintf(fid, '\n');
 
     % subtract rotating frame frequency and convert to rad/ps
-    w = (w - w0)*2*pi*wavenumbersToInvPs;
-    w2 = (w2 - 2*w0)*2*pi*wavenumbersToInvPs;
+    w = (w - w0) * 2 * pi * wavenumbersToInvPs;
+    w2 = (w2 - 2 * w0) * 2 * pi * wavenumbersToInvPs;
 
     if verbose>=1,disp('determine matrix elements...'),end
-
-    g = @(t) roptions.g(t,roptions.c2params);
 
     if verbose>=1,disp('start linear spectroscopy...'),end
     %linear spectroscopy
     for j = 1:n
         [~,muj] = unit_vector(mu(j,:));
-        J = J + muj^2.*exp(-1i*w(j).*t);
+        J = J + muj^2 .* exp(-1i * w(j) .* t);
     end
     %add lineshape (same for all peaks for now)
-    J = J.*exp(-g(t));
+    J = J .* exp(-g(t));
 
-    if verbose>=1,disp('start third order spectroscopy...'),end
+    if verbose>=1, disp('start third order spectroscopy...'), end
     % first calculate all rephasing diagrams
-    fprintf(fid,'Rephasing transitions\n');
-    fprintf(fid,'i\tj\tk\tw_1\t(w_2)\tw_3\tu\n');
+    fprintf(fid, 'Rephasing transitions\n');
+    fprintf(fid, 'i\tj\tk\tw_1\t(w_2)\tw_3\tu\n');
     for j = 1:n
         for i  = 1:n
 
-            [aa,mui] = unit_vector(mu(i,:));
-            [bb,muj] = unit_vector(mu(j,:));
-            dipole = mui^2*muj^2;
-            angle = polarizationInvariant(e_1,e_2,e_3,e_4,...
-                aa,bb,aa,bb);
+            [aa, mui] = unit_vector(mu(i,:));
+            [bb, muj] = unit_vector(mu(j,:));
+            dipole = mui^2 * muj^2;
+            angle = polarizationInvariant(e_1, e_2, e_3, e_4,...
+                aa, bb, aa, bb);
 
             % rephasing diagram R1
             fprintf(fid,'%-8d%-8d%-8d%-8.1f%-8.1f%-8.1f%-8.3f\n',ind_1ex(j),ind_1ex(i),ind_1ex(j),w(j)./(2*pi*wavenumbersToInvPs)+w0,(w(j)-w(i))./(2*pi*wavenumbersToInvPs),w(i)./(2*pi*wavenumbersToInvPs)+w0,-dipole*angle);
-            R_r = R_r - dipole*angle*exp(+ 1i*w(j).*T1 ...
-                - 1i*w(i).*T3 ...
-                + 1i*(w(j)-w(i))*t2);
+            R_r = R_r - dipole * angle * exp(+ 1i * w(j) .* T1 ...
+                - 1i * w(i) .* T3 ...
+                + 1i * (w(j) - w(i)) * t2);
 
             % rephasing diagram R2
             fprintf(fid,'%-8d%-8d%-8d%-8.1f%-8.1f%-8.1f%-8.3f\n',ind_1ex(j),ind_1ex(j),ind_1ex(i),w(j)./(2*pi*wavenumbersToInvPs)+w0,0,w(i)./(2*pi*wavenumbersToInvPs)+w0,-dipole*angle);
-            R_r = R_r - dipole*angle*exp(+ 1i*w(j).*T1 ...
-                - 1i*w(i).*T3);
+            R_r = R_r - dipole * angle * exp(+ 1i * w(j) .* T1 ...
+                - 1i * w(i) .* T3);
 
             for k = 1:n2
                 %molecular dipoles?
-                [cc,muik_] = unit_vector(mu2(k,:,i));
-                [dd,mujk_] = unit_vector(mu2(k,:,j));
-                dipole = mui*muj*muik_*mujk_;
-                angle = polarizationInvariant(e_1,e_2,e_3,e_4,...
-                    aa,bb,cc,dd);
+                [cc, muik_] = unit_vector(mu2(k,:,i));
+                [dd, mujk_] = unit_vector(mu2(k,:,j));
+                dipole = mui * muj * muik_ * mujk_;
+                angle = polarizationInvariant(e_1, e_2, e_3, e_4,...
+                    aa, bb, cc, dd);
 
                 %rephasing diagram R3
                 fprintf(fid,'%-8d%-8d%-8d%-8.1f%-8.1f%-8.1f%-8.3f\n',ind_1ex(j),ind_1ex(i),ind_2ex(k),w(j)./(2*pi*wavenumbersToInvPs)+w0,(w(j)-w(i))./(2*pi*wavenumbersToInvPs),(w2(k)-w(j))./(2*pi*wavenumbersToInvPs)+w0,dipole*angle);
-                R_r = R_r + dipole*angle*exp(+ 1i*w(j).*T1 ...
- 				   - 1i*(w2(k)-w(j)).*T3 ...
-                   + 1i*(w(j)-w(i)).*t2);
+                R_r = R_r + dipole * angle * exp(+ 1i * w(j) .* T1 ...
+ 				   - 1i * (w2(k)-w(j)) .* T3 ...
+                   + 1i * (w(j)-w(i)) .* t2);
             end
         end
     end
     % add lineshape (same for all peaks for now)
-    R_r = exp(-g(T1)+g(t2)-g(T3)-g(T1+t2)-g(t2+T3)+g(T1+t2+T3)).*R_r;
+    R_r = exp(-g(T1) + g(t2) - g(T3) - g(T1 + t2) - g(t2 + T3) + g(T1 + t2 + T3)) .* R_r;
 
     % add orientational relaxation (same for all peaks now)
     if flag_orientational_response
-        [p,q,r] = orientationalResponse(tau_orient,3,T1,t2,T3);
-        if strcmpi(polarization_experiment_name,'parallel')
-            R_r = R_r.*p;
-        elseif strcmpi(polarization_experiment_name,'perpendicular')
-            R_r = R_r.*q;
-        elseif strcmpi(polarization_experiment_name,'crossed')
-            R_r = R_r.*r;
+        [p, q, r] = orientationalResponse(tau_orient, 3, T1, t2, T3);
+        if strcmpi(polarization_experiment_name, 'parallel')
+            R_r = R_r .* p;
+        elseif strcmpi(polarization_experiment_name, 'perpendicular')
+            R_r = R_r .* q;
+        elseif strcmpi(polarization_experiment_name, 'crossed')
+            R_r = R_r .* r;
         end
     end
-    fprintf(fid,'\n\n');
+    fprintf(fid, '\n\n');
 
     % now non-rephasing diagrams
-    fprintf(fid,'Non-rephasing transitions\n');
-    fprintf(fid,'i\tj\tk\tw_1\t(w_2)\tw_3\tu\n');
+    fprintf(fid, 'Non-rephasing transitions\n');
+    fprintf(fid, 'i\tj\tk\tw_1\t(w_2)\tw_3\tu\n');
     for j = 1:n
         for i  = 1:n
-            [aa,mui] = unit_vector(mu(i,:));
-            [bb,muj] = unit_vector(mu(j,:));
-            dipole = mui^2*muj^2;
-            angle = polarizationInvariant(e_1,e_2,e_3,e_4,...
-                aa,bb,aa,bb);
+            [aa, mui] = unit_vector(mu(i,:));
+            [bb, muj] = unit_vector(mu(j,:));
+            dipole = mui^2 * muj^2;
+            angle = polarizationInvariant(e_1, e_2, e_3, e_4, ...
+                aa, bb, aa, bb);
 
             % non-rephasing diagram R4
             fprintf(fid,'%-8d%-8d%-8d%-8.1f%-8.1f%-8.1f%-8.3f\n',ind_1ex(j),ind_1ex(i),ind_1ex(j),w(j)./(2*pi*wavenumbersToInvPs)+w0,(w(j)-w(i))./(2*pi*wavenumbersToInvPs),w(j)./(2*pi*wavenumbersToInvPs)+w0,-dipole*angle);
-            R_nr = R_nr - dipole*angle*exp(- 1i*w(j).*T1 ...
-                - 1i*w(j).*T3 ... %?
-                - 1i*(w(j)-w(i))*t2);
+            R_nr = R_nr - dipole * angle * exp(- 1i * w(j) .* T1 ...
+                - 1i * w(j) .* T3 ...
+                - 1i * (w(j)-w(i)) * t2);
             % non-rephasing diagram R5
             fprintf(fid,'%-8d%-8d%-8d%-8.1f%-8.1f%-8.1f%-8.3f\n',ind_1ex(j),ind_1ex(j),ind_1ex(i),w(j)./(2*pi*wavenumbersToInvPs)+w0,0,w(i)./(2*pi*wavenumbersToInvPs)+w0,-dipole*angle);
-            R_nr = R_nr - dipole*angle*exp(- 1i*w(j).*T1 ...
-                - 1i*w(i).*T3);
+            R_nr = R_nr - dipole * angle * exp(-1i * w(j) .* T1 ...
+                - 1i * w(i) .* T3);
 
             for k = 1:n2
                 %molecular dipoles
-                [cc,muik_] = unit_vector(mu2(k,:,i));
-                [dd,mujk_] = unit_vector(mu2(k,:,j));
-                dipole = mui*muj*muik_*mujk_;
-                angle = polarizationInvariant(e_1,e_2,e_3,e_4,...
-                    aa,bb,cc,dd);
+                [cc, muik_] = unit_vector(mu2(k,:,i));
+                [dd, mujk_] = unit_vector(mu2(k,:,j));
+                dipole = mui * muj * muik_ * mujk_;
+                angle = polarizationInvariant(e_1, e_2, e_3, e_4,...
+                    aa, bb, cc, dd);
 
                 %non-rephasing diagram R6
                 fprintf(fid,'%-8d%-8d%-8d%-8.1f%-8.1f%-8.1f%-8.3f\n',ind_1ex(j),ind_1ex(i),ind_2ex(k),w(j)./(2*pi*wavenumbersToInvPs)+w0,(w(j)-w(i))./(2*pi*wavenumbersToInvPs),(w2(k)-w(i))./(2*pi*wavenumbersToInvPs)+w0,dipole*angle);
-                R_nr = R_nr + dipole*angle*exp(- 1i*w(j).*T1 ...
-                    - 1i*(w2(k)-w(i)).*T3 ...
-                    - 1i*(w(j)-w(i)).*t2);
+                R_nr = R_nr + dipole * angle * exp(-1i * w(j) .* T1 ...
+                    - 1i * (w2(k)-w(i)) .* T3 ...
+                    - 1i * (w(j)-w(i)) .* t2);
             end
         end
     end
     % add lineshape (same for all peaks for now)
-    R_nr = exp(-g(T1)-g(t2)-g(T3)+g(T1+t2)+g(t2+T3)-g(T1+t2+T3)).*R_nr;
+    R_nr = exp(-g(T1) - g(t2) - g(T3) + g(T1 + t2) + g(t2 + T3) - g(T1 + t2 + T3)) .* R_nr;
 
     % add orientational relaxation (same for all peaks now)
     if flag_orientational_response
-        [p,q,r] = orientationalResponse(tau_orient,3,T1,t2,T3);
+        [p, q, r] = orientationalResponse(tau_orient, 3, T1, t2, T3);
         if strcmpi(polarization_experiment_name,'parallel')
-            R_nr = R_nr.*p;
-        elseif strcmpi(polarization_experiment_name,'perpendicular')
-            R_nr = R_nr.*q;
-        elseif strcmpi(polarization_experiment_name,'crossed')
-            R_nr = R_nr.*r;
+            R_nr = R_nr .* p;
+        elseif strcmpi(polarization_experiment_name, 'perpendicular')
+            R_nr = R_nr .* q;
+        elseif strcmpi(polarization_experiment_name, 'crossed')
+            R_nr = R_nr .* r;
         end
     end
     fprintf(fid,'\n\n');
 
-    R_r_accum  = R_r_accum  + R_r *thermal_weight;
-    R_nr_accum = R_nr_accum + R_nr*thermal_weight;
-    J_accum = J_accum + J*thermal_weight;
+    R_r_accum  = R_r_accum  + R_r * thermal_weight;
+    R_nr_accum = R_nr_accum + R_nr * thermal_weight;
+    J_accum = J_accum + J * thermal_weight;
 
     fprintf(fid,'\n\n');
 end
@@ -404,16 +376,16 @@ J = J_accum;
 R_r = R_r_accum;
 R_nr = R_nr_accum;
 
-if verbose>=1,disp('calculate fourier transforms...'),end
+if verbose>=1, disp('calculate fourier transforms...'), end
 
 % calculate 1D spectrum (freq domain)
 J = real(fftshift(sgrsifft(J,n_zp)));
 
 % divide first points (by row and column) by 2
-R_r(:,1) = R_r(:,1)./2;
-R_r(1,:) = R_r(1,:)./2;
-R_nr(:,1) = R_nr(:,1)./2;
-R_nr(1,:) = R_nr(1,:)./2;
+R_r(:,1) = R_r(:,1) ./ 2;
+R_r(1,:) = R_r(1,:) ./ 2;
+R_nr(:,1) = R_nr(:,1) ./ 2;
+R_nr(1,:) = R_nr(1,:) ./ 2;
 
 if flag_plot
     %what we have so far in the time domain
@@ -467,11 +439,11 @@ if flag_plot
 
     %contourf(freq,freq,R',level_list) %use R' to display the pump-probe axis convention
     contourf(freq,freq,R,level_list) %use R to display the (omega_1, omega_3) axis convention
-    caxis([cmin cmax]);
+    clim([cmin cmax]);
     axis equal tight
 end
 
-if verbose>=1,disp('package output...'),end
+if verbose>=1, disp('package output...'), end
 
 %package output
 out.w1 = freq;
