@@ -9,9 +9,10 @@ default_BW = 500;
 default_c2form = '1fast';
 default_c2params = struct('T2', 3);
 default_dt = 0.025;  % time step
+default_flag_interstate_coherences = true;
+default_flag_orientational_response = false;
 default_flag_plot = false;
 default_flag_print = true;
-default_flag_orientational_response = false;
 default_n_exciton_tol = 0.0001;
 default_n_t = 128;
 default_n_zp = 256;  % 2 * nt
@@ -34,11 +35,15 @@ addParameter(p, 'BW', default_BW, @(x) isnumeric(x) & isscalar(x));
 addParameter(p, 'c2form', default_c2form, @(x) ischar(x));
 addParameter(p, 'c2params', default_c2params, @(x) isstruct(x));
 addParameter(p, 'dt', default_dt, @(x) isnumeric(x) & isscalar(x));
+addParameter(p, 'flag_interstate_coherences', ...
+    default_flag_interstate_coherences, @(x) islogical(x) & isscalar(x));
 addParameter(p, 'flag_orientational_response', ...
     default_flag_orientational_response, ...
     @(x) islogical(x) & isscalar(x));
-addParameter(p, 'flag_plot', default_flag_plot, @(x) islogical(x));
-addParameter(p, 'flag_print', default_flag_print, @(x) islogical(x));
+addParameter(p, 'flag_plot', default_flag_plot, ...
+    @(x) islogical(x) & isscalar(x));
+addParameter(p, 'flag_print', default_flag_print, ...
+    @(x) islogical(x) & isscalar(x));
 addParameter(p, 'n_exciton_tol', default_n_exciton_tol, ...
     @(x) isnumeric(x) & isscalar(x));
 addParameter(p, 'n_t', default_n_t, @(x) isnumeric(x) & isscalar(x));
@@ -65,9 +70,10 @@ BW = p.Results.BW;
 c2form = p.Results.c2form;
 c2params = p.Results.c2params;
 dt = p.Results.dt;
+flag_interstate_coherences = p.Results.flag_interstate_coherences;
+flag_orientational_response = p.Results.flag_orientational_response;
 flag_plot = p.Results.flag_plot;
 flag_print = p.Results.flag_print;
-flag_orientational_response = p.Results.flag_orientational_response;
 n_exciton_tol = p.Results.n_exciton_tol;
 n_t = p.Results.n_t;
 n_zp = p.Results.n_zp;
@@ -131,13 +137,10 @@ kT = k_B_cm_K*T;
 
 %upack the results
 if verbose>=1,disp('unpack pmodes'),end
-f=fieldnames(pmodes);
-for ii=1:length(f)
-    eval(strcat(f{ii},'=pmodes.',f{ii},';'))
-end
 MUX = pmodes.MUX;
 MUY = pmodes.MUY;
 MUZ = pmodes.MUZ;
+H_ = pmodes.H_;
 
 %
 % Energies and eigenvectors are now inputs
@@ -261,7 +264,12 @@ while ~flag_finished_thermal_loop
     fprintf(fid, 'Rephasing transitions\n');
     fprintf(fid, 'i\tj\tk\tw_1\t(w_2)\tw_3\tu\n');
     for j = 1:n
-        for i  = 1:n
+        if flag_interstate_coherences
+            loop_indices = 1:n;
+        else
+            loop_indices = j;
+        end
+        for i  = loop_indices
 
             [aa, mui] = unit_vector(mu(i,:));
             [bb, muj] = unit_vector(mu(j,:));
@@ -316,7 +324,12 @@ while ~flag_finished_thermal_loop
     fprintf(fid, 'Non-rephasing transitions\n');
     fprintf(fid, 'i\tj\tk\tw_1\t(w_2)\tw_3\tu\n');
     for j = 1:n
-        for i  = 1:n
+        if flag_interstate_coherences
+            loop_indices = 1:n;
+        else
+            loop_indices = j;
+        end
+        for i  = loop_indices
             [aa, mui] = unit_vector(mu(i,:));
             [bb, muj] = unit_vector(mu(j,:));
             dipole = mui^2 * muj^2;
