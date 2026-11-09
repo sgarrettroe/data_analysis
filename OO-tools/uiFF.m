@@ -86,7 +86,6 @@ classdef uiFF < handle
             obj.s.lb = lb;
             obj.s.ub = ub;
             obj.s.isFree = isFree;
-            
             %clear previous entries
             g = obj.InnerGrid;
             if ~isempty(g),delete(g.Children);end
@@ -226,6 +225,7 @@ classdef uiFF < handle
             else
                 obj.FF.isFree = 'fixed';
             end
+            obj.FF.fit = obj.s.fit;
         end
         
         function loadProfile(obj,src,event)

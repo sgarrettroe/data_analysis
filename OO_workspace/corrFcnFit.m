@@ -53,6 +53,7 @@ output.t2 = t2_array;
 if flag_plot
     figure,clf
     hold on
+    set(gca,'XScale','log')
     errorbar(t2_array,c2,c2_std,'rx')
     plot(t2_array,fitresult(t2_array),'k')
     xlim([-5 max(t2_array)+5])
