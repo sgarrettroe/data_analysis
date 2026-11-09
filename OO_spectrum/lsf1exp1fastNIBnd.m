@@ -4,12 +4,14 @@ classdef lsf1exp1fastNIBnd < lsf1exp1fastNI & lineshapeFunctionBnd
    end
    
    methods
-       function obj = lsf1exp1fastNIBnd(params,str)
+       function obj = lsf1exp1fastNIBnd(params,str,aRFoptions)
             if nargin == 0;
                 super_args = {};
             else
                 super_args{1} = params;
                 super_args{2} = str;
+                super_args{3} = aRFoptions;
+
             end
             obj@lineshapeFunctionBnd(super_args);
         end
