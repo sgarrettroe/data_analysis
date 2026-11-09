@@ -168,14 +168,13 @@ classdef aRFWAOBnd < aRFBnd
             mu_01_2 = p.mu01sq;
             mu_12_2 = p.mu12sqRatio*p.mu01sq;
 
-            phi = p.phase_deg/180*pi;
             for ii = 1:length(obj.groundstate_diagrams)
                 obj.diagrams(obj.groundstate_diagrams(ii)).R = ...
                     mu_01_2^2.*obj.diagrams(obj.groundstate_diagrams(ii)).R;
             end
             for ii = 1:length(obj.excitedstate_diagrams)
                 obj.diagrams(obj.excitedstate_diagrams(ii)).R = ...
-                    mu_01_2*mu_12_2.*exp(1i*phi).*obj.diagrams(obj.excitedstate_diagrams(ii)).R;
+                    mu_01_2*mu_12_2.*obj.diagrams(obj.excitedstate_diagrams(ii)).R;
             end
         end
         
